@@ -1,0 +1,11 @@
+.createTemplateContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	overflow: hidden;
+	min-height: 55vh;
+}
+
+.inlineButtons {
+	display: flex;
+}

@@ -1,0 +1,23 @@
+.customButton {
+	display: inline-block;
+	padding: 6px 15px;
+	background-color: rgb(0, 0, 0);
+	margin: 2px;
+
+	color: rgb(255, 255, 255);
+	font-family: Courier, "Courier New", monospace;
+	font-size: 1rem;
+	text-align: center;
+
+	cursor: pointer;
+	user-select: none;
+	transition: 0.3s;
+	border: 1px solid rgb(0, 0, 0);
+	border-radius: 2px;
+}
+
+.customButton:hover {
+	background-color: rgb(255, 255, 255);
+	color: rgb(0, 0, 0);
+	transform: scale(1.05);
+}

@@ -1,0 +1,19 @@
+.itemCard {
+	display: inline-block;
+	width: 150px;
+	height: 187.5px;
+	justify-content: center;
+	align-items: center;
+	padding: 5px;
+	border-radius: 1px;
+}
+
+.itemCard:hover {
+	background-color: rgb(230, 230, 230);
+}
+
+.itemCard img {
+	height: 100%;
+	width: 100%;
+	object-fit: contain;
+}

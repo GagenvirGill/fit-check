@@ -1,0 +1,64 @@
+.popupForm {
+	position: fixed;
+	top: 8vh;
+	left: 10vw;
+	width: 80vw;
+	max-height: 80vh;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	background-color: rgb(255, 255, 255);
+	z-index: 10000;
+	overflow-y: auto;
+}
+
+.popupImage {
+	height: 100px;
+	width: 100px;
+	object-fit: contain;
+}
+
+.overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background-color: rgba(0, 0, 0, 0.2);
+	z-index: 9998;
+}
+
+.title {
+	color: black;
+	font-family: Courier, "Courier New", monospace;
+	font-size: 1.3rem;
+}
+
+.formTitle {
+	color: black;
+	font-family: Courier, "Courier New", monospace;
+	font-size: 0.9rem;
+}
+
+.inputFieldText {
+	padding: 10px;
+	margin: 5px;
+	width: 30%;
+}
+
+.inputFieldDate {
+	padding: 10px;
+	margin: 5px;
+	width: 10%;
+}
+
+.selectedImgs {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.selectedImgs img {
+	max-width: 50px;
+	max-height: 80px;
+}

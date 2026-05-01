@@ -1,0 +1,30 @@
+.checkboxButton {
+	display: inline-block;
+	padding: 6px 15px;
+	background-color: white;
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+
+	color: black;
+	font-family: Courier, "Courier New", monospace;
+	font-size: 0.8rem;
+	text-align: center;
+
+	cursor: pointer;
+	transition: all 0.2s ease;
+	user-select: none;
+}
+
+.checkboxButton:hover {
+	background-color: rgb(235, 235, 235);
+}
+
+.checkboxButton input {
+	display: none;
+}
+
+.checkboxButton:has(input:checked) {
+	background-color: rgb(200, 200, 200);
+}

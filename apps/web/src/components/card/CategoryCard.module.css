@@ -1,0 +1,48 @@
+.categoryCard {
+	display: inline-block;
+	width: 140px;
+	height: 175px;
+	justify-content: center;
+	align-items: center;
+	padding: 10px;
+	pointer-events: fill;
+	border-radius: 2px;
+}
+
+.categoryCard:hover {
+	background-color: rgb(230, 230, 230);
+}
+
+.categoryCard img {
+	height: 100%;
+	width: 100%;
+	object-fit: contain;
+	display: block;
+	pointer-events: fill;
+}
+
+.categoryCardDiv {
+	position: relative;
+	width: 140px;
+}
+
+.categoryCardText {
+	position: absolute;
+
+	width: 100%;
+	max-width: 110px;
+	box-sizing: border-box;
+
+	top: -80px;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: rgb(0, 0, 0);
+	font-family: Courier, "Courier New", monospace;
+	font-size: 0.8rem;
+	text-align: center;
+	border-radius: 1px;
+
+	background-color: rgba(255, 255, 255, 0.8);
+	padding: 5px;
+	pointer-events: none;
+}
