@@ -1,0 +1,7 @@
+
+[*.css]
+[*.js]
+[*.jsx]
+indent_size = 4
+indent_style = tab
+root = true
