@@ -1,0 +1,11 @@
+{
+  "name": "@fit-check/shared",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@fit-check/database": "*"
+  },
+  "exports": {
+    "./types/*": "./types/*.ts"
+  }
+}
