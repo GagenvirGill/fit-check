@@ -2,10 +2,12 @@
   "name": "@fit-check/shared",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@fit-check/database": "*"
   },
   "exports": {
-    "./types/*": "./types/*.ts"
+    "./types/*": "./types/*.ts",
+    "./lib/*": "./lib/*.ts"
   }
 }

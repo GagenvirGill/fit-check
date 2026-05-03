@@ -7,6 +7,11 @@
   "scripts": {
     "dev": "npm run dev --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
+    "api:dev": "npm run dev -w @fit-check/api",
+    "api:build": "npm run build -w @fit-check/api",
+    "api:start": "npm run start -w @fit-check/api",
+    "api:lint": "npm run lint -w @fit-check/api",
+    "api:test": "npm run test -w @fit-check/api",
     "database:build": "npm run build -w @fit-check/database",
     "database:generate": "npm run generate -w @fit-check/database",
     "database:migrate": "npm run migrate -w @fit-check/database",
