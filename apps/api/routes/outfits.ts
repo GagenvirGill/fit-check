@@ -12,6 +12,10 @@ const outfitsRoutes: FastifyPluginAsync = async (fastify) => {
 
   fastify.post('/', async (request, reply) => {
     const authUser = requireAuthUser(request);
+    if (typeof request.body !== 'object' || request.body === null || Array.isArray(request.body)) {
+      return reply.status(400).send({ success: false, message: 'Request body must be an object' });
+    }
+
     const { dateWorn, description, layout } = request.body as {
       dateWorn?: string;
       description?: string | null;

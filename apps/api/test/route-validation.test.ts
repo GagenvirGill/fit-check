@@ -32,6 +32,18 @@ describe('route validation behavior', () => {
     assert.deepEqual(response.json(), { success: false, message: 'Category name is required' });
   });
 
+  it('rejects category creation when body is null', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/categories',
+      headers: { cookie: authCookie, 'content-type': 'application/json' },
+      payload: 'null',
+    });
+
+    assert.equal(response.statusCode, 400);
+    assert.deepEqual(response.json(), { success: false, message: 'Request body must be an object' });
+  });
+
   it('rejects category update with no valid fields', async () => {
     const response = await app.inject({
       method: 'PATCH',
@@ -42,6 +54,18 @@ describe('route validation behavior', () => {
 
     assert.equal(response.statusCode, 400);
     assert.deepEqual(response.json(), { success: false, message: 'No valid category updates provided' });
+  });
+
+  it('rejects category update when body is a primitive', async () => {
+    const response = await app.inject({
+      method: 'PATCH',
+      url: '/categories/category-1',
+      headers: { cookie: authCookie, 'content-type': 'application/json' },
+      payload: 'true',
+    });
+
+    assert.equal(response.statusCode, 400);
+    assert.deepEqual(response.json(), { success: false, message: 'Request body must be an object' });
   });
 
   it('rejects item creation when file is missing', async () => {
@@ -79,6 +103,18 @@ describe('route validation behavior', () => {
 
     assert.equal(response.statusCode, 400);
     assert.deepEqual(response.json(), { success: false, message: 'dateWorn is required' });
+  });
+
+  it('rejects outfit creation when body is null', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/outfits',
+      headers: { cookie: authCookie, 'content-type': 'application/json' },
+      payload: 'null',
+    });
+
+    assert.equal(response.statusCode, 400);
+    assert.deepEqual(response.json(), { success: false, message: 'Request body must be an object' });
   });
 
   it('rejects outfit creation with invalid layout', async () => {
