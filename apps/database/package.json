@@ -1,0 +1,27 @@
+{
+  "name": "@fit-check/database",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.45.2",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.10",
+    "typescript": "^5.7.3"
+  },
+  "exports": {
+    "./client": "./client.ts",
+    "./schema": "./schema.ts",
+    "./types": "./types.ts",
+    "./tables/*": "./tables/*.ts"
+  }
+}
