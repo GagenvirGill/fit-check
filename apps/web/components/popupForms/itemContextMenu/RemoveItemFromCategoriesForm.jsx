@@ -3,9 +3,7 @@ import React from "react";
 import styles from "../ContextMenuPopUpStyles.module.css";
 import { useSetAtom } from "jotai";
 import { addNotificationAtom } from "@/jotai/notifications-atom";
-import { removeItemFromCategories } from "@/api/actions/item";
-import { refetchItemsAtom } from "@/jotai/items-atom";
-import { refetchCategoriesAtom } from "@/jotai/categories-atom";
+import { removeItemFromCategoriesAtom } from "@/jotai/items-atom";
 
 import CategoriesCheckboxForm from "@/components/forms/CategoriesCheckboxForm";
 
@@ -15,22 +13,18 @@ const RemoveItemFromCategoriesForm = ({
 	itemsCurrCategories,
 }) => {
 	const addNotification = useSetAtom(addNotificationAtom);
-	const refetchItems = useSetAtom(refetchItemsAtom);
-	const refetchCategories = useSetAtom(refetchCategoriesAtom);
+	const removeItemFromCategories = useSetAtom(removeItemFromCategoriesAtom);
 	const handleSubmit = async (selectedCategories) => {
-		const success = await removeItemFromCategories(
-			itemId,
-			selectedCategories
-		);
-		await refetchItems();
-		await refetchCategories();
-		handleClose();
-
-		if (success) {
+		try {
+			await removeItemFromCategories({
+				itemId,
+				categoryIds: selectedCategories,
+			});
+			handleClose();
 			addNotification(
 				"Successfully Removed Those Categories from Your Item"
 			);
-		} else {
+		} catch {
 			addNotification(
 				"An Error Occured while trying to Remove Item from Categories!"
 			);

@@ -1,19 +1,19 @@
 
 import React, { useState, useEffect } from "react";
 import { useAtomValue } from "jotai";
-import { itemsAtom } from "@/jotai/items-atom";
+import { itemsByCategoryIdsSelectorAtom, itemsSortedByCreatedAtAscAtom } from "@/jotai/items-atom";
 
 import ImgCheckboxButton from "../buttons/ImgCheckboxButton";
 import Button from "../buttons/Button";
 import styles from "./FormStyles.module.css";
-import { filterItemsByCategories } from "@/api/actions/item";
 
 const ItemsCheckboxForm = ({
 	handleSubmit,
 	displayItems,
 	filteringCategoryIds,
 }) => {
-	const allItems = useAtomValue(itemsAtom);
+	const allItems = useAtomValue(itemsSortedByCreatedAtAscAtom);
+	const getItemsByCategoryIds = useAtomValue(itemsByCategoryIdsSelectorAtom);
 	const [selectedItems, setSelectedItems] = useState([]);
 	const [display_items, setDisplayItems] = useState(displayItems || allItems);
 
@@ -38,20 +38,13 @@ const ItemsCheckboxForm = ({
 		} else if (!filteringCategoryIds) {
 			setDisplayItems(allItems);
 		}
-	}, [displayItems, allItems]);
+	}, [displayItems, filteringCategoryIds, allItems]);
 
 	useEffect(() => {
 		if (filteringCategoryIds) {
-			setDisplayItems([]);
-			filterItemsByCategories(filteringCategoryIds)
-				.then((filteredItems) => {
-					setDisplayItems(filteredItems);
-				})
-				.catch((error) => {
-					console.error("Error filtering items:", error);
-				});
+			setDisplayItems(getItemsByCategoryIds(filteringCategoryIds));
 		}
-	}, [filteringCategoryIds]);
+	}, [filteringCategoryIds, getItemsByCategoryIds]);
 
 	return (
 		<form className={styles.form} onSubmit={handleCheckboxSubmit}>

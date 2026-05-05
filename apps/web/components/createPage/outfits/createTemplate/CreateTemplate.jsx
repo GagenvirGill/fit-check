@@ -4,7 +4,7 @@ import styles from "./CreateTemplate.module.css";
 import { useAtomValue, useSetAtom } from "jotai";
 import { outfitsAtom } from "@/jotai/outfits-atom";
 import { templateRowsAtom, setWholeTemplateAtom } from "@/jotai/outfit-template-atom";
-import { getRandomItemWithCategories } from "@/api/actions/item";
+import { randomItemForCategoryIdsSelectorAtom } from "@/jotai/items-atom";
 import {
 	createAdjacencyMatrix,
 	updateTemplateWithScales,
@@ -17,28 +17,25 @@ import CreateOutfitForm from "@/components/popupForms/templatePopups/CreateOutfi
 const CreateTemplate = () => {
 	const outfits = useAtomValue(outfitsAtom);
 	const templateRows = useAtomValue(templateRowsAtom);
+	const getRandomItem = useAtomValue(randomItemForCategoryIdsSelectorAtom);
 	const setWholeTemplate = useSetAtom(setWholeTemplateAtom);
 	const ratiosMatrix = useMemo(() => {
 		return createAdjacencyMatrix(outfits);
 	}, [outfits]);
 	const [showCreateOutfitForm, setShowCreateOutfitForm] = useState(false);
 
-	const handleRandomizationAll = async (e) => {
+	const handleRandomizationAll = (e) => {
 		e.preventDefault();
 		e.stopPropagation();
 
-		const promises = templateRows.map((row) =>
-			Promise.all(
-				row.map((templateBox) =>
-					handleTemplateBoxRandomization(
-						templateBox.isLocked,
-						templateBox.categories
-					)
+		const results = templateRows.map((row) =>
+			row.map((templateBox) =>
+				handleTemplateBoxRandomization(
+					templateBox.isLocked,
+					templateBox.categories
 				)
 			)
 		);
-
-		const results = await Promise.all(promises);
 
 		const newRows = updateTemplateWithScales(
 			templateRows,
@@ -49,10 +46,10 @@ const CreateTemplate = () => {
 		setWholeTemplate({ newTemplate: newRows });
 	};
 
-	const handleRandomizationOne = async (rowIndex, boxIndex) => {
+	const handleRandomizationOne = (rowIndex, boxIndex) => {
 		const box = templateRows[rowIndex][boxIndex];
 
-		const result = await handleTemplateBoxRandomization(
+		const result = handleTemplateBoxRandomization(
 			box.isLocked,
 			box.categories
 		);
@@ -76,20 +73,20 @@ const CreateTemplate = () => {
 		}
 	};
 
-	const handleTemplateBoxRandomization = async (isLocked, categories) => {
-		try {
-			if (isLocked) {
-				return;
-			}
-
-			const item = await getRandomItemWithCategories(categories);
-			return {
-				itemId: item.itemId,
-				imagePath: item.imagePath,
-			};
-		} catch (err) {
-			console.error("Error fetching random item:", err);
+	const handleTemplateBoxRandomization = (isLocked, categories) => {
+		if (isLocked) {
+			return;
 		}
+
+		const item = getRandomItem(categories);
+		if (!item) {
+			return;
+		}
+
+		return {
+			itemId: item.itemId,
+			imagePath: item.imagePath,
+		};
 	};
 
 	const handleCreateOutfit = async (e) => {

@@ -1,4 +1,6 @@
 import type { BootstrapResponse } from "@fit-check/shared/types/contracts/bootstrap";
+import type { CreateItemResponse } from "@fit-check/shared/types/contracts/items";
+import type { CreateOutfitResponse } from "@fit-check/shared/types/contracts/outfits";
 import type { Category } from "@/types/category";
 import type { Item } from "@/types/item";
 import type { Outfit, TemplateItem, TemplateRow } from "@/types/outfit";
@@ -11,16 +13,24 @@ export type BootstrapViewModel = {
 	itemCategoryLinks: BootstrapResponse["itemCategoryLinks"];
 };
 
+type ItemRecord = BootstrapResponse["items"][number] | CreateItemResponse;
+type OutfitRecord = BootstrapResponse["outfits"][number] | CreateOutfitResponse;
+
+const toIsoString = (value: Date | string): string => {
+	return new Date(value).toISOString();
+};
+
 const createMissingItem = (itemId: string): Item => ({
 	itemId,
 	imagePath: "/default_icon.png",
 	imageWidth: 1,
 	imageHeight: 1,
+	createdAt: new Date(0).toISOString(),
 });
 
 const toTemplateRows = (
 	outfitId: string,
-	layout: BootstrapResponse["outfits"][number]["layout"],
+	layout: OutfitRecord["layout"],
 	itemById: Map<string, Item>
 ): TemplateRow[] => {
 	return layout.map((row, rowIndex) => {
@@ -50,34 +60,39 @@ const getTotalWeight = (rows: TemplateRow[]): number => {
 	return total > 0 ? total : 1;
 };
 
-export const adaptBootstrapResponse = (response: BootstrapResponse): BootstrapViewModel => {
-	const items: Item[] = response.items.map((item) => ({
-		itemId: item.itemId,
-		imagePath: item.imagePath,
-		imageWidth: item.imageWidth,
-		imageHeight: item.imageHeight,
-	}));
+export const adaptItemRecord = (item: ItemRecord): Item => ({
+	itemId: item.itemId,
+	imagePath: item.imagePath,
+	imageWidth: item.imageWidth,
+	imageHeight: item.imageHeight,
+	createdAt: toIsoString(item.createdAt),
+});
 
-	const categories: Category[] = response.categories.map((category) => ({
-		categoryId: category.categoryId,
-		name: category.name,
-		favoriteItem: category.favoriteItem,
-	}));
+export const adaptCategoryRecord = (category: BootstrapResponse["categories"][number]): Category => ({
+	categoryId: category.categoryId,
+	name: category.name,
+	favoriteItem: category.favoriteItem,
+});
+
+export const adaptOutfitRecord = (outfit: OutfitRecord, itemById: Map<string, Item>): Outfit => {
+	const templateRows = toTemplateRows(outfit.outfitId, outfit.layout, itemById);
+	return {
+		outfitId: outfit.outfitId,
+		dateWorn: outfit.dateWorn,
+		description: outfit.description ?? "",
+		OutfitTemplate: {
+			TemplateRows: templateRows,
+			totalWeight: getTotalWeight(templateRows),
+		},
+	};
+};
+
+export const adaptBootstrapResponse = (response: BootstrapResponse): BootstrapViewModel => {
+	const items: Item[] = response.items.map(adaptItemRecord);
+	const categories: Category[] = response.categories.map(adaptCategoryRecord);
 
 	const itemById = new Map(items.map((item) => [item.itemId, item]));
-
-	const outfits: Outfit[] = response.outfits.map((outfit) => {
-		const templateRows = toTemplateRows(outfit.outfitId, outfit.layout, itemById);
-		return {
-			outfitId: outfit.outfitId,
-			dateWorn: outfit.dateWorn,
-			description: outfit.description ?? "",
-			OutfitTemplate: {
-				TemplateRows: templateRows,
-				totalWeight: getTotalWeight(templateRows),
-			},
-		};
-	});
+	const outfits: Outfit[] = response.outfits.map((outfit) => adaptOutfitRecord(outfit, itemById));
 
 	return {
 		user: response.user,

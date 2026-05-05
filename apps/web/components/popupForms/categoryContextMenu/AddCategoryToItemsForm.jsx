@@ -1,12 +1,10 @@
 
 import React, { useEffect, useState } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
-import { itemsAtom } from "@/jotai/items-atom";
+import { itemsSortedByCreatedAtAscAtom } from "@/jotai/items-atom";
 import { addNotificationAtom } from "@/jotai/notifications-atom";
 import styles from "../ContextMenuPopUpStyles.module.css";
-import { addCategoryToItems } from "@/api/actions/category";
-import { refetchCategoriesAtom } from "@/jotai/categories-atom";
-import { refetchItemsAtom } from "@/jotai/items-atom";
+import { addCategoryToItemsAtom } from "@/jotai/categories-atom";
 
 import ItemsCheckboxForm from "@/components/forms/ItemsCheckboxForm";
 
@@ -17,9 +15,8 @@ const AddCategoryToItemsForm = ({
 	categoryName,
 }) => {
 	const addNotification = useSetAtom(addNotificationAtom);
-	const refetchCategories = useSetAtom(refetchCategoriesAtom);
-	const refetchItems = useSetAtom(refetchItemsAtom);
-	const items = useAtomValue(itemsAtom);
+	const addCategoryToItems = useSetAtom(addCategoryToItemsAtom);
+	const items = useAtomValue(itemsSortedByCreatedAtAscAtom);
 	const [filteredItems, setFilteredItems] = useState([]);
 
 	useEffect(() => {
@@ -36,16 +33,16 @@ const AddCategoryToItemsForm = ({
 	}, [items, categoriesCurrItems]);
 
 	const handleSubmit = async (selectedItems) => {
-		const success = await addCategoryToItems(categoryId, selectedItems);
-		await refetchCategories();
-		await refetchItems();
-		handleClose();
-
-		if (success) {
+		try {
+			await addCategoryToItems({
+				categoryId,
+				itemIds: selectedItems,
+			});
+			handleClose();
 			addNotification(
 				`Successfully Added Items to the '${categoryName}' Category!`
 			);
-		} else {
+		} catch {
 			addNotification(
 				`An Error Occured Trying to Add Items to a Category!`
 			);

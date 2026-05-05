@@ -1,25 +1,20 @@
 
 import React, { useEffect, useState } from "react";
+import { useAtomValue } from "jotai";
 import styles from "../ContextMenuPopUpStyles.module.css";
-
-import { getCategoriesForItem } from "@/api/actions/item";
+import { categoriesForItemSelectorAtom } from "@/jotai/categories-atom";
 
 import Button from "@/components/buttons/Button";
 import AddItemToCategoriesForm from "./AddItemToCategoriesForm";
 import RemoveItemFromCategoriesForm from "./RemoveItemFromCategoriesForm";
 
 const ItemContextMenuForms = ({ itemId, imagePath, handleClose }) => {
+	const getCategoriesForItem = useAtomValue(categoriesForItemSelectorAtom);
 	const [itemsCurrCategories, setItemsCurrCategories] = useState([]);
 
 	useEffect(() => {
-		getCategoriesForItem(itemId)
-			.then((fetchedCategories) => {
-				setItemsCurrCategories(fetchedCategories);
-			})
-			.catch((err) => {
-				console.log(`Error loading items: ${err}`);
-			});
-	}, [itemId]);
+		setItemsCurrCategories(getCategoriesForItem(itemId));
+	}, [itemId, getCategoriesForItem]);
 
 	return (
 		<>

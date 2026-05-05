@@ -3,4 +3,5 @@ export interface Item {
 	imagePath: string;
 	imageWidth: number;
 	imageHeight: number;
+	createdAt: string;
 }

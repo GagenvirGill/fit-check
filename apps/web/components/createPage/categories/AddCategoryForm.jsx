@@ -2,15 +2,14 @@
 import React, { useState } from "react";
 import { useSetAtom } from "jotai";
 import { addNotificationAtom } from "@/jotai/notifications-atom";
-import { createCategory } from "@/api/actions/category";
-import { refetchCategoriesAtom } from "@/jotai/categories-atom";
+import { createCategoryAtom } from "@/jotai/categories-atom";
 
 import styles from "./AddCategoryForm.module.css";
 import Button from "@/components/buttons/Button";
 
 const AddCategoryForm = () => {
 	const addNotification = useSetAtom(addNotificationAtom);
-	const refetchCategories = useSetAtom(refetchCategoriesAtom);
+	const createCategory = useSetAtom(createCategoryAtom);
 	const [name, setName] = useState("");
 
 	const handleSubmit = async (event) => {
@@ -19,14 +18,12 @@ const AddCategoryForm = () => {
 		const nameToCreate = name;
 		setName("");
 
-		const success = await createCategory(nameToCreate);
-		await refetchCategories();
-
-		if (success) {
+		try {
+			await createCategory(nameToCreate);
 			addNotification(
 				`Successfully Created the '${nameToCreate}' Category!`
 			);
-		} else {
+		} catch {
 			addNotification(`An Error Occured Trying to Create a Category!`);
 		}
 	};

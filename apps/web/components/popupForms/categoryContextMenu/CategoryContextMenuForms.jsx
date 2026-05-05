@@ -1,8 +1,9 @@
 
 import React, { useEffect, useState } from "react";
+import { useAtomValue } from "jotai";
 import styles from "../ContextMenuPopUpStyles.module.css";
 
-import { filterItemsByCategories } from "@/api/actions/item";
+import { itemsByCategoryIdsSelectorAtom } from "@/jotai/items-atom";
 
 import Button from "@/components/buttons/Button";
 import AddCategoryToItemsForm from "./AddCategoryToItemsForm";
@@ -13,17 +14,12 @@ const CategoryContextMenuForms = ({
 	categoryName,
 	handleClose,
 }) => {
+	const getItemsByCategoryIds = useAtomValue(itemsByCategoryIdsSelectorAtom);
 	const [categoriesCurrItems, setCategoriesCurrItems] = useState([]);
 
 	useEffect(() => {
-		filterItemsByCategories([categoryId])
-			.then((fetchedItems) => {
-				setCategoriesCurrItems(fetchedItems);
-			})
-			.catch((err) => {
-				console.log(`Error loading items: ${err}`);
-			});
-	}, [categoryId]);
+		setCategoriesCurrItems(getItemsByCategoryIds([categoryId]));
+	}, [categoryId, getItemsByCategoryIds]);
 
 	return (
 		<>

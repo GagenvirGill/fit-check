@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import { useAtomValue } from "jotai";
 import { useParams } from "react-router-dom";
-import { categoriesAtom, categoriesLoadingAtom } from "@/jotai/categories-atom";
+import { categoriesAtom } from "@/jotai/categories-atom";
 import styles from "./GenericPageStyles.module.css";
 
 import ItemCardDisplay from "../components/cardDisplay/ItemCardDisplay";
@@ -10,7 +10,6 @@ import ItemCardDisplay from "../components/cardDisplay/ItemCardDisplay";
 const CategoryView = () => {
 	const { slug = "" } = useParams();
 	const categories = useAtomValue(categoriesAtom);
-	const loading = useAtomValue(categoriesLoadingAtom);
 
 	const matchedCategory = categories.find(
 		(cat) => cat.name.toLowerCase().replace(/\s+/g, "") === slug
@@ -22,7 +21,6 @@ const CategoryView = () => {
 		}
 	}, [matchedCategory]);
 
-	if (loading) {return null;}
 	if (!matchedCategory) {return null;}
 
 	return (

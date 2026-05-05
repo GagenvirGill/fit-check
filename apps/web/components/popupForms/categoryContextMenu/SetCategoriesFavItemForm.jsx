@@ -3,8 +3,7 @@ import React from "react";
 import styles from "../ContextMenuPopUpStyles.module.css";
 import { useSetAtom } from "jotai";
 import { addNotificationAtom } from "@/jotai/notifications-atom";
-import { setCategoriesFavItem } from "@/api/actions/category";
-import { refetchCategoriesAtom } from "@/jotai/categories-atom";
+import { setCategoryFavoriteItemAtom } from "@/jotai/categories-atom";
 
 import Button from "@/components/buttons/Button";
 import ItemsRadioForm from "@/components/forms/ItemsRadioForm";
@@ -16,17 +15,18 @@ const SetCategoriesFavItemForm = ({
 	categoryName,
 }) => {
 	const addNotification = useSetAtom(addNotificationAtom);
-	const refetchCategories = useSetAtom(refetchCategoriesAtom);
+	const setCategoryFavoriteItem = useSetAtom(setCategoryFavoriteItemAtom);
 	const handleSubmit = async (selectedItemId) => {
-		const success = await setCategoriesFavItem(categoryId, selectedItemId);
-		await refetchCategories();
-		handleClose();
-
-		if (success) {
+		try {
+			await setCategoryFavoriteItem({
+				categoryId,
+				favoriteItem: selectedItemId,
+			});
+			handleClose();
 			addNotification(
 				`Successfully Set the Favorite Item of the '${categoryName}' Category!`
 			);
-		} else {
+		} catch {
 			addNotification(
 				`An Error Occured Trying to Set the Favorite Item of a Category!`
 			);

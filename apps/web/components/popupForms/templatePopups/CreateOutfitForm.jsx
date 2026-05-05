@@ -5,8 +5,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { templateRowsAtom, setWholeTemplateAtom } from "@/jotai/outfit-template-atom";
 import { addNotificationAtom } from "@/jotai/notifications-atom";
 
-import { createOutfit } from "@/api/actions/outfit";
-import { refetchOutfitsAtom } from "@/jotai/outfits-atom";
+import { createOutfitAtom } from "@/jotai/outfits-atom";
 
 import Button from "@/components/buttons/Button";
 
@@ -14,7 +13,7 @@ const CreateOutfitForm = ({ setShowCreateOutfitForm }) => {
 	const templateRows = useAtomValue(templateRowsAtom);
 	const setWholeTemplate = useSetAtom(setWholeTemplateAtom);
 	const addNotification = useSetAtom(addNotificationAtom);
-	const refetchOutfits = useSetAtom(refetchOutfitsAtom);
+	const createOutfit = useSetAtom(createOutfitAtom);
 
 	const [description, setDescription] = useState("");
 	const [date, setDate] = useState("");
@@ -79,14 +78,16 @@ const CreateOutfitForm = ({ setShowCreateOutfitForm }) => {
 			return;
 		}
 
-		setShowCreateOutfitForm(false);
-		const success = await createOutfit(date, description, outfitsItems);
-		await refetchOutfits();
-		setWholeTemplate({ newTemplate: [] });
-
-		if (success) {
+		try {
+			setShowCreateOutfitForm(false);
+			await createOutfit({
+				dateWorn: date,
+				description,
+				items: outfitsItems,
+			});
+			setWholeTemplate({ newTemplate: [] });
 			addNotification(`Successfully Created an Outfit for ${date}!`);
-		} else {
+		} catch {
 			addNotification(
 				`An Error Occurred while Creating an Outfit for ${date}!`
 			);

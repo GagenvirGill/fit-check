@@ -1,10 +1,9 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSetAtom } from "jotai";
 import { addNotificationAtom } from "@/jotai/notifications-atom";
-import { createItem } from "@/api/actions/item";
+import { createItemAtom } from "@/jotai/items-atom";
 import { removeBackground } from "@/lib/segmentation/background-removal";
-import { refetchItemsAtom } from "@/jotai/items-atom";
 
 import styles from "./AddItemForm.module.css";
 import Button from "@/components/buttons/Button";
@@ -13,15 +12,11 @@ const AddItemForm = () => {
 	const [images, setImages] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const addNotification = useSetAtom(addNotificationAtom);
-	const refetchItems = useSetAtom(refetchItemsAtom);
+	const createItem = useSetAtom(createItemAtom);
 	const handleImage = async (event) => {
 		const files = Array.from(event.target.files);
 		setImages(files);
 	};
-
-	useEffect(() => {
-		// just re render the page
-	}, [loading]);
 
 	const handleSubmit = async (event) => {
 		event.preventDefault();
@@ -42,19 +37,12 @@ const AddItemForm = () => {
 				const formData = new FormData();
 				formData.append("image", file);
 
-				const success = await createItem(formData);
-
-				if (success) {
-					successCount++;
-				} else {
-					failCount++;
-				}
+				await createItem(formData);
+				successCount++;
 			} catch {
 				failCount++;
 			}
 		}
-
-		await refetchItems();
 
 		if (successCount > 0) {
 			addNotification(`${successCount} item(s) created successfully.`);

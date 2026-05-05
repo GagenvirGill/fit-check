@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { useAtomValue } from "jotai";
-import { categoriesAtom } from "@/jotai/categories-atom";
+import { categoriesSortedByNameAscAtom } from "@/jotai/categories-atom";
 import CheckboxButton from "../buttons/CheckboxButton";
 import Button from "../buttons/Button";
 import styles from "./FormStyles.module.css";
@@ -12,7 +12,7 @@ const CategoriesCheckboxForm = ({
 	preSelectedCategoryIds,
 	formId,
 }) => {
-	const allCategories = useAtomValue(categoriesAtom);
+	const allCategories = useAtomValue(categoriesSortedByNameAscAtom);
 	const categories = displayCategories || allCategories;
 
 	const [selectedCategories, setSelectedCategories] = useState(

@@ -1,7 +1,7 @@
 
 import React from "react";
 import { useAtomValue } from "jotai";
-import { outfitsAtom } from "@/jotai/outfits-atom";
+import { filterOutfitsByItemIdsSelectorAtom } from "@/jotai/outfits-atom";
 import styles from "../ContextMenuPopUpStyles.module.css";
 import { useState } from "react";
 
@@ -9,14 +9,12 @@ import Button from "@/components/buttons/Button";
 import ItemsCheckboxForm from "@/components/forms/ItemsCheckboxForm";
 import CategoriesCheckboxForm from "@/components/forms/CategoriesCheckboxForm";
 
-import { filterOutfitsByItem } from "@/lib/outfit-utils";
-
 const FilterOutfitsByItemForm = ({ handleClose, setDisplayedOutfits }) => {
-	const outfits = useAtomValue(outfitsAtom);
+	const filterOutfitsByItems = useAtomValue(filterOutfitsByItemIdsSelectorAtom);
 	const [filtCategoryIds, setFiltCategoryIds] = useState([]);
 
 	const handleItemsSubmit = (selectedItemIds) => {
-		const newDisplayOutfits = filterOutfitsByItem(outfits, selectedItemIds);
+		const newDisplayOutfits = filterOutfitsByItems(selectedItemIds);
 		setDisplayedOutfits(newDisplayOutfits);
 		handleClose();
 	};

@@ -11,7 +11,7 @@ import {
 	getCurrentUser,
 	getGoogleAuthUrl,
 	logoutCurrentUser,
-} from "@/api/actions/auth";
+} from "@/providers/auth/auth-client";
 
 export type AuthContextValue = {
 	user: AuthMeResponse | null;

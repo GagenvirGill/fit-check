@@ -5,8 +5,7 @@ import { addNotificationAtom } from "@/jotai/notifications-atom";
 import { Link } from "react-router-dom";
 
 import styles from "./CategoryCard.module.css";
-import { deleteCategory } from "@/api/actions/category";
-import { refetchCategoriesAtom } from "@/jotai/categories-atom";
+import { deleteCategoryAtom } from "@/jotai/categories-atom";
 
 import Card from "./Card";
 import CategoryContextMenuForms from "../popupForms/categoryContextMenu/CategoryContextMenuForms";
@@ -21,19 +20,17 @@ const CategoryCard = ({
 	favItemId,
 }) => {
 	const addNotification = useSetAtom(addNotificationAtom);
-	const refetchCategories = useSetAtom(refetchCategoriesAtom);
+	const deleteCategory = useSetAtom(deleteCategoryAtom);
 	const [showCategoryItemsForm, setShowCategoryItemsForm] = useState(false);
 	const [showCategFavItemForm, setShowCategoryFavItemForm] = useState(false);
 
 	const onDelete = async () => {
-		const success = await deleteCategory(categoryId);
-		await refetchCategories();
-
-		if (success) {
+		try {
+			await deleteCategory(categoryId);
 			addNotification(
 				`Successfully Deleted the '${categoryName}' Category!`
 			);
-		} else {
+		} catch {
 			addNotification(`An Error Occured Trying to Delete a Category!`);
 		}
 	};

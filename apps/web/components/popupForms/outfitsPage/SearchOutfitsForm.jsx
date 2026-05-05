@@ -1,23 +1,20 @@
 
 import React, { useState } from "react";
 import { useAtomValue } from "jotai";
-import { outfitsAtom } from "@/jotai/outfits-atom";
+import { outfitsSortedByDateWornAscAtom, searchOutfitsByDescriptionSelectorAtom } from "@/jotai/outfits-atom";
 import styles from "./SearchOutfitsForm.module.css";
-import { searchOutfits } from "@/api/actions/outfit";
 
 const SearchOutfitsForm = ({ setDisplayedOutfits }) => {
-	const outfits = useAtomValue(outfitsAtom);
+	const outfits = useAtomValue(outfitsSortedByDateWornAscAtom);
+	const searchOutfits = useAtomValue(searchOutfitsByDescriptionSelectorAtom);
 	const [query, setQuery] = useState("");
 
 	const handleSearch = () => {
 		if (query.trim() === "") {
 			setDisplayedOutfits(outfits);
 		} else {
-			searchOutfits(query)
-				.then((queriedOutfits) => {
-					setDisplayedOutfits(queriedOutfits);
-				})
-				.catch((err) => console.log(err));
+			const queriedOutfits = searchOutfits(query);
+			setDisplayedOutfits(queriedOutfits);
 		}
 	};
 

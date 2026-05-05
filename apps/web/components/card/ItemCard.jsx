@@ -3,9 +3,7 @@ import React, { useState } from "react";
 import { useSetAtom } from "jotai";
 import { addNotificationAtom } from "@/jotai/notifications-atom";
 import styles from "./ItemCard.module.css";
-import { deleteItem } from "@/api/actions/item";
-import { refetchItemsAtom } from "@/jotai/items-atom";
-import { refetchOutfitsAtom } from "@/jotai/outfits-atom";
+import { deleteItemAtom } from "@/jotai/items-atom";
 
 import Card from "./Card";
 import ItemContextMenuForms from "../popupForms/itemContextMenu/ItemContextMenuForms";
@@ -13,18 +11,14 @@ import ContextMenuButton from "../buttons/ContextMenuButton";
 
 const ItemCard = ({ itemId, imagePath }) => {
 	const addNotification = useSetAtom(addNotificationAtom);
-	const refetchItems = useSetAtom(refetchItemsAtom);
-	const refetchOutfits = useSetAtom(refetchOutfitsAtom);
+	const deleteItem = useSetAtom(deleteItemAtom);
 	const [showForm, setShowForm] = useState(false);
 
 	const onDelete = async () => {
-		const success = await deleteItem(itemId);
-		await refetchItems();
-		await refetchOutfits();
-
-		if (success) {
+		try {
+			await deleteItem(itemId);
 			addNotification("Item Successfully Deleted!");
-		} else {
+		} catch {
 			addNotification(
 				"An Error Occured while trying to Delete an Item!"
 			);

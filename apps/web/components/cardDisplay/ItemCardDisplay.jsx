@@ -1,17 +1,13 @@
 
 import React, { useEffect, useState } from "react";
 import { useAtomValue } from "jotai";
-import { itemsAtom } from "@/jotai/items-atom";
+import { itemsByCategoryIdsSelectorAtom, itemsSortedByCreatedAtAscAtom } from "@/jotai/items-atom";
 import { outfitsAtom } from "@/jotai/outfits-atom";
 import styles from "./CardDisplayStyles.module.css";
-
-import { filterItemsByCategories } from "@/api/actions/item";
 
 import Button from "../buttons/Button";
 import ItemCard from "../card/ItemCard";
 import ItemSortByForm from "../popupForms/itemsPage/ItemSortByForm";
-
-import { sortItems } from "@/lib/item-utils";
 
 const calculateLoadAmount = () => {
 	if (typeof window === "undefined") {return 20;}
@@ -19,38 +15,93 @@ const calculateLoadAmount = () => {
 	return baseAmount > 40 ? baseAmount / 2 : baseAmount;
 };
 
-const ItemCardDisplay = ({ selectedCategories }) => {
-	const items = useAtomValue(itemsAtom);
-	const outfits = useAtomValue(outfitsAtom);
+const getLastWornMap = (outfits) => {
+	const dateWornMap = new Map();
 
-	const [displayItems, setDisplayItems] = useState([]);
-	const [sortedDisplayItems, setSortedDisplayItems] = useState([]);
+	for (const outfit of outfits) {
+		const outfitDateWorn = new Date(outfit.dateWorn);
+		for (const row of outfit.OutfitTemplate.TemplateRows) {
+			for (const templateItem of row.TemplateItems) {
+				const itemId = templateItem.Item.itemId;
+				const existing = dateWornMap.get(itemId);
+				if (!existing || existing < outfitDateWorn) {
+					dateWornMap.set(itemId, outfitDateWorn);
+				}
+			}
+		}
+	}
+
+	return dateWornMap;
+};
+
+const getWearCountMap = (outfits) => {
+	const wearCountMap = new Map();
+	for (const outfit of outfits) {
+		for (const row of outfit.OutfitTemplate.TemplateRows) {
+			for (const templateItem of row.TemplateItems) {
+				const itemId = templateItem.Item.itemId;
+				wearCountMap.set(itemId, (wearCountMap.get(itemId) || 0) + 1);
+			}
+		}
+	}
+	return wearCountMap;
+};
+
+const sortItemsByOption = (outfits, items, sortOption) => {
+	switch (sortOption) {
+		case "lastWornDateAsc": {
+			const lastWornMap = getLastWornMap(outfits);
+			return [...items].sort((a, b) => {
+				const dateA = lastWornMap.get(a.itemId) || new Date(0);
+				const dateB = lastWornMap.get(b.itemId) || new Date(0);
+				return dateA - dateB;
+			});
+		}
+		case "lastWornDateDesc": {
+			const lastWornMap = getLastWornMap(outfits);
+			return [...items].sort((a, b) => {
+				const dateA = lastWornMap.get(a.itemId) || new Date(0);
+				const dateB = lastWornMap.get(b.itemId) || new Date(0);
+				return dateB - dateA;
+			});
+		}
+		case "amountWornAsc": {
+			const wearCountMap = getWearCountMap(outfits);
+			return [...items].sort((a, b) => (wearCountMap.get(a.itemId) || 0) - (wearCountMap.get(b.itemId) || 0));
+		}
+		case "amountWornDesc": {
+			const wearCountMap = getWearCountMap(outfits);
+			return [...items].sort((a, b) => (wearCountMap.get(b.itemId) || 0) - (wearCountMap.get(a.itemId) || 0));
+		}
+		default:
+			return items;
+	}
+};
+
+const ItemCardDisplay = ({ selectedCategories }) => {
+	const allItems = useAtomValue(itemsSortedByCreatedAtAscAtom);
+	const outfits = useAtomValue(outfitsAtom);
+	const getItemsByCategoryIds = useAtomValue(itemsByCategoryIdsSelectorAtom);
 	const [visibleCount, setVisibleCount] = useState(calculateLoadAmount());
 	const [sortOption, setSortOption] = useState("none");
+
+	const baseItems =
+		selectedCategories && selectedCategories.length > 0
+			? getItemsByCategoryIds(selectedCategories)
+			: allItems;
+
+	const sortedDisplayItems =
+		sortOption === "none"
+			? baseItems
+			: sortItemsByOption(outfits, baseItems, sortOption);
 
 	const handleLoadMore = () => {
 		setVisibleCount((prev) => prev + calculateLoadAmount());
 	};
 
 	useEffect(() => {
-		if (selectedCategories && selectedCategories.length > 0) {
-			filterItemsByCategories(selectedCategories)
-				.then((fetchedItems) => {
-					setDisplayItems(fetchedItems);
-				})
-				.catch((err) => {
-					console.log(`Error loading items: ${err}`);
-				});
-		} else {
-			setDisplayItems(items);
-		}
-	}, [selectedCategories, items]);
-
-	useEffect(() => {
-		const sortedItems = sortItems(outfits, displayItems, sortOption);
 		setVisibleCount(calculateLoadAmount());
-		setSortedDisplayItems(sortedItems);
-	}, [displayItems, sortOption]);
+	}, [selectedCategories, sortOption]);
 
 	useEffect(() => {
 		const handleUpdateLoadAmount = () => {
@@ -78,7 +129,7 @@ const ItemCardDisplay = ({ selectedCategories }) => {
 				))}
 			</div>
 			<br />
-			{visibleCount < displayItems.length && (
+			{visibleCount < sortedDisplayItems.length && (
 				<Button
 					type="submit"
 					text="Load More"

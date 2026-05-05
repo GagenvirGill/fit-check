@@ -19,6 +19,7 @@
   - make Google user upsert concurrency-safe (single-statement upsert or retry-on-conflict flow)
   - audit related queries for race conditions and move critical integrity checks into DB-enforced constraints where possible
 10. Buy a domain?
+11. React based manual ssr?
 
 # Feature Ideas
 

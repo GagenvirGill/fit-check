@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useAtomValue } from "jotai";
-import { outfitsAtom } from "@/jotai/outfits-atom";
+import { outfitsSortedByDateWornAscAtom } from "@/jotai/outfits-atom";
 import styles from "./CardDisplayStyles.module.css";
 
 import OutfitCard from "../card/OutfitCard";
@@ -14,7 +14,7 @@ const calculateNumOutfitsPerRow = () => {
 };
 
 const OutfitCardDisplay = () => {
-	const outfits = useAtomValue(outfitsAtom);
+	const outfits = useAtomValue(outfitsSortedByDateWornAscAtom);
 
 	const [displayedOutfits, setDisplayedOutfits] = useState(outfits);
 	const [showFilterForm, setShowFilterForm] = useState(false);

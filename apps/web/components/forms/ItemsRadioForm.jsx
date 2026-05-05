@@ -1,10 +1,8 @@
 
 import React, { useState, useEffect } from "react";
 import { useAtomValue } from "jotai";
-import { itemsAtom } from "@/jotai/items-atom";
+import { itemsByCategoryIdsSelectorAtom, itemsSortedByCreatedAtAscAtom } from "@/jotai/items-atom";
 import styles from "./FormStyles.module.css";
-
-import { filterItemsByCategories } from "@/api/actions/item";
 
 import ImgRadioButton from "../buttons/ImgRadioButton";
 import Button from "../buttons/Button";
@@ -16,7 +14,8 @@ const ItemsRadioForm = ({
 	returnImagePath,
 	filteringCategoryIds,
 }) => {
-	const allItems = useAtomValue(itemsAtom);
+	const allItems = useAtomValue(itemsSortedByCreatedAtAscAtom);
+	const getItemsByCategoryIds = useAtomValue(itemsByCategoryIdsSelectorAtom);
 	const [displayItems, setDisplayItems] = useState([]);
 
 	useEffect(() => {
@@ -24,16 +23,10 @@ const ItemsRadioForm = ({
 			if (filteringCategoryIds.length === 0) {
 				setDisplayItems(allItems);
 			} else {
-				filterItemsByCategories(filteringCategoryIds)
-					.then((filteredItems) => {
-						setDisplayItems(filteredItems);
-					})
-					.catch((error) => {
-						console.error("Error filtering items:", error);
-					});
+				setDisplayItems(getItemsByCategoryIds(filteringCategoryIds));
 			}
 		}
-	}, [filteringCategoryIds, allItems]);
+	}, [filteringCategoryIds, allItems, getItemsByCategoryIds]);
 
 	const [selectedItemId, setSelectedItemId] = useState(preSelectedItemId);
 	const [selectedItemImagePath, setSelectedItemImagePath] = useState(null);

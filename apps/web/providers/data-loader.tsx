@@ -1,12 +1,14 @@
-
 import { useEffect } from "react";
 import type { ReactNode } from "react";
 import { useSetAtom } from "jotai";
-import { getBootstrapData } from "@/api/actions/bootstrap";
+import type { BootstrapResponse } from "@fit-check/shared/types/contracts/bootstrap";
+import { adaptBootstrapResponse } from "@/lib/adapters/bootstrap";
+import { apiFetchJson } from "@/lib/api-fetch";
+import { categoriesAtom } from "@/jotai/categories-atom";
+import { itemCategoryLinksAtom } from "@/jotai/item-category-links-atom";
+import { itemsAtom } from "@/jotai/items-atom";
+import { outfitsAtom } from "@/jotai/outfits-atom";
 import { useAuth } from "@/providers/auth/useAuth";
-import { itemsAtom, itemsLoadingAtom } from "@/jotai/items-atom";
-import { categoriesAtom, categoriesLoadingAtom } from "@/jotai/categories-atom";
-import { outfitsAtom, outfitsLoadingAtom } from "@/jotai/outfits-atom";
 
 interface DataLoaderProps {
 	children: ReactNode;
@@ -14,15 +16,15 @@ interface DataLoaderProps {
 
 export default function DataLoader({ children }: DataLoaderProps) {
 	const { isAuthenticated, loading: authLoading } = useAuth();
-
+	
 	const setItems = useSetAtom(itemsAtom);
-	const setItemsLoading = useSetAtom(itemsLoadingAtom);
 	const setCategories = useSetAtom(categoriesAtom);
-	const setCategoriesLoading = useSetAtom(categoriesLoadingAtom);
 	const setOutfits = useSetAtom(outfitsAtom);
-	const setOutfitsLoading = useSetAtom(outfitsLoadingAtom);
+	const setItemCategoryLinks = useSetAtom(itemCategoryLinksAtom);
 
 	useEffect(() => {
+		let cancelled = false;
+
 		if (authLoading) {
 			return;
 		}
@@ -31,34 +33,46 @@ export default function DataLoader({ children }: DataLoaderProps) {
 			setItems([]);
 			setCategories([]);
 			setOutfits([]);
-			setItemsLoading(false);
-			setCategoriesLoading(false);
-			setOutfitsLoading(false);
+			setItemCategoryLinks([]);
 			return;
 		}
 
-		setItemsLoading(true);
-		setCategoriesLoading(true);
-		setOutfitsLoading(true);
+		const loadBootstrapData = async () => {
+			try {
+				const response = await apiFetchJson<BootstrapResponse>("/bootstrap");
+				if (cancelled) {
+					return;
+				}
 
-		void getBootstrapData()
-			.then((data) => {
+				const data = adaptBootstrapResponse(response);
 				setItems(data.items);
 				setCategories(data.categories);
 				setOutfits(data.outfits);
-			})
-			.catch((error) => {
-				console.error("Error loading bootstrap data:", error);
+				setItemCategoryLinks(data.itemCategoryLinks);
+			} catch {
+				if (cancelled) {
+					return;
+				}
 				setItems([]);
 				setCategories([]);
 				setOutfits([]);
-			})
-			.finally(() => {
-				setItemsLoading(false);
-				setCategoriesLoading(false);
-				setOutfitsLoading(false);
-			});
-	}, [authLoading, isAuthenticated, setItems, setCategories, setOutfits, setItemsLoading, setCategoriesLoading, setOutfitsLoading]);
+				setItemCategoryLinks([]);
+			}
+		};
+
+		void loadBootstrapData();
+
+		return () => {
+			cancelled = true;
+		};
+	}, [
+		authLoading,
+		isAuthenticated,
+		setCategories,
+		setItemCategoryLinks,
+		setItems,
+		setOutfits,
+	]);
 
 	return children;
 }
