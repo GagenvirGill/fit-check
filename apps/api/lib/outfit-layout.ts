@@ -32,3 +32,6 @@ export const isValidLayout = (layout: unknown): layout is OutfitLayout => {
     ),
   );
 };
+
+export const getUniqueLayoutItemIds = (layout: OutfitLayout): string[] =>
+  [...new Set(layout.flat().map((item) => item.itemId))];

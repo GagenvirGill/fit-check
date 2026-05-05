@@ -1,69 +1,69 @@
 import type { FastifyPluginAsync } from 'fastify';
+import type { OutfitLayout } from '@fit-check/shared/types/models';
 import { requireAuthUser } from '../lib/auth/middleware';
+import { badRequest, notFound } from '../lib/http/errors';
+import { created, ok } from '../lib/http/responses';
+import {
+  createOutfitBodySchema,
+  idParamSchema,
+  outfitSearchQuerySchema,
+  routeSchema,
+} from '../lib/http/schemas';
+import { getUniqueLayoutItemIds } from '../lib/outfit-layout';
 import { allItemsBelongToUser, createOutfit, deleteOutfit, listOutfits, searchOutfits } from '../services/outfits';
-import { isValidLayout } from '../lib/outfit-layout';
+
+type CreateOutfitBody = {
+  dateWorn: string;
+  description?: string | null;
+  layout: OutfitLayout;
+};
 
 const outfitsRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get('/', async (request, reply) => {
     const authUser = requireAuthUser(request);
     const outfits = await listOutfits(authUser.userId);
-    return reply.status(200).send({ success: true, message: `Retrieved ${outfits.length} outfits`, data: outfits });
+    return ok(reply, `Retrieved ${outfits.length} outfits`, outfits);
   });
 
-  fastify.post('/', async (request, reply) => {
+  fastify.post('/', routeSchema({
+    body: createOutfitBodySchema,
+  }), async (request, reply) => {
     const authUser = requireAuthUser(request);
-    if (typeof request.body !== 'object' || request.body === null || Array.isArray(request.body)) {
-      return reply.status(400).send({ success: false, message: 'Request body must be an object' });
-    }
-
-    const { dateWorn, description, layout } = request.body as {
-      dateWorn?: string;
-      description?: string | null;
-      layout?: unknown;
-    };
-
-    if (!dateWorn) {
-      return reply.status(400).send({ success: false, message: 'dateWorn is required' });
-    }
-
-    if (!isValidLayout(layout)) {
-      return reply.status(400).send({ success: false, message: 'layout must be a two-dimensional array of { itemId, weight }' });
-    }
-
-    const allItemIds = [...new Set(layout.flat().map((item) => item.itemId))];
+    const { dateWorn, description, layout } = request.body as CreateOutfitBody;
+    const allItemIds = getUniqueLayoutItemIds(layout);
     const validItems = await allItemsBelongToUser(authUser.userId, allItemIds);
     if (!validItems) {
-      return reply.status(400).send({ success: false, message: 'layout includes one or more items not owned by the user' });
+      throw badRequest('layout includes one or more items not owned by the user');
     }
 
-    const created = await createOutfit(authUser.userId, { dateWorn, description, layout });
-    return reply.status(201).send({ success: true, message: `Outfit created for ${dateWorn}`, data: created });
+    const outfit = await createOutfit(authUser.userId, { dateWorn, description, layout });
+    return created(reply, `Outfit created for ${dateWorn}`, outfit);
   });
 
-  fastify.delete('/:id', async (request, reply) => {
+  fastify.delete('/:id', routeSchema({
+    params: idParamSchema,
+  }), async (request, reply) => {
     const authUser = requireAuthUser(request);
-    const outfitId = (request.params as { id?: string }).id;
-    if (!outfitId) {
-      return reply.status(400).send({ success: false, message: 'Outfit id is required' });
-    }
-
+    const { id: outfitId } = request.params as { id: string };
     const deleted = await deleteOutfit(authUser.userId, outfitId);
     if (!deleted[0]) {
-      return reply.status(404).send({ success: false, message: 'Outfit not found' });
+      throw notFound('Outfit not found');
     }
 
-    return reply.status(200).send({ success: true, message: 'Outfit deleted' });
+    return ok(reply, 'Outfit deleted');
   });
 
-  fastify.get('/search', async (request, reply) => {
+  fastify.get('/search', routeSchema({
+    querystring: outfitSearchQuerySchema,
+  }), async (request, reply) => {
     const authUser = requireAuthUser(request);
-    const query = ((request.query as { query?: string }).query ?? '').trim();
+    const query = ((request.query as { query: string }).query ?? '').trim();
     if (!query) {
-      return reply.status(400).send({ success: false, message: 'query is required' });
+      throw badRequest('query is required');
     }
 
     const outfits = await searchOutfits(authUser.userId, query);
-    return reply.status(200).send({ success: true, message: `Retrieved ${outfits.length} outfits for search query`, data: outfits });
+    return ok(reply, `Retrieved ${outfits.length} outfits for search query`, outfits);
   });
 };
 

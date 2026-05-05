@@ -22,6 +22,16 @@ export const createCategory = async (userId: string, name: string) =>
     })
     .returning();
 
+export const categoryNameExists = async (userId: string, name: string) => {
+  const existing = await db
+    .select({ categoryId: schema.category.categoryId })
+    .from(schema.category)
+    .where(and(eq(schema.category.userId, userId), eq(schema.category.name, name)))
+    .limit(1);
+
+  return Boolean(existing[0]);
+};
+
 export const updateCategory = async (
   userId: string,
   categoryId: string,

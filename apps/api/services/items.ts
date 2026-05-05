@@ -31,7 +31,7 @@ export const parseCategoryIdsBody = (body: unknown): string[] => {
     throw Object.assign(new Error('categories must contain non-empty string IDs'), { statusCode: 400 });
   }
 
-  return categories;
+  return [...new Set(categories)];
 };
 
 export const listItems = async (userId: string) =>
@@ -100,17 +100,27 @@ export const createItemFromUpload = async (userId: string, file: MultipartFile) 
   }
 
   const uploadedPath = await uploadItemImage(file.filename, file.mimetype, buffer);
-  const inserted = await db
-    .insert(schema.item)
-    .values({
-      userId,
-      imagePath: uploadedPath,
-      imageWidth: dimensions.width,
-      imageHeight: dimensions.height,
-    })
-    .returning();
 
-  return inserted[0];
+  try {
+    const inserted = await db
+      .insert(schema.item)
+      .values({
+        userId,
+        imagePath: uploadedPath,
+        imageWidth: dimensions.width,
+        imageHeight: dimensions.height,
+      })
+      .returning();
+
+    return inserted[0];
+  } catch (error) {
+    try {
+      await deleteItemImageByUrl(uploadedPath);
+    } catch {
+      // Best-effort cleanup to avoid orphaned objects when DB write fails.
+    }
+    throw error;
+  }
 };
 
 export const findOwnedItem = async (userId: string, itemId: string) => {
@@ -142,7 +152,12 @@ export const canDeleteItem = async (userId: string, itemId: string) => {
 
 export const deleteItem = async (userId: string, itemId: string, imagePath: string) => {
   await db.delete(schema.item).where(and(eq(schema.item.itemId, itemId), eq(schema.item.userId, userId)));
-  await deleteItemImageByUrl(imagePath);
+
+  try {
+    await deleteItemImageByUrl(imagePath);
+  } catch {
+    // The source of truth is the DB row removal; storage cleanup can be retried later.
+  }
 };
 
 export const listItemCategories = async (userId: string, itemId: string) =>

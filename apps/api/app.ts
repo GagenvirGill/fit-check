@@ -12,10 +12,17 @@ import itemsRoutes from './routes/items';
 import categoriesRoutes from './routes/categories';
 import outfitsRoutes from './routes/outfits';
 import { requireAuth } from './lib/auth/middleware';
+import { getErrorMessage, getHttpStatusCode } from './lib/http/errors';
+import { sendFailure } from './lib/http/responses';
 
 export const createApp = async () => {
   const app = Fastify({
     logger: true,
+    ajv: {
+      customOptions: {
+        coerceTypes: false,
+      },
+    },
   });
 
   await app.register(cookie);
@@ -35,20 +42,18 @@ export const createApp = async () => {
   });
 
   app.setErrorHandler((error, _request, reply) => {
-    const withStatus = error as Error & { statusCode?: number };
-    if (typeof withStatus.statusCode === 'number' && withStatus.statusCode >= 400 && withStatus.statusCode < 600) {
-      return reply.status(withStatus.statusCode).send({
-        success: false,
-        message: withStatus.message,
-      });
+    const statusCode = getHttpStatusCode(error);
+    if (statusCode) {
+      const isValidationError = typeof error === 'object' && error !== null && 'validation' in error;
+      const message = statusCode === 400 && isValidationError
+        ? 'Request validation failed'
+        : getErrorMessage(error);
+      return sendFailure(reply, statusCode, message);
     }
 
     app.log.error(error);
-    const message = isProduction ? 'Internal server error' : (error instanceof Error ? error.message : 'Unknown error');
-    return reply.status(500).send({
-      success: false,
-      message,
-    });
+    const message = isProduction ? 'Internal server error' : getErrorMessage(error);
+    return sendFailure(reply, 500, message);
   });
 
   await app.register(healthRoutes, { prefix: '/health' });
