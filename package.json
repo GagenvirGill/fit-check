@@ -7,6 +7,11 @@
   "scripts": {
     "dev": "npm run dev --workspaces --if-present",
     "build": "npm run build --workspaces --if-present",
+    "web:dev": "npm run dev -w apps/web",
+    "web:build": "npm run build -w apps/web",
+    "web:preview": "npm run preview -w apps/web",
+    "web:lint": "npm run lint -w apps/web",
+    "web:typecheck": "npm exec -w apps/web -- tsc -p tsconfig.json --noEmit",
     "api:dev": "npm run dev -w @fit-check/api",
     "api:build": "npm run build -w @fit-check/api",
     "api:start": "npm run start -w @fit-check/api",

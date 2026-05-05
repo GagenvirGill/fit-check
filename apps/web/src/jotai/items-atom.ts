@@ -5,7 +5,7 @@ import { getAllItems } from "@/api/actions/item";
 export const itemsAtom = atom<Item[]>([]);
 export const itemsLoadingAtom = atom<boolean>(true);
 
-export const refetchItemsAtom = atom(null, async (get, set) => {
+export const refetchItemsAtom = atom(null, async (_get, set) => {
 	try {
 		const data = await getAllItems();
 		set(itemsAtom, data);

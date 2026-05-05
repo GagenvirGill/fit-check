@@ -1,7 +1,6 @@
-"use client";
 
 import React, { useState } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useAuth } from "@/providers/auth/useAuth";
 import styles from "./ProfilePopup.module.css";
 
 import ImgButton from "@/components/buttons/ImgButton";
@@ -9,7 +8,7 @@ import InlineContextMenuButton from "@/components/buttons/InlineContextMenuButto
 
 const ProfilePopup = () => {
 	const [isPopupVisible, setPopupVisibility] = useState(false);
-	const { data: session } = useSession();
+	const { user, logout } = useAuth();
 
 	const handleButtonChange = () => {
 		setPopupVisibility(!isPopupVisible);
@@ -18,7 +17,7 @@ const ProfilePopup = () => {
 	const handleLogout = (e) => {
 		e.preventDefault();
 		setPopupVisibility(false);
-		signOut({ callbackUrl: "/" });
+		void logout();
 	};
 
 	return (
@@ -32,7 +31,7 @@ const ProfilePopup = () => {
 			{isPopupVisible && (
 				<div className={styles.popupContent}>
 					<p className={styles.emailText}>
-						{session?.user?.email ?? "You are not Logged in"}
+						{user?.email ?? "You are not Logged in"}
 					</p>
 					<InlineContextMenuButton
 						texts={["Logout"]}

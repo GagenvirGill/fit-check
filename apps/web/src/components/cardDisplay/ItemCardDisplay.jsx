@@ -1,4 +1,3 @@
-"use client";
 
 import React, { useEffect, useState } from "react";
 import { useAtomValue } from "jotai";
@@ -15,7 +14,7 @@ import ItemSortByForm from "../popupForms/itemsPage/ItemSortByForm";
 import { sortItems } from "@/lib/item-utils";
 
 const calculateLoadAmount = () => {
-	if (typeof window === "undefined") return 20;
+	if (typeof window === "undefined") {return 20;}
 	const baseAmount = Math.floor((window.innerWidth * 0.9) / 160) * 4;
 	return baseAmount > 40 ? baseAmount / 2 : baseAmount;
 };

@@ -5,7 +5,7 @@ import { getAllOutfits } from "@/api/actions/outfit";
 export const outfitsAtom = atom<Outfit[]>([]);
 export const outfitsLoadingAtom = atom<boolean>(true);
 
-export const refetchOutfitsAtom = atom(null, async (get, set) => {
+export const refetchOutfitsAtom = atom(null, async (_get, set) => {
 	try {
 		const data = await getAllOutfits();
 		set(outfitsAtom, data);

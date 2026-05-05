@@ -21,7 +21,7 @@ const solveNormalEquations = (ATA: number[][], ATb: number[]): number[] => {
 			[aug[col], aug[maxRow]] = [aug[maxRow], aug[col]];
 		}
 
-		if (Math.abs(aug[col][col]) < 1e-12) continue;
+		if (Math.abs(aug[col][col]) < 1e-12) {continue;}
 
 		for (let row = col + 1; row < n; row++) {
 			const factor = aug[row][col] / aug[col][col];
@@ -56,7 +56,7 @@ export const solveGlobalWeights = (
 	observations: WeightedObservation[]
 ): Map<string, number> => {
 	const result = new Map<string, number>();
-	if (observations.length === 0) return result;
+	if (observations.length === 0) {return result;}
 
 	const itemIds: string[] = [];
 	const itemIndex = new Map<string, number>();
@@ -73,7 +73,7 @@ export const solveGlobalWeights = (
 
 	const totalItems = itemIds.length;
 	if (totalItems <= 1) {
-		for (const id of itemIds) result.set(id, 0);
+		for (const id of itemIds) {result.set(id, 0);}
 		return result;
 	}
 
@@ -91,14 +91,14 @@ export const solveGlobalWeights = (
 		const w = obs.weight;
 
 		const row = new Array(n).fill(0);
-		if (iA !== 0) row[iA - 1] = 1;
-		if (iB !== 0) row[iB - 1] = -1;
+		if (iA !== 0) {row[iA - 1] = 1;}
+		if (iB !== 0) {row[iB - 1] = -1;}
 
 		for (let i = 0; i < n; i++) {
-			if (row[i] === 0) continue;
+			if (row[i] === 0) {continue;}
 			ATb[i] += w * row[i] * obs.logRatio;
 			for (let j = 0; j < n; j++) {
-				if (row[j] === 0) continue;
+				if (row[j] === 0) {continue;}
 				ATA[i][j] += w * row[i] * row[j];
 			}
 		}

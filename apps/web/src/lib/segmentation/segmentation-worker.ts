@@ -9,10 +9,10 @@ let sessionPromise: Promise<ort.InferenceSession> | null = null;
 let idleTimer: ReturnType<typeof setTimeout> | null = null;
 
 function resetIdleTimer(): void {
-  if (idleTimer) clearTimeout(idleTimer);
+  if (idleTimer) {clearTimeout(idleTimer);}
   idleTimer = setTimeout(() => {
     if (session) {
-      session.release();
+      void session.release();
       session = null;
       sessionPromise = null;
     }
@@ -20,8 +20,8 @@ function resetIdleTimer(): void {
 }
 
 async function getSession(): Promise<ort.InferenceSession> {
-  if (session) return session;
-  if (sessionPromise) return sessionPromise;
+  if (session) {return session;}
+  if (sessionPromise) {return sessionPromise;}
 
   sessionPromise = (async () => {
     const modelBuffer = await fetchModel();
@@ -111,10 +111,10 @@ function cropTransparentEdges(
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       if (data[(y * width + x) * 4 + 3] > 128) {
-        if (y < top) top = y;
-        if (y > bottom) bottom = y;
-        if (x < left) left = x;
-        if (x > right) right = x;
+        if (y < top) {top = y;}
+        if (y > bottom) {bottom = y;}
+        if (x < left) {left = x;}
+        if (x > right) {right = x;}
       }
     }
   }
@@ -139,7 +139,7 @@ async function finalCompress(
   const maxBytes = maxSizeMB * 1024 * 1024;
 
   const png = await canvas.convertToBlob({ type: "image/png" });
-  if (png.size <= maxBytes) return png;
+  if (png.size <= maxBytes) {return png;}
 
   let lo = 0.1,
     hi = 0.9;
@@ -185,18 +185,20 @@ const workerSelf = self as unknown as {
   postMessage: (message: unknown, transfer?: Transferable[]) => void;
 };
 
-workerSelf.onmessage = async (e: MessageEvent) => {
-  if (e.data.preload) {
-    getSession();
-    return;
-  }
+workerSelf.onmessage = (e: MessageEvent) => {
+  void (async () => {
+    if (e.data.preload) {
+      void getSession();
+      return;
+    }
 
-  const { id, file } = e.data;
-  try {
-    const result = await processImage(file);
-    const buffer = await result.arrayBuffer();
-    workerSelf.postMessage({ id, result: buffer, type: result.type }, [buffer]);
-  } catch (err) {
-    workerSelf.postMessage({ id, error: (err as Error).message });
-  }
+    const { id, file } = e.data;
+    try {
+      const result = await processImage(file);
+      const buffer = await result.arrayBuffer();
+      workerSelf.postMessage({ id, result: buffer, type: result.type }, [buffer]);
+    } catch (err) {
+      workerSelf.postMessage({ id, error: (err as Error).message });
+    }
+  })();
 };

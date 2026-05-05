@@ -1,79 +1,94 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+export type QueryPrimitive = string | number | boolean;
+export type QueryParams = Record<string, QueryPrimitive | QueryPrimitive[] | null | undefined>;
 
-const BACKEND_URL = process.env.BACKEND_URL!;
-const BACKEND_API_KEY = process.env.BACKEND_API_KEY!;
+const rawBackendUrl = import.meta.env.VITE_BACKEND_URL;
 
-async function getAuthHeaders(): Promise<Record<string, string>> {
-	const session = await getServerSession(authOptions);
-
-	if (!session?.user) {
-		throw new Error("Not authenticated");
-	}
-
-	return {
-		"Content-Type": "application/json",
-		"X-API-Key": BACKEND_API_KEY,
-		"X-User-Id": (session.user as any).userId,
-	};
+if (!rawBackendUrl) {
+	throw new Error("Missing required VITE_BACKEND_URL");
 }
 
-// Sends a GET request to the backend with optional query parameters
-export async function get(path: string, params?: Record<string, string | string[]>) {
-	const headers = await getAuthHeaders();
-	const url = new URL(`${BACKEND_URL}${path}`);
+export const backendUrl = rawBackendUrl.replace(/\/+$/, "");
+
+const buildUrl = (path: string, params?: QueryParams): string => {
+	const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+	const url = new URL(`${backendUrl}${normalizedPath}`);
 
 	if (params) {
-		Object.entries(params).forEach(([key, value]) => {
-			if (Array.isArray(value)) {
-				value.forEach((v) => url.searchParams.append(key, v));
-			} else {
-				url.searchParams.append(key, value);
+		for (const [key, value] of Object.entries(params)) {
+			if (value === undefined || value === null) {
+				continue;
 			}
-		});
+			if (Array.isArray(value)) {
+				for (const curr of value) {
+					url.searchParams.append(key, String(curr));
+				}
+				continue;
+			}
+
+			url.searchParams.append(key, String(value));
+		}
 	}
 
-	const res = await fetch(url.toString(), { headers, cache: "no-store" });
+	return url.toString();
+};
 
-	if (!res.ok) {
-		throw new Error(`Backend GET ${path} failed: ${res.status}`);
+const getErrorMessage = async (response: Response): Promise<string> => {
+	try {
+		const payload = await response.json();
+		if (payload && typeof payload.message === "string") {
+			return payload.message;
+		}
+	} catch {
+		// no-op: best effort parsing only
 	}
 
-	return res.json();
-}
+	return `Request failed with status ${response.status}`;
+};
 
-export async function post(path: string, body?: any, options?: { isFormData?: boolean }) {
-	const headers = await getAuthHeaders();
+const request = async <TResponse>(
+	method: "GET" | "POST" | "PATCH" | "DELETE",
+	path: string,
+	options: {
+		body?: FormData | object;
+		params?: QueryParams;
+	} = {}
+): Promise<TResponse> => {
+	const headers: Record<string, string> = {};
+	let body: BodyInit | undefined;
 
-	if (options?.isFormData) {
-		delete headers["Content-Type"];
+	if (options.body instanceof FormData) {
+		body = options.body;
+	} else if (options.body !== undefined) {
+		headers["Content-Type"] = "application/json";
+		body = JSON.stringify(options.body);
 	}
 
-	const res = await fetch(`${BACKEND_URL}${path}`, {
-		method: "POST",
+	const response = await fetch(buildUrl(path, options.params), {
+		method,
 		headers,
-		body: options?.isFormData ? body : JSON.stringify(body),
+		body,
+		credentials: "include",
 	});
 
-	if (!res.ok) {
-		throw new Error(`Backend POST ${path} failed: ${res.status}`);
+	if (!response.ok) {
+		throw new Error(await getErrorMessage(response));
 	}
 
-	return res.json();
-}
-
-export async function del(path: string, body?: any) {
-	const headers = await getAuthHeaders();
-
-	const res = await fetch(`${BACKEND_URL}${path}`, {
-		method: "DELETE",
-		headers,
-		body: body ? JSON.stringify(body) : undefined,
-	});
-
-	if (!res.ok) {
-		throw new Error(`Backend DELETE ${path} failed: ${res.status}`);
+	if (response.status === 204) {
+		return undefined as TResponse;
 	}
 
-	return res.json();
-}
+	return response.json() as Promise<TResponse>;
+};
+
+export const get = <TResponse>(path: string, params?: QueryParams) =>
+	request<TResponse>("GET", path, { params });
+
+export const post = <TResponse>(path: string, body?: FormData | object) =>
+	request<TResponse>("POST", path, { body });
+
+export const patch = <TResponse>(path: string, body?: FormData | object) =>
+	request<TResponse>("PATCH", path, { body });
+
+export const del = <TResponse>(path: string, body?: FormData | object) =>
+	request<TResponse>("DELETE", path, { body });

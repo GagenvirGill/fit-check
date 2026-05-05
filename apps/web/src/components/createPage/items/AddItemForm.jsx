@@ -1,4 +1,3 @@
-"use client";
 
 import React, { useState, useEffect } from "react";
 import { useSetAtom } from "jotai";
@@ -38,7 +37,7 @@ const AddItemForm = () => {
 		for (const image of imagesToCreate) {
 			try {
 				const file = await removeBackground(image);
-				if (!file) throw new Error("Error processing image");
+				if (!file) {throw new Error("Error processing image");}
 
 				const formData = new FormData();
 				formData.append("image", file);
@@ -50,7 +49,7 @@ const AddItemForm = () => {
 				} else {
 					failCount++;
 				}
-			} catch (error) {
+			} catch {
 				failCount++;
 			}
 		}

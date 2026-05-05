@@ -1,18 +1,16 @@
-"use client";
 
 import React from "react";
-import { signIn, useSession } from "next-auth/react";
+import { useAuth } from "@/providers/auth/useAuth";
 import styles from "./GenericPageStyles.module.css";
 import Button from "../components/buttons/Button";
 import YoutubeEmbed from "../components/video/YoutubeEmbed";
 
 const Welcome = () => {
-	const { data: session, status } = useSession();
-	const isAuthenticated = status === "authenticated";
+	const { user, isAuthenticated, login } = useAuth();
 
 	const handleLogin = (e) => {
 		e.preventDefault();
-		signIn("google", { callbackUrl: "/closet" });
+		login();
 	};
 
 	return (
@@ -20,7 +18,7 @@ const Welcome = () => {
 			<div className={styles.pageTitle}>Welcome to Your Fashion Fits</div>
 			<div className={styles.pageText}>
 				{isAuthenticated
-					? `Hello ${session.user.email}`
+					? `Hello ${user?.email ?? ""}`
 					: "Please Log In"}
 			</div>
 			{isAuthenticated ? (

@@ -5,5 +5,5 @@ export type BootstrapResponse = {
   categories: Array<Pick<Category, 'categoryId' | 'name' | 'favoriteItem'>>;
   items: Array<Pick<Item, 'itemId' | 'imagePath' | 'imageWidth' | 'imageHeight'>>;
   outfits: Array<Pick<Outfit, 'outfitId' | 'dateWorn' | 'description' | 'layout'>>;
-  itemCategoryLinks: Pick<ItemToCategory, 'itemId' | 'categoryId'>;
+  itemCategoryLinks: Array<Pick<ItemToCategory, 'itemId' | 'categoryId'>>;
 };

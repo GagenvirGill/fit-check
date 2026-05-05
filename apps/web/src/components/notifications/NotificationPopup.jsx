@@ -1,4 +1,3 @@
-"use client";
 
 import React, { useEffect, useState } from "react";
 import styles from "./Notifications.module.css";
@@ -15,7 +14,7 @@ const NotificationPopup = ({ id, message }) => {
 		}, 7200);
 
 		return () => clearTimeout(timer);
-	}, [dispatch, id]);
+	}, [id]);
 
 	useEffect(() => {
 		if (exiting) {
@@ -25,7 +24,7 @@ const NotificationPopup = ({ id, message }) => {
 
 			return () => clearTimeout(timer);
 		}
-	}, [exiting, dispatch, id]);
+	}, [exiting, id, removeNotification]);
 
 	const clickRemoveNotification = (e) => {
 		e.preventDefault();

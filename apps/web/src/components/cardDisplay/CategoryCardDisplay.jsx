@@ -1,11 +1,10 @@
-"use client";
 
 import React from "react";
 import { useAtomValue } from "jotai";
 import { categoriesAtom } from "@/jotai/categories-atom";
 import { itemsAtom } from "@/jotai/items-atom";
 import styles from "./CardDisplayStyles.module.css";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 
 import CategoryCard from "../card/CategoryCard";
 import BigButton from "../buttons/BigButton";
@@ -16,7 +15,7 @@ const CategoryCardDisplay = () => {
 
 	return (
 		<div className={styles.cardDisplay}>
-			<Link href="/closet/all">
+			<Link to="/closet/all">
 				<BigButton
 					type="button"
 					text="View All of Your Items"

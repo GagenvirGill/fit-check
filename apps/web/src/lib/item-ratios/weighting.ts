@@ -13,16 +13,16 @@ const computePairRecency = (pairDates: Date[]): { lambda: number; mostRecent: nu
 	const sorted = [...pairDates].sort((a, b) => a.getTime() - b.getTime());
 	const mostRecent = sorted[sorted.length - 1].getTime();
 
-	if (sorted.length < 2) return { lambda: 0, mostRecent };
+	if (sorted.length < 2) {return { lambda: 0, mostRecent };}
 
 	const gaps: number[] = [];
 	for (let i = 1; i < sorted.length; i++) {
 		const daysDiff =
 			(sorted[i].getTime() - sorted[i - 1].getTime()) / (1000 * 60 * 60 * 24);
-		if (daysDiff > 0) gaps.push(daysDiff);
+		if (daysDiff > 0) {gaps.push(daysDiff);}
 	}
 
-	if (gaps.length === 0) return { lambda: 0, mostRecent };
+	if (gaps.length === 0) {return { lambda: 0, mostRecent };}
 
 	gaps.sort((a, b) => a - b);
 	const mid = Math.floor(gaps.length / 2);
@@ -66,7 +66,7 @@ const computeOutlierPenalties = (
 				key,
 				obs.map((o) => {
 					const lr = Math.log(o.ratio);
-					if (iqr < 1e-12) return 1;
+					if (iqr < 1e-12) {return 1;}
 					const distanceInIqrs = (lr - median) / iqr;
 					return Math.exp(-OUTLIER_K * distanceInIqrs * distanceInIqrs);
 				})

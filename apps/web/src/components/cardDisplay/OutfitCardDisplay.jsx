@@ -1,4 +1,3 @@
-"use client";
 
 import React, { useState, useEffect } from "react";
 import { useAtomValue } from "jotai";
@@ -10,7 +9,7 @@ import FilterOutfitsByItemForm from "../popupForms/outfitsPage/FilterOufitsByIte
 import SearchOutfitsForm from "../popupForms/outfitsPage/SearchOutfitsForm";
 
 const calculateNumOutfitsPerRow = () => {
-	if (typeof window === "undefined") return 3;
+	if (typeof window === "undefined") {return 3;}
 	return Math.floor((window.innerWidth * 0.9) / 300);
 };
 

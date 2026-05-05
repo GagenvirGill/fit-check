@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /closet/all
+Disallow: /closet/
+
+Sitemap: https://yourfashionfits.com/sitemap.xml

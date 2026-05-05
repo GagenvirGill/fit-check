@@ -1,7 +1,6 @@
-"use client";
 
 import type { ReactNode } from "react";
-import SessionWrapper from "./session-wrapper";
+import AuthProvider from "@/providers/auth/AuthProvider";
 import DataLoader from "./data-loader";
 
 interface ProvidersProps {
@@ -10,10 +9,10 @@ interface ProvidersProps {
 
 export default function Providers({ children }: ProvidersProps) {
 	return (
-		<SessionWrapper>
+		<AuthProvider>
 			<DataLoader>
 				{children}
 			</DataLoader>
-		</SessionWrapper>
+		</AuthProvider>
 	);
 }

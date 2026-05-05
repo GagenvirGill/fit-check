@@ -11,9 +11,9 @@ export const computeCategoryPriors = (
 
 	for (const [itemId, logWeight] of weightMap) {
 		const categories = itemCategories.get(itemId);
-		if (!categories) continue;
+		if (!categories) {continue;}
 		for (const cat of categories) {
-			if (!categoryWeights.has(cat)) categoryWeights.set(cat, []);
+			if (!categoryWeights.has(cat)) {categoryWeights.set(cat, []);}
 			categoryWeights.get(cat)!.push(logWeight);
 		}
 	}
@@ -34,14 +34,14 @@ export const estimateFromPriors = (
 	categories: string[],
 	categoryPriors: Map<string, number>
 ): number | null => {
-	if (categories.length === 0) return null;
+	if (categories.length === 0) {return null;}
 
 	const matchingPriors: number[] = [];
 	for (const cat of categories) {
 		const prior = categoryPriors.get(cat);
-		if (prior !== undefined) matchingPriors.push(prior);
+		if (prior !== undefined) {matchingPriors.push(prior);}
 	}
 
-	if (matchingPriors.length === 0) return null;
+	if (matchingPriors.length === 0) {return null;}
 	return matchingPriors.reduce((a, b) => a + b, 0) / matchingPriors.length;
 };

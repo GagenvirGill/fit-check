@@ -1,4 +1,3 @@
-"use client";
 
 import React from "react";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -16,13 +15,13 @@ const TemplateCategoriesSelector = ({ rowIndex, boxIndex, setShowForm }) => {
 
 	const handleTemplateCategorySubmit = (selectedCategoryIds) => {
 		setBoxCategories({
-			rowIndex: rowIndex,
-			boxIndex: boxIndex,
+			rowIndex,
+			boxIndex,
 			categories: selectedCategoryIds,
 		});
 		setBoxItem({
-			rowIndex: rowIndex,
-			boxIndex: boxIndex,
+			rowIndex,
+			boxIndex,
 			itemId: null,
 			imagePath: null,
 		});

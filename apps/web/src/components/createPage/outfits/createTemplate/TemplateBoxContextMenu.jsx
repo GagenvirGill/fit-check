@@ -1,4 +1,3 @@
-"use client";
 
 import React, { useEffect } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -72,7 +71,7 @@ const TemplateBoxContextMenu = ({
 		e.preventDefault();
 		e.stopPropagation();
 		setShowContextMenu(false);
-		removeTemplateBox({ rowIndex: rowIndex, boxIndex: boxIndex });
+		removeTemplateBox({ rowIndex, boxIndex });
 	};
 
 	const handleLocked = (e) => {
@@ -80,8 +79,8 @@ const TemplateBoxContextMenu = ({
 		e.stopPropagation();
 		setShowContextMenu(false);
 		setBoxLockedStatus({
-			rowIndex: rowIndex,
-			boxIndex: boxIndex,
+			rowIndex,
+			boxIndex,
 			isLocked: !isLocked,
 		});
 	};
@@ -90,36 +89,36 @@ const TemplateBoxContextMenu = ({
 		e.preventDefault();
 		e.stopPropagation();
 		setShowContextMenu(false);
-		addTemplateBoxBefore({ rowIndex: rowIndex, boxIndex: boxIndex });
+		addTemplateBoxBefore({ rowIndex, boxIndex });
 	};
 
 	const handleAddBoxAfter = (e) => {
 		e.preventDefault();
 		e.stopPropagation();
 		setShowContextMenu(false);
-		addTemplateBoxAfter({ rowIndex: rowIndex, boxIndex: boxIndex });
+		addTemplateBoxAfter({ rowIndex, boxIndex });
 	};
 
 	const handleAddRowBefore = (e) => {
 		e.preventDefault();
 		e.stopPropagation();
 		setShowContextMenu(false);
-		addTemplateRowBefore({ rowIndex: rowIndex });
+		addTemplateRowBefore({ rowIndex });
 	};
 
 	const handleAddRowAfter = (e) => {
 		e.preventDefault();
 		e.stopPropagation();
 		setShowContextMenu(false);
-		addTemplateRowAfter({ rowIndex: rowIndex });
+		addTemplateRowAfter({ rowIndex });
 	};
 
 	const handleImageScale = (e) => {
 		e.preventDefault();
 		e.stopPropagation();
 		setBoxScale({
-			rowIndex: rowIndex,
-			boxIndex: boxIndex,
+			rowIndex,
+			boxIndex,
 			scale: parseFloat(e.target.value),
 		});
 	};

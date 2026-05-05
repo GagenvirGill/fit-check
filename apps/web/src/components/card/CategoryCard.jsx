@@ -1,9 +1,8 @@
-"use client";
 
 import React, { useState } from "react";
 import { useSetAtom } from "jotai";
 import { addNotificationAtom } from "@/jotai/notifications-atom";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 
 import styles from "./CategoryCard.module.css";
 import { deleteCategory } from "@/api/actions/category";
@@ -74,7 +73,7 @@ const CategoryCard = ({
 				}
 				type={`'${categoryName}' Category`}
 			>
-				<Link key={`${categoryId}-link`} href={urlRoute}>
+				<Link key={`${categoryId}-link`} to={urlRoute}>
 					<img src={imagePath} alt="Preview" id={categoryId} />
 				</Link>
 				<div className={styles.categoryCardDiv}>

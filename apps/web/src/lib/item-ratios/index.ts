@@ -22,18 +22,18 @@ export const createAdjacencyMatrix = (outfits: Outfit[]): ObservationMatrix => {
 				const currId = currItemData.Item?.itemId;
 				const currWeight = currItemData.itemWeight;
 
-				if (!currId || currWeight <= 0) continue;
+				if (!currId || currWeight <= 0) {continue;}
 
-				if (!matrix[currId]) matrix[currId] = {};
+				if (!matrix[currId]) {matrix[currId] = {};}
 
 				for (const innerRow of outfit.OutfitTemplate.TemplateRows) {
 					for (const checkItemData of innerRow.TemplateItems) {
 						const checkId = checkItemData.Item?.itemId;
 						const checkWeight = checkItemData.itemWeight;
 
-						if (!checkId || checkWeight <= 0 || currId === checkId) continue;
+						if (!checkId || checkWeight <= 0 || currId === checkId) {continue;}
 
-						if (!matrix[currId][checkId]) matrix[currId][checkId] = [];
+						if (!matrix[currId][checkId]) {matrix[currId][checkId] = [];}
 
 						matrix[currId][checkId].push({
 							ratio: checkWeight / currWeight,
@@ -53,7 +53,7 @@ const getOutfitsRatios = (
 	observationMatrix: ObservationMatrix,
 	outfitRows: TemplateBox[][]
 ): number[][] => {
-	if (outfitRows.length === 0) return [];
+	if (outfitRows.length === 0) {return [];}
 
 	const weighted = buildWeightedObservations(observationMatrix);
 	const weightMap = solveGlobalWeights(weighted);
@@ -73,11 +73,11 @@ const getOutfitsRatios = (
 	let result = outfitRows.map((row) =>
 		row.map((item) => {
 			const logWeight = weightMap.get(item.itemId ?? "");
-			if (logWeight !== undefined) return Math.exp(-logWeight);
+			if (logWeight !== undefined) {return Math.exp(-logWeight);}
 
 			// Bayesian prior: estimate from category averages
 			const prior = estimateFromPriors(item.categories, categoryPriors);
-			if (prior !== null) return Math.exp(-prior);
+			if (prior !== null) {return Math.exp(-prior);}
 
 			return DEFAULT_SCALE_VAL;
 		})

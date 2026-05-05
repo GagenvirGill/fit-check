@@ -5,7 +5,7 @@ import { getAllCategories } from "@/api/actions/category";
 export const categoriesAtom = atom<Category[]>([]);
 export const categoriesLoadingAtom = atom<boolean>(true);
 
-export const refetchCategoriesAtom = atom(null, async (get, set) => {
+export const refetchCategoriesAtom = atom(null, async (_get, set) => {
 	try {
 		const data = await getAllCategories();
 		set(categoriesAtom, data);
