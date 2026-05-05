@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1777781465571,
-      "tag": "0000_initial_schema",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1777805000000,
-      "tag": "0001_category_user_name_unique",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1777962800000,
-      "tag": "0002_outfit_layout_not_null",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1777963100000,
-      "tag": "0003_core_fk_and_item_dimensions_not_null",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1778021360069,
-      "tag": "0004_make-userid-not-null",
+      "when": 1778023258474,
+      "tag": "0000_initial-migrations",
       "breakpoints": true
     }
   ]

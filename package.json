@@ -20,7 +20,8 @@
     "database:build": "npm run build -w @fit-check/database",
     "database:generate": "sh -c 'npm run generate -w @fit-check/database -- --name \"$1\"' --",
     "database:migrate": "npm run migrate -w @fit-check/database",
-    "database:push": "npm run push -w @fit-check/database"
+    "database:push": "npm run push -w @fit-check/database",
+    "database:start": "/opt/homebrew/opt/postgresql@16/bin/postgres -D /opt/homebrew/var/postgresql@16 -p 5432"
   },
   "devDependencies": {
     "typescript-eslint": "^8.59.2"

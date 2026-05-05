@@ -12,9 +12,9 @@ CREATE TABLE "users" (
 CREATE TABLE "items" (
 	"item_id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"image_path" varchar(255) NOT NULL,
-	"image_width" integer,
-	"image_height" integer,
-	"user_id" uuid,
+	"image_width" integer NOT NULL,
+	"image_height" integer NOT NULL,
+	"user_id" uuid NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -23,18 +23,17 @@ CREATE TABLE "categories" (
 	"category_id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"favorite_item" uuid,
-	"user_id" uuid,
+	"user_id" uuid NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	CONSTRAINT "categories_name_unique" UNIQUE("name")
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "outfits" (
 	"outfit_id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"date_worn" date NOT NULL,
 	"description" varchar(511),
-	"layout" jsonb,
-	"user_id" uuid,
+	"layout" jsonb NOT NULL,
+	"user_id" uuid NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -52,4 +51,5 @@ ALTER TABLE "categories" ADD CONSTRAINT "categories_favorite_item_items_item_id_
 ALTER TABLE "categories" ADD CONSTRAINT "categories_user_id_users_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("user_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "outfits" ADD CONSTRAINT "outfits_user_id_users_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("user_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "item_to_category" ADD CONSTRAINT "item_to_category_item_id_items_item_id_fk" FOREIGN KEY ("item_id") REFERENCES "public"."items"("item_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "item_to_category" ADD CONSTRAINT "item_to_category_category_id_categories_category_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("category_id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "item_to_category" ADD CONSTRAINT "item_to_category_category_id_categories_category_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("category_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE UNIQUE INDEX "categories_user_id_name_unique" ON "categories" USING btree ("user_id","name");
