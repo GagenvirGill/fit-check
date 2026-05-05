@@ -6,20 +6,20 @@ import { resetDb, seedUser } from '../helpers/db.js';
 
 let app: FastifyInstance;
 
-describe('routes/auth', () => {
-  before(async () => {
+void describe('routes/auth', () => {
+  void before(async () => {
     app = await createTestApp();
   });
 
-  beforeEach(async () => {
+  void beforeEach(async () => {
     await resetDb();
   });
 
-  after(async () => {
+  void after(async () => {
     await app.close();
   });
 
-  it('redirects to Google and sets an OAuth state cookie', async () => {
+  void it('redirects to Google and sets an OAuth state cookie', async () => {
     const response = await app.inject({ method: 'GET', url: '/auth/google' });
     const cookie = response.headers['set-cookie'];
     const normalizedCookie = Array.isArray(cookie) ? cookie.join(';') : (cookie ?? '');
@@ -29,12 +29,12 @@ describe('routes/auth', () => {
     assert.match(normalizedCookie, /fitcheck_oauth_state=/);
   });
 
-  it('rejects callback payloads that fail schema validation', async () => {
+  void it('rejects callback payloads that fail schema validation', async () => {
     const response = await app.inject({ method: 'GET', url: '/auth/google/callback?code=abc' });
     expectValidationError(response);
   });
 
-  it('rejects callback state mismatch before OAuth exchange', async () => {
+  void it('rejects callback state mismatch before OAuth exchange', async () => {
     const response = await app.inject({
       method: 'GET',
       url: '/auth/google/callback?code=abc&state=wrong-state',
@@ -45,7 +45,7 @@ describe('routes/auth', () => {
     assert.deepEqual(response.json(), { success: false, message: 'OAuth state validation failed' });
   });
 
-  it('creates a user session on valid callback', async () => {
+  void it('creates a user session on valid callback', async () => {
     const originalFetch = globalThis.fetch;
 
     globalThis.fetch = (async (input: URL | RequestInfo) => {
@@ -76,7 +76,7 @@ describe('routes/auth', () => {
     }
   });
 
-  it('returns authenticated user for /auth/me when session maps to an existing user', async () => {
+  void it('returns authenticated user for /auth/me when session maps to an existing user', async () => {
     await seedUser({ userId: '11111111-1111-1111-1111-111111111111', email: 'user@example.com', providerId: 'google-11111111-1111-1111-1111-111111111111' });
 
     const response = await app.inject({
@@ -90,12 +90,12 @@ describe('routes/auth', () => {
     assert.equal(response.json().data.email, 'user@example.com');
   });
 
-  it('rejects /auth/me without a session', async () => {
+  void it('rejects /auth/me without a session', async () => {
     const response = await app.inject({ method: 'GET', url: '/auth/me' });
     assert.equal(response.statusCode, 401);
   });
 
-  it('clears the session cookie on logout', async () => {
+  void it('clears the session cookie on logout', async () => {
     const response = await app.inject({ method: 'POST', url: '/auth/logout' });
     assert.equal(response.statusCode, 200);
     const cookie = response.headers['set-cookie'];

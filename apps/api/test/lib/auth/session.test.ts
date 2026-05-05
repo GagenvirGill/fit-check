@@ -12,8 +12,8 @@ let consumeOauthStateCookie: (
   reply: { clearCookie: (name: string, options: object) => void },
 ) => string | undefined;
 
-describe('lib/auth/session', () => {
-  before(async () => {
+void describe('lib/auth/session', () => {
+  void before(async () => {
     applyTestEnv();
     const mod = await import('../../../lib/auth/session.js');
     createSessionJwt = mod.createSessionJwt;
@@ -24,7 +24,7 @@ describe('lib/auth/session', () => {
     consumeOauthStateCookie = mod.consumeOauthStateCookie as typeof consumeOauthStateCookie;
   });
 
-  it('reads a valid session token payload', () => {
+  void it('reads a valid session token payload', () => {
     const token = createSessionJwt({ userId: 'user-1', email: 'user@example.com' });
     assert.deepEqual(readSession({ cookies: { fitcheck_session: token } }), {
       userId: 'user-1',
@@ -32,12 +32,12 @@ describe('lib/auth/session', () => {
     });
   });
 
-  it('returns null for missing, invalid, or malformed session tokens', () => {
+  void it('returns null for missing, invalid, or malformed session tokens', () => {
     assert.equal(readSession({ cookies: {} }), null);
     assert.equal(readSession({ cookies: { fitcheck_session: 'invalid' } }), null);
   });
 
-  it('sets and clears session cookies', () => {
+  void it('sets and clears session cookies', () => {
     const setCalls: unknown[] = [];
     const clearCalls: unknown[] = [];
 
@@ -49,7 +49,7 @@ describe('lib/auth/session', () => {
     assert.equal((clearCalls[0] as unknown[])[0], 'fitcheck_session');
   });
 
-  it('sets and consumes oauth state cookies', () => {
+  void it('sets and consumes oauth state cookies', () => {
     const setCalls: unknown[] = [];
     const clearCalls: unknown[] = [];
 

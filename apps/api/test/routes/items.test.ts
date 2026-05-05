@@ -6,20 +6,20 @@ import { linkItemToCategory, resetDb, seedCategory, seedItem, seedOutfit, seedUs
 
 let app: FastifyInstance;
 
-describe('routes/items', () => {
-  before(async () => {
+void describe('routes/items', () => {
+  void before(async () => {
     app = await createTestApp();
   });
 
-  beforeEach(async () => {
+  void beforeEach(async () => {
     await resetDb();
   });
 
-  after(async () => {
+  void after(async () => {
     await app.close();
   });
 
-  it('requires authentication', async () => {
+  void it('requires authentication', async () => {
     const response = await app.inject({
       method: 'POST',
       url: '/items',
@@ -29,7 +29,7 @@ describe('routes/items', () => {
     assert.equal(response.statusCode, 401);
   });
 
-  it('rejects item creation when multipart payload has no file', async () => {
+  void it('rejects item creation when multipart payload has no file', async () => {
     await seedUser();
     const response = await app.inject({
       method: 'POST',
@@ -42,7 +42,7 @@ describe('routes/items', () => {
     assert.deepEqual(response.json(), { success: false, message: 'Image file is required' });
   });
 
-  it('replaces item categories through PATCH /items/:id', async () => {
+  void it('replaces item categories through PATCH /items/:id', async () => {
     await seedUser();
     const item = await seedItem('11111111-1111-1111-1111-111111111111');
     const c1 = await seedCategory('11111111-1111-1111-1111-111111111111', { name: 'A' });
@@ -66,7 +66,7 @@ describe('routes/items', () => {
     assert.equal(clear.statusCode, 200);
   });
 
-  it('supports no-op PATCH when categoryIds is omitted', async () => {
+  void it('supports no-op PATCH when categoryIds is omitted', async () => {
     await seedUser();
     const item = await seedItem('11111111-1111-1111-1111-111111111111');
 
@@ -81,7 +81,7 @@ describe('routes/items', () => {
     assert.equal(response.json().message, 'Item updated');
   });
 
-  it('rejects invalid PATCH payloads and unknown item/category ownership', async () => {
+  void it('rejects invalid PATCH payloads and unknown item/category ownership', async () => {
     await seedUser();
     const item = await seedItem('11111111-1111-1111-1111-111111111111');
 
@@ -112,7 +112,7 @@ describe('routes/items', () => {
     assert.equal(invalidCategory.statusCode, 400);
   });
 
-  it('prevents deleting items referenced by outfits and allows deletion when unreferenced', async () => {
+  void it('prevents deleting items referenced by outfits and allows deletion when unreferenced', async () => {
     await seedUser();
     const item = await seedItem('11111111-1111-1111-1111-111111111111');
     await seedOutfit('11111111-1111-1111-1111-111111111111', { layout: [[{ itemId: item.item_id, weight: 1 }]] });

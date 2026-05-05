@@ -6,25 +6,25 @@ import { resetDb, seedItem, seedOutfit, seedUser } from '../helpers/db.js';
 
 let app: FastifyInstance;
 
-describe('routes/outfits', () => {
-  before(async () => {
+void describe('routes/outfits', () => {
+  void before(async () => {
     app = await createTestApp();
   });
 
-  beforeEach(async () => {
+  void beforeEach(async () => {
     await resetDb();
   });
 
-  after(async () => {
+  void after(async () => {
     await app.close();
   });
 
-  it('requires authentication', async () => {
+  void it('requires authentication', async () => {
     const response = await app.inject({ method: 'POST', url: '/outfits', payload: { dateWorn: '2026-05-03', layout: [] } });
     assert.equal(response.statusCode, 401);
   });
 
-  it('creates outfits when layout item ownership is valid', async () => {
+  void it('creates outfits when layout item ownership is valid', async () => {
     await seedUser();
     const item = await seedItem('11111111-1111-1111-1111-111111111111');
 
@@ -43,7 +43,7 @@ describe('routes/outfits', () => {
     assert.equal(response.json().data.description, 'fit of day');
   });
 
-  it('rejects invalid payloads and non-owned layout items', async () => {
+  void it('rejects invalid payloads and non-owned layout items', async () => {
     await seedUser();
 
     const invalid = await app.inject({
@@ -67,7 +67,7 @@ describe('routes/outfits', () => {
     assert.equal(notOwned.json().message, 'layout includes one or more items not owned by the user');
   });
 
-  it('deletes outfits and returns 404 for missing outfits', async () => {
+  void it('deletes outfits and returns 404 for missing outfits', async () => {
     await seedUser();
     const outfit = await seedOutfit('11111111-1111-1111-1111-111111111111');
 

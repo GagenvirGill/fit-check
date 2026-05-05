@@ -23,8 +23,8 @@ const createReply = (): CapturedReply => {
   return reply;
 };
 
-describe('lib/http/responses', () => {
-  it('sends success responses with optional data', () => {
+void describe('lib/http/responses', () => {
+  void it('sends success responses with optional data', () => {
     const reply = createReply();
     ok(reply as never, 'Loaded', { count: 1 });
 
@@ -32,7 +32,7 @@ describe('lib/http/responses', () => {
     assert.deepEqual(reply.payload, { success: true, message: 'Loaded', data: { count: 1 } });
   });
 
-  it('sends created responses without undefined data', () => {
+  void it('sends created responses without undefined data', () => {
     const reply = createReply();
     created(reply as never, 'Created');
 
@@ -40,7 +40,7 @@ describe('lib/http/responses', () => {
     assert.deepEqual(reply.payload, { success: true, message: 'Created' });
   });
 
-  it('sends failure responses', () => {
+  void it('sends failure responses', () => {
     const reply = createReply();
     sendFailure(reply as never, 409, 'Conflict');
 

@@ -6,8 +6,8 @@ let createOauthState: () => string;
 let buildGoogleAuthUrl: (state: string) => string;
 let getGoogleUserFromCode: (code: string) => Promise<{ sub: string; email: string }>;
 
-describe('lib/auth/oauth', () => {
-  before(async () => {
+void describe('lib/auth/oauth', () => {
+  void before(async () => {
     applyTestEnv();
     const mod = await import('../../../lib/auth/oauth.js');
     createOauthState = mod.createOauthState;
@@ -15,7 +15,7 @@ describe('lib/auth/oauth', () => {
     getGoogleUserFromCode = mod.getGoogleUserFromCode;
   });
 
-  it('creates random oauth state tokens', () => {
+  void it('creates random oauth state tokens', () => {
     const stateA = createOauthState();
     const stateB = createOauthState();
 
@@ -24,7 +24,7 @@ describe('lib/auth/oauth', () => {
     assert.notEqual(stateA, stateB);
   });
 
-  it('builds the google auth URL with required params', () => {
+  void it('builds the google auth URL with required params', () => {
     const url = new URL(buildGoogleAuthUrl('state-123'));
 
     assert.equal(url.origin, 'https://accounts.google.com');
@@ -36,7 +36,7 @@ describe('lib/auth/oauth', () => {
     assert.equal(url.searchParams.get('state'), 'state-123');
   });
 
-  it('exchanges auth codes and returns Google user info', async () => {
+  void it('exchanges auth codes and returns Google user info', async () => {
     const originalFetch = globalThis.fetch;
     const calls: string[] = [];
 

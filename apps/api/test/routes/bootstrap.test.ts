@@ -6,25 +6,25 @@ import { linkItemToCategory, resetDb, seedCategory, seedItem, seedOutfit, seedUs
 
 let app: FastifyInstance;
 
-describe('routes/bootstrap', () => {
-  before(async () => {
+void describe('routes/bootstrap', () => {
+  void before(async () => {
     app = await createTestApp();
   });
 
-  beforeEach(async () => {
+  void beforeEach(async () => {
     await resetDb();
   });
 
-  after(async () => {
+  void after(async () => {
     await app.close();
   });
 
-  it('requires authentication', async () => {
+  void it('requires authentication', async () => {
     const response = await app.inject({ method: 'GET', url: '/bootstrap' });
     assert.equal(response.statusCode, 401);
   });
 
-  it('returns aggregated bootstrap data for the authenticated user', async () => {
+  void it('returns aggregated bootstrap data for the authenticated user', async () => {
     const user = await seedUser();
     const item = await seedItem(user.user_id);
     const category = await seedCategory(user.user_id, { favoriteItem: item.item_id });

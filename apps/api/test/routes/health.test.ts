@@ -5,16 +5,16 @@ import { createTestApp } from '../helpers/app.js';
 
 let app: FastifyInstance;
 
-describe('routes/health', () => {
-  before(async () => {
+void describe('routes/health', () => {
+  void before(async () => {
     app = await createTestApp();
   });
 
-  after(async () => {
+  void after(async () => {
     await app.close();
   });
 
-  it('returns the health contract', async () => {
+  void it('returns the health contract', async () => {
     const response = await app.inject({ method: 'GET', url: '/health' });
     const payload = response.json();
 

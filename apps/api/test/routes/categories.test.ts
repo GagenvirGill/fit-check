@@ -6,25 +6,25 @@ import { resetDb, seedCategory, seedItem, seedUser } from '../helpers/db.js';
 
 let app: FastifyInstance;
 
-describe('routes/categories', () => {
-  before(async () => {
+void describe('routes/categories', () => {
+  void before(async () => {
     app = await createTestApp();
   });
 
-  beforeEach(async () => {
+  void beforeEach(async () => {
     await resetDb();
   });
 
-  after(async () => {
+  void after(async () => {
     await app.close();
   });
 
-  it('requires authentication', async () => {
+  void it('requires authentication', async () => {
     const response = await app.inject({ method: 'POST', url: '/categories', payload: { name: 'Tops' } });
     assert.equal(response.statusCode, 401);
   });
 
-  it('creates categories', async () => {
+  void it('creates categories', async () => {
     const user = await seedUser();
     const createResponse = await app.inject({
       method: 'POST',
@@ -39,7 +39,7 @@ describe('routes/categories', () => {
     assert.equal(user.user_id, '11111111-1111-1111-1111-111111111111');
   });
 
-  it('rejects invalid create payloads with schema errors', async () => {
+  void it('rejects invalid create payloads with schema errors', async () => {
     await seedUser();
     const response = await app.inject({
       method: 'POST',
@@ -50,7 +50,7 @@ describe('routes/categories', () => {
     expectValidationError(response);
   });
 
-  it('enforces unique category names per user', async () => {
+  void it('enforces unique category names per user', async () => {
     await seedUser();
     await seedCategory('11111111-1111-1111-1111-111111111111', { name: 'Shoes' });
 
@@ -65,7 +65,7 @@ describe('routes/categories', () => {
     assert.equal(response.json().message, 'Category name already exists for this user');
   });
 
-  it('updates category fields, including favoriteItem ownership checks', async () => {
+  void it('updates category fields, including favoriteItem ownership checks', async () => {
     await seedUser();
     const item = await seedItem('11111111-1111-1111-1111-111111111111');
     const category = await seedCategory('11111111-1111-1111-1111-111111111111', { name: 'Hats' });
@@ -82,7 +82,7 @@ describe('routes/categories', () => {
     assert.equal(response.json().data.favoriteItem, item.item_id);
   });
 
-  it('deletes categories and returns 404 for missing categories', async () => {
+  void it('deletes categories and returns 404 for missing categories', async () => {
     await seedUser();
     const category = await seedCategory('11111111-1111-1111-1111-111111111111');
 

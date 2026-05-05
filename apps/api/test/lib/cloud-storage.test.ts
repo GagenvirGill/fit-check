@@ -11,8 +11,8 @@ let uploadItemImage: (filename: string, mimeType: string, bytes: Buffer) => Prom
 let deleteItemImageByUrl: (imageUrl: string) => Promise<void>;
 let commands: CommandWithInput[] = [];
 
-describe('lib/cloud-storage', () => {
-  before(async () => {
+void describe('lib/cloud-storage', () => {
+  void before(async () => {
     applyTestEnv();
     mock.method(Date, 'now', () => 123);
     mock.method(Math, 'random', () => 0.5);
@@ -26,11 +26,11 @@ describe('lib/cloud-storage', () => {
     deleteItemImageByUrl = mod.deleteItemImageByUrl as typeof deleteItemImageByUrl;
   });
 
-  beforeEach(() => {
+  void beforeEach(() => {
     commands = [];
   });
 
-  it('uploads item images with a content-type derived extension', async () => {
+  void it('uploads item images with a content-type derived extension', async () => {
     const url = await uploadItemImage('shirt.original', 'image/png', Buffer.from('image'));
 
     assert.equal(url, 'https://cdn.example.com/items/123-i.png');
@@ -42,13 +42,13 @@ describe('lib/cloud-storage', () => {
     });
   });
 
-  it('falls back to the filename extension when the mime type is unknown', async () => {
+  void it('falls back to the filename extension when the mime type is unknown', async () => {
     const url = await uploadItemImage('shirt.bmp', 'application/octet-stream', Buffer.from('image'));
     assert.equal(url, 'https://cdn.example.com/items/123-i.bmp');
     assert.equal(commands[0].input.Key, 'items/123-i.bmp');
   });
 
-  it('deletes item images whose URL belongs to the configured CDN base', async () => {
+  void it('deletes item images whose URL belongs to the configured CDN base', async () => {
     await deleteItemImageByUrl('https://cdn.example.com/items/item-1.png');
     assert.deepEqual(commands[0].input, {
       Bucket: 'r2-bucket',
@@ -56,7 +56,7 @@ describe('lib/cloud-storage', () => {
     });
   });
 
-  it('ignores image URLs outside the configured CDN base', async () => {
+  void it('ignores image URLs outside the configured CDN base', async () => {
     await deleteItemImageByUrl('https://other.example.com/items/item-1.png');
     assert.deepEqual(commands, []);
   });

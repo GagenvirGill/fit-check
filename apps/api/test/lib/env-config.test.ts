@@ -10,15 +10,15 @@ let envConfig: {
 };
 let isProduction: boolean;
 
-describe('lib/env-config', () => {
-  before(async () => {
+void describe('lib/env-config', () => {
+  void before(async () => {
     applyTestEnv();
     const mod = await import('../../lib/env-config.js');
     envConfig = mod.envConfig;
     isProduction = mod.isProduction;
   });
 
-  it('loads required API environment values and defaults', () => {
+  void it('loads required API environment values and defaults', () => {
     assert.equal(envConfig.nodeEnv, 'development');
     assert.equal(envConfig.port, 4000);
     assert.equal(envConfig.databaseUrl, 'pgmem://fit-check-test-db');

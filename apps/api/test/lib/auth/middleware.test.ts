@@ -10,8 +10,8 @@ let requireAuth: RequireAuth;
 let requireAuthUser: (request: { authUser?: { userId: string; email: string } }) => { userId: string; email: string };
 let createSessionJwt: (payload: { userId: string; email: string }) => string;
 
-describe('lib/auth/middleware', () => {
-  before(async () => {
+void describe('lib/auth/middleware', () => {
+  void before(async () => {
     applyTestEnv();
     const middleware = await import('../../../lib/auth/middleware.js');
     const session = await import('../../../lib/auth/session.js');
@@ -20,18 +20,18 @@ describe('lib/auth/middleware', () => {
     createSessionJwt = session.createSessionJwt;
   });
 
-  it('returns the auth user when present', () => {
+  void it('returns the auth user when present', () => {
     assert.deepEqual(requireAuthUser({ authUser: { userId: 'user-1', email: 'user@example.com' } }), {
       userId: 'user-1',
       email: 'user@example.com',
     });
   });
 
-  it('throws unauthorized when the auth user is missing', () => {
+  void it('throws unauthorized when the auth user is missing', () => {
     assert.throws(() => requireAuthUser({}), /Unauthorized/);
   });
 
-  it('responds 401 for missing or invalid session cookies', async () => {
+  void it('responds 401 for missing or invalid session cookies', async () => {
     const captured: { statusCode?: number; payload?: unknown } = {};
     const reply = {
       status: (code: number) => {
@@ -50,7 +50,7 @@ describe('lib/auth/middleware', () => {
     assert.deepEqual(captured.payload, { success: false, message: 'Unauthorized' });
   });
 
-  it('sets request.authUser for valid session cookies', async () => {
+  void it('sets request.authUser for valid session cookies', async () => {
     const token = createSessionJwt({ userId: 'user-1', email: 'user@example.com' });
     const request = { cookies: { fitcheck_session: token }, authUser: undefined };
     let wasSendCalled = false;
