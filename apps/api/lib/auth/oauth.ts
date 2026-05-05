@@ -7,6 +7,13 @@ type GoogleUserInfo = {
   email: string;
 };
 
+export class OauthProviderError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'OauthProviderError';
+  }
+}
+
 const exchangeAuthCode = async (code: string) => {
   const body = new URLSearchParams({
     code,
@@ -25,12 +32,12 @@ const exchangeAuthCode = async (code: string) => {
   });
 
   if (!response.ok) {
-    throw Object.assign(new Error('Google token exchange failed'), { statusCode: 401 });
+    throw new OauthProviderError('Google token exchange failed');
   }
 
   const data = await response.json();
   if (typeof data.access_token !== 'string') {
-    throw Object.assign(new Error('Invalid Google token payload'), { statusCode: 401 });
+    throw new OauthProviderError('Invalid Google token payload');
   }
 
   return data.access_token as string;
@@ -44,12 +51,12 @@ const fetchGoogleUserInfo = async (accessToken: string): Promise<GoogleUserInfo>
   });
 
   if (!response.ok) {
-    throw Object.assign(new Error('Google user info fetch failed'), { statusCode: 401 });
+    throw new OauthProviderError('Google user info fetch failed');
   }
 
   const data = await response.json();
   if (typeof data.sub !== 'string' || typeof data.email !== 'string') {
-    throw Object.assign(new Error('Invalid Google user profile'), { statusCode: 401 });
+    throw new OauthProviderError('Invalid Google user profile');
   }
 
   return {

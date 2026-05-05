@@ -3,7 +3,7 @@ import type { Item } from '../models';
 export const updateItemBodySchema = {
   type: 'object',
   minProperties: 1,
-  additionalProperties: true,
+  additionalProperties: false,
   properties: {
     categoryIds: {
       type: 'array',

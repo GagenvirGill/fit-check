@@ -3,7 +3,7 @@ import type { Category } from '../models';
 export const createCategoryBodySchema = {
   type: 'object',
   required: ['name'],
-  additionalProperties: true,
+  additionalProperties: false,
   properties: {
     name: { type: 'string' },
   },
@@ -29,7 +29,7 @@ export type CategoryIdParam = {
 export const updateCategoryBodySchema = {
   type: 'object',
   minProperties: 1,
-  additionalProperties: true,
+  additionalProperties: false,
   properties: {
     name: { type: 'string' },
     favoriteItem: {

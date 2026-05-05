@@ -19,6 +19,7 @@ export const createApp = async () => {
     ajv: {
       customOptions: {
         coerceTypes: false,
+        removeAdditional: false,
       },
     },
   });
@@ -42,12 +43,26 @@ export const createApp = async () => {
   app.setErrorHandler((error, _request, reply) => {
     app.log.error(error);
 
-    let message = isProduction ? 'Internal server error' : 'Unknown error';
+    let statusCode = 500;
+    const rawStatusCode = (error as { statusCode?: unknown })?.statusCode;
+    if (
+      typeof rawStatusCode === 'number'
+      && Number.isInteger(rawStatusCode)
+      && rawStatusCode >= 400
+      && rawStatusCode <= 599
+    ) {
+      statusCode = rawStatusCode;
+    }
+
+    let message = 'Unknown error';
     if (error instanceof Error && error.message) {
       message = error.message;
     }
+    if (statusCode >= 500 && isProduction) {
+      message = 'Internal server error';
+    }
 
-    return reply.status(500).send({ message });
+    return reply.status(statusCode).send({ message });
   });
 
   await app.register(healthRoutes, { prefix: '/health' });

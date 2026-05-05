@@ -16,7 +16,7 @@ export type OutfitIdParam = {
 export const createOutfitBodySchema = {
   type: 'object',
   required: ['dateWorn', 'layout'],
-  additionalProperties: true,
+  additionalProperties: false,
   properties: {
     dateWorn: {
       type: 'string',
@@ -32,7 +32,7 @@ export const createOutfitBodySchema = {
         items: {
           type: 'object',
           required: ['itemId', 'weight'],
-          additionalProperties: true,
+          additionalProperties: false,
           properties: {
             itemId: { type: 'string', minLength: 1 },
             weight: { type: 'number' },

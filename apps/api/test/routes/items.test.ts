@@ -66,7 +66,7 @@ void describe('routes/items', () => {
     assert.equal(clear.statusCode, 204);
   });
 
-  void it('supports no-op PATCH when categoryIds is omitted', async () => {
+  void it('rejects no-op PATCH payloads that omit categoryIds', async () => {
     await seedUser();
     const item = await seedItem('11111111-1111-1111-1111-111111111111');
 
@@ -77,8 +77,7 @@ void describe('routes/items', () => {
       payload: { note: 'noop' },
     });
 
-    assert.equal(response.statusCode, 204);
-    assert.equal(response.body, '');
+    expectValidationError(response);
   });
 
   void it('rejects invalid PATCH payloads and unknown item/category ownership', async () => {
