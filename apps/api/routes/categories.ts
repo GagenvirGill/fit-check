@@ -1,4 +1,10 @@
 import type { FastifyPluginAsync } from 'fastify';
+import type { CreateCategoryRequest, UpdateCategoryRequest } from '@fit-check/shared/types/contracts/categories';
+import {
+  categoryIdParamSchema,
+  createCategoryBodySchema,
+  updateCategoryBodySchema,
+} from '@fit-check/shared/types/contracts/categories';
 import { requireAuthUser } from '#lib/auth/middleware';
 import { isDatabaseUniqueViolation } from '#lib/database-errors';
 import {
@@ -8,18 +14,29 @@ import {
   updateCategory,
   userOwnsItem,
 } from '#lib/database/queries/categories';
-import { idParamSchema } from '#types/schemas/shared';
-import { createCategoryBodySchema, updateCategoryBodySchema } from '#types/schemas/categories';
 
-type CategoryUpdateBody = {
-  name?: string;
-  favoriteItem?: string | null;
+const buildCategoryUpdates = (body: UpdateCategoryRequest) => {
+  const updates: { name?: string; favoriteItem?: string | null } = {};
+
+  if (body.name !== undefined) {
+    const name = body.name.trim();
+    if (!name) {
+      throw new Error('Category name cannot be empty');
+    }
+    updates.name = name;
+  }
+
+  if (body.favoriteItem !== undefined) {
+    updates.favoriteItem = body.favoriteItem;
+  }
+
+  return updates;
 };
 
 const categoriesRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post('/', { schema: { body: createCategoryBodySchema } }, async (request, reply) => {
     const authUser = requireAuthUser(request);
-    const { name: rawName } = request.body as { name: string };
+    const { name: rawName } = request.body as CreateCategoryRequest;
     const name = rawName.trim();
     if (!name) {
       throw new Error('Category name is required');
@@ -40,29 +57,16 @@ const categoriesRoutes: FastifyPluginAsync = async (fastify) => {
     }
   });
 
-  fastify.patch('/:id', { schema: { params: idParamSchema, body: updateCategoryBodySchema } }, async (request, reply) => {
+  fastify.patch('/:id', { schema: { params: categoryIdParamSchema, body: updateCategoryBodySchema } }, async (request, reply) => {
     const authUser = requireAuthUser(request);
     const { id: categoryId } = request.params as { id: string };
-    const body = request.body as CategoryUpdateBody;
-    const updates: { name?: string; favoriteItem?: string | null } = {};
+    const body = request.body as UpdateCategoryRequest;
+    const updates = buildCategoryUpdates(body);
 
-    if (body.name !== undefined) {
-      const name = body.name.trim();
-      if (!name) {
-        throw new Error('Category name cannot be empty');
-      }
-      updates.name = name;
-    }
-
-    if (body.favoriteItem !== undefined) {
-      if (body.favoriteItem === null) {
-        updates.favoriteItem = null;
-      } else {
-        const ownsItem = await userOwnsItem(authUser.userId, body.favoriteItem);
-        if (!ownsItem) {
-          throw new Error('favoriteItem must reference an item owned by the user');
-        }
-        updates.favoriteItem = body.favoriteItem;
+    if (updates.favoriteItem !== undefined && updates.favoriteItem !== null) {
+      const ownsItem = await userOwnsItem(authUser.userId, updates.favoriteItem);
+      if (!ownsItem) {
+        throw new Error('favoriteItem must reference an item owned by the user');
       }
     }
 
@@ -84,7 +88,7 @@ const categoriesRoutes: FastifyPluginAsync = async (fastify) => {
     }
   });
 
-  fastify.delete('/:id', { schema: { params: idParamSchema } }, async (request, reply) => {
+  fastify.delete('/:id', { schema: { params: categoryIdParamSchema } }, async (request, reply) => {
     const authUser = requireAuthUser(request);
     const { id: categoryId } = request.params as { id: string };
     const deleted = await deleteCategory(authUser.userId, categoryId);

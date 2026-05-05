@@ -1,5 +1,7 @@
 import type { FastifyPluginAsync } from 'fastify';
 import type { MultipartFile } from '@fastify/multipart';
+import type { UpdateItemRequest } from '@fit-check/shared/types/contracts/items';
+import { itemIdParamSchema, updateItemBodySchema } from '@fit-check/shared/types/contracts/items';
 import sizeOf from 'image-size';
 import { requireAuthUser } from '#lib/auth/middleware';
 import { deleteItemImageByUrl, uploadItemImage } from '#lib/cloud-storage';
@@ -13,30 +15,6 @@ import {
   listUserOutfitLayouts,
   replaceItemCategories,
 } from '#lib/database/queries/items';
-import { idParamSchema } from '#types/schemas/shared';
-import { updateItemBodySchema } from '#types/schemas/items';
-
-export const parseCategoryIdsBody = (body: unknown): string[] | undefined => {
-  if (typeof body !== 'object' || body === null) {
-    throw new Error('invalid request body');
-  }
-
-  if (!('categoryIds' in body)) {
-    return undefined;
-  }
-
-  const categoryIds = (body as { categoryIds: unknown }).categoryIds;
-
-  if (!Array.isArray(categoryIds)) {
-    throw new Error('categoryIds must be an array');
-  }
-
-  if (!categoryIds.every((id) => typeof id === 'string' && id.length > 0)) {
-    throw new Error('categoryIds must contain non-empty string IDs');
-  }
-
-  return [...new Set(categoryIds)];
-};
 
 const canDeleteItem = async (userId: string, itemId: string) => {
   const outfits = await listUserOutfitLayouts(userId);
@@ -84,6 +62,22 @@ const deleteItem = async (userId: string, itemId: string, imagePath: string) => 
   }
 };
 
+const parseCategoryIds = (body: UpdateItemRequest): string[] | undefined => {
+  if (body.categoryIds === undefined) {
+    return undefined;
+  }
+
+  if (!Array.isArray(body.categoryIds)) {
+    throw new Error('categoryIds must be an array');
+  }
+
+  if (!body.categoryIds.every((id) => typeof id === 'string' && id.length > 0)) {
+    throw new Error('categoryIds must contain non-empty string IDs');
+  }
+
+  return [...new Set(body.categoryIds)];
+};
+
 const itemsRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post('/', async (request, reply) => {
     const authUser = requireAuthUser(request);
@@ -96,7 +90,7 @@ const itemsRoutes: FastifyPluginAsync = async (fastify) => {
     return reply.status(201).send({ success: true, message: 'Item created', data: createdItem });
   });
 
-  fastify.patch('/:id', { schema: { params: idParamSchema, body: updateItemBodySchema } }, async (request, reply) => {
+  fastify.patch('/:id', { schema: { params: itemIdParamSchema, body: updateItemBodySchema } }, async (request, reply) => {
     const authUser = requireAuthUser(request);
     const { id: itemId } = request.params as { id: string };
 
@@ -105,7 +99,7 @@ const itemsRoutes: FastifyPluginAsync = async (fastify) => {
       throw new Error('Item not found');
     }
 
-    const categoryIds = parseCategoryIdsBody(request.body);
+    const categoryIds = parseCategoryIds(request.body as UpdateItemRequest);
 
     if (categoryIds !== undefined) {
       const validCategories = await allCategoriesBelongToUser(authUser.userId, categoryIds);
@@ -119,7 +113,7 @@ const itemsRoutes: FastifyPluginAsync = async (fastify) => {
     return reply.status(200).send({ success: true, message: 'Item updated' });
   });
 
-  fastify.delete('/:id', { schema: { params: idParamSchema } }, async (request, reply) => {
+  fastify.delete('/:id', { schema: { params: itemIdParamSchema } }, async (request, reply) => {
     const authUser = requireAuthUser(request);
     const { id: itemId } = request.params as { id: string };
     const item = await findOwnedItem(authUser.userId, itemId);

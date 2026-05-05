@@ -1,4 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify';
+import type { GoogleCallbackQuery } from '@fit-check/shared/types/contracts/auth';
+import { googleCallbackQuerySchema } from '@fit-check/shared/types/contracts/auth';
 import { envConfig } from '#lib/env-config';
 import { getUserById, upsertGoogleUser } from '#lib/database/queries/users';
 import { buildGoogleAuthUrl, createOauthState, getGoogleUserFromCode } from '#lib/auth/oauth';
@@ -10,7 +12,6 @@ import {
   setOauthStateCookie,
   setSessionCookie,
 } from '#lib/auth/session';
-import { googleCallbackQuerySchema } from '#types/schemas/auth';
 
 const authRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get('/google', async (_request, reply) => {
@@ -20,7 +21,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   fastify.get('/google/callback', { schema: { querystring: googleCallbackQuerySchema } }, async (request, reply) => {
-    const { code, state: returnedState } = request.query as { code: string; state: string };
+    const { code, state: returnedState } = request.query as GoogleCallbackQuery;
     const expectedState = consumeOauthStateCookie(request, reply);
     if (!expectedState || expectedState !== returnedState) {
       throw new Error('OAuth state validation failed');

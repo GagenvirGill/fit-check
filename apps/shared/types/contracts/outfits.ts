@@ -1,3 +1,18 @@
+import type { OutfitLayout } from '../models';
+
+export const outfitIdParamSchema = {
+  type: 'object',
+  required: ['id'],
+  additionalProperties: false,
+  properties: {
+    id: { type: 'string', minLength: 1 },
+  },
+} as const;
+
+export type OutfitIdParam = {
+  id: string;
+};
+
 export const createOutfitBodySchema = {
   type: 'object',
   required: ['dateWorn', 'layout'],
@@ -27,3 +42,9 @@ export const createOutfitBodySchema = {
     },
   },
 } as const;
+
+export type CreateOutfitRequest = {
+  dateWorn: string;
+  description?: string | null;
+  layout: OutfitLayout;
+};

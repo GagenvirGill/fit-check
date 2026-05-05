@@ -7,3 +7,8 @@ export const googleCallbackQuerySchema = {
     state: { type: 'string', minLength: 1 },
   },
 } as const;
+
+export type GoogleCallbackQuery = {
+  code: string;
+  state: string;
+};

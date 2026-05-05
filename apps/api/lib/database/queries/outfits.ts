@@ -1,4 +1,5 @@
 import { and, eq, inArray } from 'drizzle-orm';
+import type { OutfitLayout } from '@fit-check/shared/types/models';
 import * as schema from '@fit-check/database/schema';
 import db from '../client';
 
@@ -20,7 +21,7 @@ export const createOutfit = async (
   payload: {
     dateWorn: string;
     description?: string | null;
-    layout: unknown;
+    layout: OutfitLayout;
   },
 ) => {
   const created = await db

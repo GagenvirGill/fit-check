@@ -7,6 +7,23 @@ export const createCategoryBodySchema = {
   },
 } as const;
 
+export type CreateCategoryRequest = {
+  name: string;
+};
+
+export const categoryIdParamSchema = {
+  type: 'object',
+  required: ['id'],
+  additionalProperties: false,
+  properties: {
+    id: { type: 'string', minLength: 1 },
+  },
+} as const;
+
+export type CategoryIdParam = {
+  id: string;
+};
+
 export const updateCategoryBodySchema = {
   type: 'object',
   minProperties: 1,
@@ -18,3 +35,8 @@ export const updateCategoryBodySchema = {
     },
   },
 } as const;
+
+export type UpdateCategoryRequest = {
+  name?: string;
+  favoriteItem?: string | null;
+};

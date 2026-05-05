@@ -1,5 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify';
-import type { OutfitLayout } from '@fit-check/shared/types/models';
+import type { CreateOutfitRequest } from '@fit-check/shared/types/contracts/outfits';
+import { createOutfitBodySchema, outfitIdParamSchema } from '@fit-check/shared/types/contracts/outfits';
 import { requireAuthUser } from '#lib/auth/middleware';
 import { getUniqueLayoutItemIds } from '#lib/outfit-layout';
 import {
@@ -7,30 +8,27 @@ import {
   createOutfit,
   deleteOutfit,
 } from '#lib/database/queries/outfits';
-import { idParamSchema } from '#types/schemas/shared';
-import { createOutfitBodySchema } from '#types/schemas/outfits';
-
-type CreateOutfitBody = {
-  dateWorn: string;
-  description?: string | null;
-  layout: OutfitLayout;
-};
 
 const outfitsRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post('/', { schema: { body: createOutfitBodySchema } }, async (request, reply) => {
     const authUser = requireAuthUser(request);
-    const { dateWorn, description, layout } = request.body as CreateOutfitBody;
+    const body = request.body as CreateOutfitRequest;
+    const { dateWorn, layout } = body;
     const allItemIds = getUniqueLayoutItemIds(layout);
     const validItems = await allItemsBelongToUser(authUser.userId, allItemIds);
     if (!validItems) {
       throw new Error('layout includes one or more items not owned by the user');
     }
 
-    const outfit = await createOutfit(authUser.userId, { dateWorn, description, layout });
+    const outfit = await createOutfit(authUser.userId, {
+      dateWorn: body.dateWorn,
+      description: body.description,
+      layout: body.layout,
+    });
     return reply.status(201).send({ success: true, message: `Outfit created for ${dateWorn}`, data: outfit });
   });
 
-  fastify.delete('/:id', { schema: { params: idParamSchema } }, async (request, reply) => {
+  fastify.delete('/:id', { schema: { params: outfitIdParamSchema } }, async (request, reply) => {
     const authUser = requireAuthUser(request);
     const { id: outfitId } = request.params as { id: string };
     const deleted = await deleteOutfit(authUser.userId, outfitId);
