@@ -15,6 +15,20 @@
       "when": 1777805000000,
       "tag": "0001_category_user_name_unique",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777962800000,
+      "tag": "0002_outfit_layout_not_null",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1777963100000,
+      "tag": "0003_core_fk_and_item_dimensions_not_null",
+      "breakpoints": true
     }
   ]
 }

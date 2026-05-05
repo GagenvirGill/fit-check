@@ -13,8 +13,8 @@ export const outfit = pgTable('outfits', {
   outfitId: uuid('outfit_id').defaultRandom().primaryKey(),
   dateWorn: date('date_worn').notNull(),
   description: varchar('description', { length: 511 }),
-  layout: jsonb('layout').$type<OutfitLayout>(),
-  userId: uuid('user_id').references(() => user.userId, { onDelete: 'cascade' }),
+  layout: jsonb('layout').$type<OutfitLayout>().notNull(),
+  userId: uuid('user_id').notNull().references(() => user.userId, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });

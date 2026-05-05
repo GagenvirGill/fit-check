@@ -6,9 +6,9 @@ import { itemToCategory } from './item-to-category';
 export const item = pgTable('items', {
   itemId: uuid('item_id').defaultRandom().primaryKey(),
   imagePath: varchar('image_path', { length: 255 }).notNull(),
-  imageWidth: integer('image_width'),
-  imageHeight: integer('image_height'),
-  userId: uuid('user_id').references(() => user.userId, { onDelete: 'cascade' }),
+  imageWidth: integer('image_width').notNull(),
+  imageHeight: integer('image_height').notNull(),
+  userId: uuid('user_id').notNull().references(() => user.userId, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });

@@ -8,7 +8,7 @@ export const category = pgTable('categories', {
   categoryId: uuid('category_id').defaultRandom().primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   favoriteItem: uuid('favorite_item').references(() => item.itemId),
-  userId: uuid('user_id').references(() => user.userId, { onDelete: 'cascade' }),
+  userId: uuid('user_id').notNull().references(() => user.userId, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 }, (t) => ({

@@ -1,0 +1,1 @@
+ALTER TABLE "outfits" ALTER COLUMN "layout" SET NOT NULL;
