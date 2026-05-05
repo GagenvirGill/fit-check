@@ -3,13 +3,6 @@ import type { MultipartFile } from '@fastify/multipart';
 import sizeOf from 'image-size';
 import { requireAuthUser } from '#lib/auth/middleware';
 import { deleteItemImageByUrl, uploadItemImage } from '#lib/cloud-storage';
-import { badRequest, conflict, notFound } from '#lib/http/errors';
-import { created, ok } from '#lib/http/responses';
-import {
-  idParamSchema,
-  routeSchema,
-  updateItemBodySchema,
-} from '#lib/http/schemas';
 import { normalizeLayout } from '#lib/outfit-layout';
 import {
   allCategoriesBelongToUser,
@@ -20,10 +13,12 @@ import {
   listUserOutfitLayouts,
   replaceItemCategories,
 } from '#lib/database/queries/items';
+import { idParamSchema } from '#types/schemas/shared';
+import { updateItemBodySchema } from '#types/schemas/items';
 
 export const parseCategoryIdsBody = (body: unknown): string[] | undefined => {
   if (typeof body !== 'object' || body === null) {
-    throw Object.assign(new Error('invalid request body'), { statusCode: 400 });
+    throw new Error('invalid request body');
   }
 
   if (!('categoryIds' in body)) {
@@ -33,11 +28,11 @@ export const parseCategoryIdsBody = (body: unknown): string[] | undefined => {
   const categoryIds = (body as { categoryIds: unknown }).categoryIds;
 
   if (!Array.isArray(categoryIds)) {
-    throw Object.assign(new Error('categoryIds must be an array'), { statusCode: 400 });
+    throw new Error('categoryIds must be an array');
   }
 
   if (!categoryIds.every((id) => typeof id === 'string' && id.length > 0)) {
-    throw Object.assign(new Error('categoryIds must contain non-empty string IDs'), { statusCode: 400 });
+    throw new Error('categoryIds must contain non-empty string IDs');
   }
 
   return [...new Set(categoryIds)];
@@ -55,7 +50,7 @@ const createItemFromUpload = async (userId: string, file: MultipartFile) => {
   const buffer = await file.toBuffer();
   const dimensions = sizeOf(buffer);
   if (!dimensions.width || !dimensions.height) {
-    throw Object.assign(new Error('Failed to determine image dimensions'), { statusCode: 400 });
+    throw new Error('Failed to determine image dimensions');
   }
 
   const uploadedPath = await uploadItemImage(file.filename, file.mimetype, buffer);
@@ -94,23 +89,20 @@ const itemsRoutes: FastifyPluginAsync = async (fastify) => {
     const authUser = requireAuthUser(request);
     const file = await request.file();
     if (!file) {
-      throw badRequest('Image file is required');
+      throw new Error('Image file is required');
     }
 
     const createdItem = await createItemFromUpload(authUser.userId, file);
-    return created(reply, 'Item created', createdItem);
+    return reply.status(201).send({ success: true, message: 'Item created', data: createdItem });
   });
 
-  fastify.patch('/:id', routeSchema({
-    params: idParamSchema,
-    body: updateItemBodySchema,
-  }), async (request, reply) => {
+  fastify.patch('/:id', { schema: { params: idParamSchema, body: updateItemBodySchema } }, async (request, reply) => {
     const authUser = requireAuthUser(request);
     const { id: itemId } = request.params as { id: string };
 
     const exists = await itemExists(authUser.userId, itemId);
     if (!exists) {
-      throw notFound('Item not found');
+      throw new Error('Item not found');
     }
 
     const categoryIds = parseCategoryIdsBody(request.body);
@@ -118,32 +110,30 @@ const itemsRoutes: FastifyPluginAsync = async (fastify) => {
     if (categoryIds !== undefined) {
       const validCategories = await allCategoriesBelongToUser(authUser.userId, categoryIds);
       if (!validCategories) {
-        throw badRequest('One or more categories were not found for this user');
+        throw new Error('One or more categories were not found for this user');
       }
 
       await replaceItemCategories(itemId, categoryIds);
     }
 
-    return ok(reply, 'Item updated');
+    return reply.status(200).send({ success: true, message: 'Item updated' });
   });
 
-  fastify.delete('/:id', routeSchema({
-    params: idParamSchema,
-  }), async (request, reply) => {
+  fastify.delete('/:id', { schema: { params: idParamSchema } }, async (request, reply) => {
     const authUser = requireAuthUser(request);
     const { id: itemId } = request.params as { id: string };
     const item = await findOwnedItem(authUser.userId, itemId);
     if (!item) {
-      throw notFound('Item not found');
+      throw new Error('Item not found');
     }
 
     const canDelete = await canDeleteItem(authUser.userId, itemId);
     if (!canDelete) {
-      throw conflict('Cannot delete item while it is referenced by one or more outfits');
+      throw new Error('Cannot delete item while it is referenced by one or more outfits');
     }
 
     await deleteItem(authUser.userId, itemId, item.imagePath);
-    return ok(reply, 'Item deleted');
+    return reply.status(200).send({ success: true, message: 'Item deleted' });
   });
 };
 

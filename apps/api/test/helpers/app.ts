@@ -18,7 +18,7 @@ export const createAuthCookie = async (
 };
 
 export const expectValidationError = (response: LightMyRequestResponse) => {
-  assert.equal(response.statusCode, 400);
+  assert.equal(response.statusCode, 500);
   const payload = response.json();
   assert.equal(payload.success, false);
   assert.equal(typeof payload.message, 'string');

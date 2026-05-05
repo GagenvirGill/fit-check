@@ -1,9 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { envConfig } from '#lib/env-config';
 import { getUserById, upsertGoogleUser } from '#lib/database/queries/users';
-import { unauthorized } from '#lib/http/errors';
-import { ok } from '#lib/http/responses';
-import { googleCallbackQuerySchema, routeSchema } from '#lib/http/schemas';
 import { buildGoogleAuthUrl, createOauthState, getGoogleUserFromCode } from '#lib/auth/oauth';
 import {
   clearSessionCookie,
@@ -13,6 +10,7 @@ import {
   setOauthStateCookie,
   setSessionCookie,
 } from '#lib/auth/session';
+import { googleCallbackQuerySchema } from '#types/schemas/auth';
 
 const authRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get('/google', async (_request, reply) => {
@@ -21,13 +19,11 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
     return reply.redirect(buildGoogleAuthUrl(state));
   });
 
-  fastify.get('/google/callback', routeSchema({
-    querystring: googleCallbackQuerySchema,
-  }), async (request, reply) => {
+  fastify.get('/google/callback', { schema: { querystring: googleCallbackQuerySchema } }, async (request, reply) => {
     const { code, state: returnedState } = request.query as { code: string; state: string };
     const expectedState = consumeOauthStateCookie(request, reply);
     if (!expectedState || expectedState !== returnedState) {
-      throw unauthorized('OAuth state validation failed');
+      throw new Error('OAuth state validation failed');
     }
 
     const googleUser = await getGoogleUserFromCode(code);
@@ -45,20 +41,27 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get('/me', async (request, reply) => {
     const session = readSession(request);
     if (!session) {
-      throw unauthorized();
+      throw new Error('Unauthorized');
     }
 
     const user = await getUserById(session.userId);
     if (!user) {
-      throw unauthorized();
+      throw new Error('Unauthorized');
     }
 
-    return ok(reply, 'Authenticated user', user);
+    return reply.status(200).send({
+      success: true,
+      message: 'Authenticated user',
+      data: user,
+    });
   });
 
   fastify.post('/logout', async (_request, reply) => {
     clearSessionCookie(reply);
-    return ok(reply, 'Logged out');
+    return reply.status(200).send({
+      success: true,
+      message: 'Logged out',
+    });
   });
 };
 

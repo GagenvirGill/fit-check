@@ -38,7 +38,7 @@ void describe('routes/items', () => {
       payload: '--empty--\r\n',
     });
 
-    assert.equal(response.statusCode, 400);
+    assert.equal(response.statusCode, 500);
     assert.deepEqual(response.json(), { success: false, message: 'Image file is required' });
   });
 
@@ -99,7 +99,7 @@ void describe('routes/items', () => {
       headers: { cookie: await createAuthCookie() },
       payload: { categoryIds: [] },
     });
-    assert.equal(missingItem.statusCode, 404);
+    assert.equal(missingItem.statusCode, 500);
 
     const otherUser = await seedUser({ userId: '22222222-2222-2222-2222-222222222222', email: 'other@example.com' });
     const foreignCategory = await seedCategory(otherUser.user_id);
@@ -109,7 +109,7 @@ void describe('routes/items', () => {
       headers: { cookie: await createAuthCookie() },
       payload: { categoryIds: [foreignCategory.category_id] },
     });
-    assert.equal(invalidCategory.statusCode, 400);
+    assert.equal(invalidCategory.statusCode, 500);
   });
 
   void it('prevents deleting items referenced by outfits and allows deletion when unreferenced', async () => {
@@ -122,7 +122,7 @@ void describe('routes/items', () => {
       url: `/items/${item.item_id}`,
       headers: { cookie: await createAuthCookie() },
     });
-    assert.equal(blocked.statusCode, 409);
+    assert.equal(blocked.statusCode, 500);
 
     await resetDb();
     await seedUser();

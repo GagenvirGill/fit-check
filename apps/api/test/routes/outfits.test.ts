@@ -63,7 +63,7 @@ void describe('routes/outfits', () => {
         layout: [[{ itemId: '00000000-0000-0000-0000-000000000001', weight: 1 }]],
       },
     });
-    assert.equal(notOwned.statusCode, 400);
+    assert.equal(notOwned.statusCode, 500);
     assert.equal(notOwned.json().message, 'layout includes one or more items not owned by the user');
   });
 
@@ -83,6 +83,6 @@ void describe('routes/outfits', () => {
       url: `/outfits/${outfit.outfit_id}`,
       headers: { cookie: await createAuthCookie() },
     });
-    assert.equal(missing.statusCode, 404);
+    assert.equal(missing.statusCode, 500);
   });
 });

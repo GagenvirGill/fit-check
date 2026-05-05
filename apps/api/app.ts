@@ -12,8 +12,6 @@ import itemsRoutes from '#routes/items';
 import categoriesRoutes from '#routes/categories';
 import outfitsRoutes from '#routes/outfits';
 import { requireAuth } from '#lib/auth/middleware';
-import { getErrorMessage, getHttpStatusCode } from '#lib/http/errors';
-import { sendFailure } from '#lib/http/responses';
 
 export const createApp = async () => {
   const app = Fastify({
@@ -42,18 +40,14 @@ export const createApp = async () => {
   });
 
   app.setErrorHandler((error, _request, reply) => {
-    const statusCode = getHttpStatusCode(error);
-    if (statusCode) {
-      const isValidationError = typeof error === 'object' && error !== null && 'validation' in error;
-      const message = statusCode === 400 && isValidationError
-        ? 'Request validation failed'
-        : getErrorMessage(error);
-      return sendFailure(reply, statusCode, message);
+    app.log.error(error);
+
+    let message = isProduction ? 'Internal server error' : 'Unknown error';
+    if (error instanceof Error && error.message) {
+      message = error.message;
     }
 
-    app.log.error(error);
-    const message = isProduction ? 'Internal server error' : getErrorMessage(error);
-    return sendFailure(reply, 500, message);
+    reply.status(500).send({ success: false, message });
   });
 
   await app.register(healthRoutes, { prefix: '/health' });

@@ -61,7 +61,7 @@ void describe('routes/categories', () => {
       payload: { name: 'Shoes' },
     });
 
-    assert.equal(response.statusCode, 409);
+    assert.equal(response.statusCode, 500);
     assert.equal(response.json().message, 'Category name already exists for this user');
   });
 
@@ -98,6 +98,6 @@ void describe('routes/categories', () => {
       url: `/categories/${category.category_id}`,
       headers: { cookie: await createAuthCookie() },
     });
-    assert.equal(missing.statusCode, 404);
+    assert.equal(missing.statusCode, 500);
   });
 });

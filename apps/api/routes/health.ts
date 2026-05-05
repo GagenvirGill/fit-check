@@ -1,10 +1,15 @@
 import type { FastifyPluginAsync } from 'fastify';
-import { ok } from '#lib/http/responses';
 
 const healthRoutes: FastifyPluginAsync = async (fastify) => {
-  fastify.get('/', async (_request, reply) => ok(reply, 'Server is healthy', {
-    uptimeSeconds: Math.floor(process.uptime()),
-  }));
+  fastify.get('/', async (_request, reply) =>
+    reply.status(200).send({
+      success: true,
+      message: 'Server is healthy',
+      data: {
+        uptimeSeconds: Math.floor(process.uptime()),
+      },
+    }),
+  );
 };
 
 export default healthRoutes;
