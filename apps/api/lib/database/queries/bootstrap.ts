@@ -1,4 +1,4 @@
-import { asc, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import type { BootstrapResponse } from '@fit-check/shared/types/contracts/bootstrap';
 import * as schema from '@fit-check/database/schema';
 import db from '../client';
@@ -21,18 +21,17 @@ export const getBootstrapData = async (userId: string): Promise<BootstrapRespons
         favoriteItem: schema.category.favoriteItem,
       })
       .from(schema.category)
-      .where(eq(schema.category.userId, userId))
-      .orderBy(asc(schema.category.name)),
+      .where(eq(schema.category.userId, userId)),
     db
       .select({
         itemId: schema.item.itemId,
         imagePath: schema.item.imagePath,
         imageWidth: schema.item.imageWidth,
         imageHeight: schema.item.imageHeight,
+        createdAt: schema.item.createdAt,
       })
       .from(schema.item)
-      .where(eq(schema.item.userId, userId))
-      .orderBy(asc(schema.item.createdAt)),
+      .where(eq(schema.item.userId, userId)),
     db
       .select({
         outfitId: schema.outfit.outfitId,
@@ -41,8 +40,7 @@ export const getBootstrapData = async (userId: string): Promise<BootstrapRespons
         layout: schema.outfit.layout,
       })
       .from(schema.outfit)
-      .where(eq(schema.outfit.userId, userId))
-      .orderBy(asc(schema.outfit.dateWorn)),
+      .where(eq(schema.outfit.userId, userId)),
     db
       .select({
         itemId: schema.itemToCategory.itemId,

@@ -1,6 +1,7 @@
-import { after, before, beforeEach, describe, it } from 'node:test';
+import { after, before, beforeEach, describe, it, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import type { FastifyInstance } from 'fastify';
+import { S3Client } from '@aws-sdk/client-s3';
 import { createAuthCookie, createTestApp, expectValidationError, multipartBody } from '../helpers/app.js';
 import { linkItemToCategory, resetDb, seedCategory, seedItem, seedOutfit, seedUser } from '../helpers/db.js';
 
@@ -8,6 +9,7 @@ let app: FastifyInstance;
 
 void describe('routes/items', () => {
   void before(async () => {
+    mock.method(S3Client.prototype, 'send', async () => ({}));
     app = await createTestApp();
   });
 
@@ -55,6 +57,45 @@ void describe('routes/items', () => {
 
     assert.equal(response.statusCode, 400);
     assert.deepEqual(response.json(), { message: 'Unsupported image content type' });
+  });
+
+  void it('creates an item and returns createdAt', async () => {
+    await seedUser();
+    const boundary = '----fit-check-test-image';
+    const pngBytes = Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7Z3i8AAAAASUVORK5CYII=',
+      'base64',
+    );
+
+    const header = Buffer.from(
+      [
+        `--${boundary}`,
+        'Content-Disposition: form-data; name="image"; filename="shirt.png"',
+        'Content-Type: image/png',
+        '',
+      ].join('\r\n') + '\r\n',
+    );
+    const footer = Buffer.from(`\r\n--${boundary}--\r\n`);
+    const payload = Buffer.concat([header, pngBytes, footer]);
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/items',
+      headers: {
+        cookie: await createAuthCookie(),
+        'content-type': `multipart/form-data; boundary=${boundary}`,
+      },
+      payload,
+    });
+
+    assert.equal(response.statusCode, 201);
+    const body = response.json();
+    assert.equal(typeof body.itemId, 'string');
+    assert.equal(typeof body.imagePath, 'string');
+    assert.equal(typeof body.imageWidth, 'number');
+    assert.equal(typeof body.imageHeight, 'number');
+    assert.equal(typeof body.createdAt, 'string');
+    assert.ok(body.createdAt.length > 0);
   });
 
   void it('replaces item categories through PATCH /items/:id', async () => {

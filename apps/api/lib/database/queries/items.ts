@@ -20,6 +20,7 @@ export const createItemRecord = async (payload: {
         imagePath: schema.item.imagePath,
         imageWidth: schema.item.imageWidth,
         imageHeight: schema.item.imageHeight,
+        createdAt: schema.item.createdAt,
       });
 
     return inserted[0];

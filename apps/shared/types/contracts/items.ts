@@ -29,4 +29,4 @@ export type ItemIdParam = {
   id: string;
 };
 
-export type CreateItemResponse = Pick<Item, 'itemId' | 'imagePath' | 'imageWidth' | 'imageHeight'>;
+export type CreateItemResponse = Pick<Item, 'itemId' | 'imagePath' | 'imageWidth' | 'imageHeight' | 'createdAt'>;
