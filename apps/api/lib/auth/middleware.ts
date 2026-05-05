@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { readSession } from './session';
+import { readSession } from '#lib/auth/session';
 
 export const requireAuthUser = (request: FastifyRequest) => {
   if (!request.authUser) {

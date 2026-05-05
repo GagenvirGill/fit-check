@@ -1,16 +1,19 @@
 import type { FastifyPluginAsync } from 'fastify';
 import type { OutfitLayout } from '@fit-check/shared/types/models';
-import { requireAuthUser } from '../lib/auth/middleware';
-import { badRequest, notFound } from '../lib/http/errors';
-import { created, ok } from '../lib/http/responses';
+import { requireAuthUser } from '#lib/auth/middleware';
+import { badRequest, notFound } from '#lib/http/errors';
+import { created, ok } from '#lib/http/responses';
 import {
   createOutfitBodySchema,
   idParamSchema,
-  outfitSearchQuerySchema,
   routeSchema,
-} from '../lib/http/schemas';
-import { getUniqueLayoutItemIds } from '../lib/outfit-layout';
-import { allItemsBelongToUser, createOutfit, deleteOutfit, listOutfits, searchOutfits } from '../services/outfits';
+} from '#lib/http/schemas';
+import { getUniqueLayoutItemIds } from '#lib/outfit-layout';
+import {
+  allItemsBelongToUser,
+  createOutfit,
+  deleteOutfit,
+} from '#lib/database/queries/outfits';
 
 type CreateOutfitBody = {
   dateWorn: string;
@@ -19,12 +22,6 @@ type CreateOutfitBody = {
 };
 
 const outfitsRoutes: FastifyPluginAsync = async (fastify) => {
-  fastify.get('/', async (request, reply) => {
-    const authUser = requireAuthUser(request);
-    const outfits = await listOutfits(authUser.userId);
-    return ok(reply, `Retrieved ${outfits.length} outfits`, outfits);
-  });
-
   fastify.post('/', routeSchema({
     body: createOutfitBodySchema,
   }), async (request, reply) => {
@@ -51,19 +48,6 @@ const outfitsRoutes: FastifyPluginAsync = async (fastify) => {
     }
 
     return ok(reply, 'Outfit deleted');
-  });
-
-  fastify.get('/search', routeSchema({
-    querystring: outfitSearchQuerySchema,
-  }), async (request, reply) => {
-    const authUser = requireAuthUser(request);
-    const query = ((request.query as { query: string }).query ?? '').trim();
-    if (!query) {
-      throw badRequest('query is required');
-    }
-
-    const outfits = await searchOutfits(authUser.userId, query);
-    return ok(reply, `Retrieved ${outfits.length} outfits for search query`, outfits);
   });
 };
 

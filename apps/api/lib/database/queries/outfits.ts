@@ -1,18 +1,6 @@
-import { and, desc, eq, ilike, inArray } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import * as schema from '@fit-check/database/schema';
-import db from '../lib/database';
-
-export const listOutfits = async (userId: string) =>
-  db
-    .select({
-      outfitId: schema.outfit.outfitId,
-      dateWorn: schema.outfit.dateWorn,
-      description: schema.outfit.description,
-      layout: schema.outfit.layout,
-    })
-    .from(schema.outfit)
-    .where(eq(schema.outfit.userId, userId))
-    .orderBy(desc(schema.outfit.dateWorn));
+import db from '../client';
 
 export const allItemsBelongToUser = async (userId: string, itemIds: string[]) => {
   if (itemIds.length === 0) {
@@ -58,15 +46,3 @@ export const deleteOutfit = async (userId: string, outfitId: string) =>
     .delete(schema.outfit)
     .where(and(eq(schema.outfit.outfitId, outfitId), eq(schema.outfit.userId, userId)))
     .returning({ outfitId: schema.outfit.outfitId });
-
-export const searchOutfits = async (userId: string, query: string) =>
-  db
-    .select({
-      outfitId: schema.outfit.outfitId,
-      dateWorn: schema.outfit.dateWorn,
-      description: schema.outfit.description,
-      layout: schema.outfit.layout,
-    })
-    .from(schema.outfit)
-    .where(and(eq(schema.outfit.userId, userId), ilike(schema.outfit.description, `%${query}%`)))
-    .orderBy(desc(schema.outfit.dateWorn));

@@ -36,5 +36,10 @@
     "pg-mem": "^3.0.14",
     "tsx": "^4.19.3",
     "typescript": "^5.7.3"
+  },
+  "imports": {
+    "#lib/*": "./lib/*.js",
+    "#routes/*": "./routes/*.js",
+    "#types/*": "./types/*.js"
   }
 }

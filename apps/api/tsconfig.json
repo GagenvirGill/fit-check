@@ -4,12 +4,35 @@
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@fit-check/shared/*": ["../shared/*"],
-      "@fit-check/database": ["../database"],
-      "@fit-check/database/*": ["../database/*"]
+      "@/*": [
+        "./*"
+      ],
+      "@fit-check/shared/*": [
+        "../shared/*"
+      ],
+      "@fit-check/database": [
+        "../database"
+      ],
+      "@fit-check/database/*": [
+        "../database/*"
+      ],
+      "#lib/*": [
+        "./lib/*"
+      ],
+      "#routes/*": [
+        "./routes/*"
+      ],
+      "#types/*": [
+        "./types/*"
+      ]
     }
   },
-  "include": ["**/*", "../shared/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "**/*",
+    "../shared/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

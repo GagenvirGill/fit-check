@@ -20,17 +20,8 @@ describe('routes/outfits', () => {
   });
 
   it('requires authentication', async () => {
-    const response = await app.inject({ method: 'GET', url: '/outfits' });
+    const response = await app.inject({ method: 'POST', url: '/outfits', payload: { dateWorn: '2026-05-03', layout: [] } });
     assert.equal(response.statusCode, 401);
-  });
-
-  it('lists outfits', async () => {
-    await seedUser();
-    await seedOutfit('11111111-1111-1111-1111-111111111111', { description: 'seed outfit' });
-
-    const response = await app.inject({ method: 'GET', url: '/outfits', headers: { cookie: await createAuthCookie() } });
-    assert.equal(response.statusCode, 200);
-    assert.equal(response.json().data.length, 1);
   });
 
   it('creates outfits when layout item ownership is valid', async () => {
@@ -93,34 +84,5 @@ describe('routes/outfits', () => {
       headers: { cookie: await createAuthCookie() },
     });
     assert.equal(missing.statusCode, 404);
-  });
-
-  it('searches outfits and validates query inputs', async () => {
-    await seedUser();
-    await seedOutfit('11111111-1111-1111-1111-111111111111', { description: 'rain jacket fit' });
-    await seedOutfit('11111111-1111-1111-1111-111111111111', { description: 'gym day' });
-
-    const found = await app.inject({
-      method: 'GET',
-      url: '/outfits/search?query=jacket',
-      headers: { cookie: await createAuthCookie() },
-    });
-    assert.equal(found.statusCode, 200);
-    assert.equal(found.json().data.length, 1);
-
-    const missingQuery = await app.inject({
-      method: 'GET',
-      url: '/outfits/search',
-      headers: { cookie: await createAuthCookie() },
-    });
-    expectValidationError(missingQuery);
-
-    const blank = await app.inject({
-      method: 'GET',
-      url: '/outfits/search?query=%20%20',
-      headers: { cookie: await createAuthCookie() },
-    });
-    assert.equal(blank.statusCode, 400);
-    assert.equal(blank.json().message, 'query is required');
   });
 });

@@ -14,16 +14,6 @@ export const idParamSchema = {
   },
 } as const;
 
-export const categoryFilterQuerySchema = {
-  type: 'object',
-  additionalProperties: false,
-  properties: {
-    categories: {
-      type: 'string',
-    },
-  },
-} as const;
-
 export const googleCallbackQuerySchema = {
   type: 'object',
   required: ['code', 'state'],
@@ -59,12 +49,12 @@ export const updateCategoryBodySchema = {
   },
 } as const;
 
-export const replaceItemCategoriesBodySchema = {
+export const updateItemBodySchema = {
   type: 'object',
-  required: ['categories'],
+  minProperties: 1,
   additionalProperties: true,
   properties: {
-    categories: {
+    categoryIds: {
       type: 'array',
       items: stringId,
     },
@@ -101,17 +91,6 @@ export const createOutfitBodySchema = {
         type: 'array',
         items: outfitLayoutItemSchema,
       },
-    },
-  },
-} as const;
-
-export const outfitSearchQuerySchema = {
-  type: 'object',
-  required: ['query'],
-  additionalProperties: false,
-  properties: {
-    query: {
-      type: 'string',
     },
   },
 } as const;

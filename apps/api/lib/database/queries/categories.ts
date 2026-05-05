@@ -1,17 +1,6 @@
-import { and, asc, eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import * as schema from '@fit-check/database/schema';
-import db from '../lib/database';
-
-export const listCategories = async (userId: string) =>
-  db
-    .select({
-      categoryId: schema.category.categoryId,
-      name: schema.category.name,
-      favoriteItem: schema.category.favoriteItem,
-    })
-    .from(schema.category)
-    .where(eq(schema.category.userId, userId))
-    .orderBy(asc(schema.category.name));
+import db from '../client';
 
 export const createCategory = async (userId: string, name: string) =>
   db

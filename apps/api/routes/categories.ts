@@ -1,22 +1,21 @@
 import type { FastifyPluginAsync } from 'fastify';
-import { requireAuthUser } from '../lib/auth/middleware';
-import { badRequest, conflict, notFound } from '../lib/http/errors';
-import { created, ok } from '../lib/http/responses';
+import { requireAuthUser } from '#lib/auth/middleware';
+import { badRequest, conflict, notFound } from '#lib/http/errors';
+import { created, ok } from '#lib/http/responses';
 import {
   createCategoryBodySchema,
   idParamSchema,
   routeSchema,
   updateCategoryBodySchema,
-} from '../lib/http/schemas';
-import { isDatabaseUniqueViolation } from '../lib/database-errors';
+} from '#lib/http/schemas';
+import { isDatabaseUniqueViolation } from '#lib/database-errors';
 import {
   categoryNameExists,
   createCategory,
   deleteCategory,
-  listCategories,
   updateCategory,
   userOwnsItem,
-} from '../services/categories';
+} from '#lib/database/queries/categories';
 
 type CategoryUpdateBody = {
   name?: string;
@@ -24,12 +23,6 @@ type CategoryUpdateBody = {
 };
 
 const categoriesRoutes: FastifyPluginAsync = async (fastify) => {
-  fastify.get('/', async (request, reply) => {
-    const authUser = requireAuthUser(request);
-    const categories = await listCategories(authUser.userId);
-    return ok(reply, `Retrieved ${categories.length} categories`, categories);
-  });
-
   fastify.post('/', routeSchema({
     body: createCategoryBodySchema,
   }), async (request, reply) => {

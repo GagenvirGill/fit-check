@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { envConfig } from '../env-config';
-import { cookieBaseOptions, OAUTH_STATE_COOKIE_NAME, SESSION_COOKIE_NAME, SESSION_TTL } from './constants';
+import { envConfig } from '#lib/env-config';
+import { cookieBaseOptions, OAUTH_STATE_COOKIE_NAME, SESSION_COOKIE_NAME, SESSION_TTL } from '#lib/auth/constants';
 
 export type SessionPayload = {
   userId: string;

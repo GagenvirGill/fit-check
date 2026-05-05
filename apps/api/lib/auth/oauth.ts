@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
-import { envConfig } from '../env-config';
-import { GOOGLE_AUTH_URL, GOOGLE_TOKEN_URL, GOOGLE_USERINFO_URL } from './constants';
+import { envConfig } from '#lib/env-config';
+import { GOOGLE_AUTH_URL, GOOGLE_TOKEN_URL, GOOGLE_USERINFO_URL } from '#lib/auth/constants';
 
 type GoogleUserInfo = {
   sub: string;

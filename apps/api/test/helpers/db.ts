@@ -4,7 +4,7 @@ import { applyTestEnv } from './env.js';
 
 const getDb = async () => {
   applyTestEnv();
-  const mod = await import('../../lib/database.js');
+  const mod = await import('../../lib/database/client.js');
   return mod.default;
 };
 

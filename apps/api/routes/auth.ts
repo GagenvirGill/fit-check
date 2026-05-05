@@ -1,10 +1,10 @@
 import type { FastifyPluginAsync } from 'fastify';
-import { envConfig } from '../lib/env-config';
-import { getUserById, upsertGoogleUser } from '../services/users';
-import { unauthorized } from '../lib/http/errors';
-import { ok } from '../lib/http/responses';
-import { googleCallbackQuerySchema, routeSchema } from '../lib/http/schemas';
-import { buildGoogleAuthUrl, createOauthState, getGoogleUserFromCode } from '../lib/auth/oauth';
+import { envConfig } from '#lib/env-config';
+import { getUserById, upsertGoogleUser } from '#lib/database/queries/users';
+import { unauthorized } from '#lib/http/errors';
+import { ok } from '#lib/http/responses';
+import { googleCallbackQuerySchema, routeSchema } from '#lib/http/schemas';
+import { buildGoogleAuthUrl, createOauthState, getGoogleUserFromCode } from '#lib/auth/oauth';
 import {
   clearSessionCookie,
   consumeOauthStateCookie,
@@ -12,7 +12,7 @@ import {
   readSession,
   setOauthStateCookie,
   setSessionCookie,
-} from '../lib/auth/session';
+} from '#lib/auth/session';
 
 const authRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get('/google', async (_request, reply) => {

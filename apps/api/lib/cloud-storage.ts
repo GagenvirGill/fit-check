@@ -1,6 +1,6 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { extname } from 'node:path';
-import { envConfig } from './env-config';
+import { envConfig } from '#lib/env-config';
 
 const r2Client = new S3Client({
   region: envConfig.r2Region,

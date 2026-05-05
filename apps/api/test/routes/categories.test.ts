@@ -20,11 +20,11 @@ describe('routes/categories', () => {
   });
 
   it('requires authentication', async () => {
-    const response = await app.inject({ method: 'GET', url: '/categories' });
+    const response = await app.inject({ method: 'POST', url: '/categories', payload: { name: 'Tops' } });
     assert.equal(response.statusCode, 401);
   });
 
-  it('creates and lists categories', async () => {
+  it('creates categories', async () => {
     const user = await seedUser();
     const createResponse = await app.inject({
       method: 'POST',
@@ -35,12 +35,7 @@ describe('routes/categories', () => {
 
     assert.equal(createResponse.statusCode, 201);
     assert.equal(createResponse.json().data.name, 'Tops');
-
-    const listResponse = await app.inject({ method: 'GET', url: '/categories', headers: { cookie: await createAuthCookie() } });
-    assert.equal(listResponse.statusCode, 200);
-    assert.equal(listResponse.json().data.length, 1);
-    assert.equal(listResponse.json().data[0].name, 'Tops');
-    assert.equal(listResponse.json().data[0].categoryId !== undefined, true);
+    assert.equal(typeof createResponse.json().data.categoryId, 'string');
     assert.equal(user.user_id, '11111111-1111-1111-1111-111111111111');
   });
 

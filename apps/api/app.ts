@@ -4,16 +4,16 @@ import helmet from '@fastify/helmet';
 import multipart from '@fastify/multipart';
 import rateLimit from '@fastify/rate-limit';
 import cookie from '@fastify/cookie';
-import { envConfig, isProduction } from './lib/env-config';
-import healthRoutes from './routes/health';
-import authRoutes from './routes/auth';
-import bootstrapRoutes from './routes/bootstrap';
-import itemsRoutes from './routes/items';
-import categoriesRoutes from './routes/categories';
-import outfitsRoutes from './routes/outfits';
-import { requireAuth } from './lib/auth/middleware';
-import { getErrorMessage, getHttpStatusCode } from './lib/http/errors';
-import { sendFailure } from './lib/http/responses';
+import { envConfig, isProduction } from '#lib/env-config';
+import healthRoutes from '#routes/health';
+import authRoutes from '#routes/auth';
+import bootstrapRoutes from '#routes/bootstrap';
+import itemsRoutes from '#routes/items';
+import categoriesRoutes from '#routes/categories';
+import outfitsRoutes from '#routes/outfits';
+import { requireAuth } from '#lib/auth/middleware';
+import { getErrorMessage, getHttpStatusCode } from '#lib/http/errors';
+import { sendFailure } from '#lib/http/responses';
 
 export const createApp = async () => {
   const app = Fastify({

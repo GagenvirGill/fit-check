@@ -20,48 +20,13 @@ describe('routes/items', () => {
   });
 
   it('requires authentication', async () => {
-    const response = await app.inject({ method: 'GET', url: '/items' });
+    const response = await app.inject({
+      method: 'POST',
+      url: '/items',
+      headers: { 'content-type': 'multipart/form-data; boundary=empty' },
+      payload: '--empty--\r\n',
+    });
     assert.equal(response.statusCode, 401);
-  });
-
-  it('lists items and supports category filtering', async () => {
-    await seedUser();
-    const item1 = await seedItem('11111111-1111-1111-1111-111111111111');
-    const item2 = await seedItem('11111111-1111-1111-1111-111111111111');
-    const category = await seedCategory('11111111-1111-1111-1111-111111111111', { name: 'Layer' });
-    await linkItemToCategory(item2.item_id, category.category_id);
-
-    const all = await app.inject({ method: 'GET', url: '/items', headers: { cookie: await createAuthCookie() } });
-    assert.equal(all.statusCode, 200);
-    assert.equal(all.json().data.length, 2);
-
-    const filtered = await app.inject({
-      method: 'GET',
-      url: `/items?categories=${category.category_id}`,
-      headers: { cookie: await createAuthCookie() },
-    });
-    assert.equal(filtered.statusCode, 200);
-    assert.equal(filtered.json().data.length, 1);
-    assert.equal(filtered.json().data[0].itemId, item2.item_id);
-    assert.equal(item1.item_id !== item2.item_id, true);
-  });
-
-  it('returns random items with and without category filters', async () => {
-    await seedUser();
-    const item = await seedItem('11111111-1111-1111-1111-111111111111');
-    const category = await seedCategory('11111111-1111-1111-1111-111111111111');
-    await linkItemToCategory(item.item_id, category.category_id);
-
-    const random = await app.inject({ method: 'GET', url: '/items/random', headers: { cookie: await createAuthCookie() } });
-    assert.equal(random.statusCode, 200);
-
-    const randomFiltered = await app.inject({
-      method: 'GET',
-      url: `/items/random?categories=${category.category_id}`,
-      headers: { cookie: await createAuthCookie() },
-    });
-    assert.equal(randomFiltered.statusCode, 200);
-    assert.equal(randomFiltered.json().data.itemId, item.item_id);
   });
 
   it('rejects item creation when multipart payload has no file', async () => {
@@ -77,65 +42,72 @@ describe('routes/items', () => {
     assert.deepEqual(response.json(), { success: false, message: 'Image file is required' });
   });
 
-  it('lists and replaces item categories', async () => {
+  it('replaces item categories through PATCH /items/:id', async () => {
     await seedUser();
     const item = await seedItem('11111111-1111-1111-1111-111111111111');
     const c1 = await seedCategory('11111111-1111-1111-1111-111111111111', { name: 'A' });
     const c2 = await seedCategory('11111111-1111-1111-1111-111111111111', { name: 'B' });
     await linkItemToCategory(item.item_id, c1.category_id);
 
-    const before = await app.inject({
-      method: 'GET',
-      url: `/items/${item.item_id}/categories`,
-      headers: { cookie: await createAuthCookie() },
-    });
-    assert.equal(before.statusCode, 200);
-    assert.equal(before.json().data.length, 1);
-
     const updated = await app.inject({
-      method: 'PUT',
-      url: `/items/${item.item_id}/categories`,
+      method: 'PATCH',
+      url: `/items/${item.item_id}`,
       headers: { cookie: await createAuthCookie() },
-      payload: { categories: [c1.category_id, c2.category_id, c2.category_id] },
+      payload: { categoryIds: [c1.category_id, c2.category_id, c2.category_id] },
     });
     assert.equal(updated.statusCode, 200);
 
-    const afterList = await app.inject({
-      method: 'GET',
-      url: `/items/${item.item_id}/categories`,
+    const clear = await app.inject({
+      method: 'PATCH',
+      url: `/items/${item.item_id}`,
       headers: { cookie: await createAuthCookie() },
+      payload: { categoryIds: [] },
     });
-    assert.equal(afterList.statusCode, 200);
-    assert.equal(afterList.json().data.length, 2);
+    assert.equal(clear.statusCode, 200);
   });
 
-  it('rejects invalid replacement payloads and unknown item/category ownership', async () => {
+  it('supports no-op PATCH when categoryIds is omitted', async () => {
+    await seedUser();
+    const item = await seedItem('11111111-1111-1111-1111-111111111111');
+
+    const response = await app.inject({
+      method: 'PATCH',
+      url: `/items/${item.item_id}`,
+      headers: { cookie: await createAuthCookie() },
+      payload: { note: 'noop' },
+    });
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.json().message, 'Item updated');
+  });
+
+  it('rejects invalid PATCH payloads and unknown item/category ownership', async () => {
     await seedUser();
     const item = await seedItem('11111111-1111-1111-1111-111111111111');
 
     const invalidPayload = await app.inject({
-      method: 'PUT',
-      url: `/items/${item.item_id}/categories`,
+      method: 'PATCH',
+      url: `/items/${item.item_id}`,
       headers: { cookie: await createAuthCookie() },
-      payload: { categories: 'not-an-array' },
+      payload: { categoryIds: 'not-an-array' },
     });
     expectValidationError(invalidPayload);
 
     const missingItem = await app.inject({
-      method: 'PUT',
-      url: '/items/00000000-0000-0000-0000-000000000001/categories',
+      method: 'PATCH',
+      url: '/items/00000000-0000-0000-0000-000000000001',
       headers: { cookie: await createAuthCookie() },
-      payload: { categories: [] },
+      payload: { categoryIds: [] },
     });
     assert.equal(missingItem.statusCode, 404);
 
     const otherUser = await seedUser({ userId: '22222222-2222-2222-2222-222222222222', email: 'other@example.com' });
     const foreignCategory = await seedCategory(otherUser.user_id);
     const invalidCategory = await app.inject({
-      method: 'PUT',
-      url: `/items/${item.item_id}/categories`,
+      method: 'PATCH',
+      url: `/items/${item.item_id}`,
       headers: { cookie: await createAuthCookie() },
-      payload: { categories: [foreignCategory.category_id] },
+      payload: { categoryIds: [foreignCategory.category_id] },
     });
     assert.equal(invalidCategory.statusCode, 400);
   });

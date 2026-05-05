@@ -1,61 +1,95 @@
 import type { FastifyPluginAsync } from 'fastify';
-import { requireAuthUser } from '../lib/auth/middleware';
-import { badRequest, conflict, notFound } from '../lib/http/errors';
-import { created, ok } from '../lib/http/responses';
+import type { MultipartFile } from '@fastify/multipart';
+import sizeOf from 'image-size';
+import { requireAuthUser } from '#lib/auth/middleware';
+import { deleteItemImageByUrl, uploadItemImage } from '#lib/cloud-storage';
+import { badRequest, conflict, notFound } from '#lib/http/errors';
+import { created, ok } from '#lib/http/responses';
 import {
-  categoryFilterQuerySchema,
   idParamSchema,
-  replaceItemCategoriesBodySchema,
   routeSchema,
-} from '../lib/http/schemas';
+  updateItemBodySchema,
+} from '#lib/http/schemas';
+import { normalizeLayout } from '#lib/outfit-layout';
 import {
   allCategoriesBelongToUser,
-  canDeleteItem,
-  createItemFromUpload,
-  deleteItem,
+  createItemRecord,
+  deleteOwnedItem,
   findOwnedItem,
-  getRandomItem,
-  getRandomItemByCategories,
   itemExists,
-  listItemCategories,
-  listItems,
-  listItemsByCategories,
-  parseCategoryFilter,
-  parseCategoryIdsBody,
+  listUserOutfitLayouts,
   replaceItemCategories,
-} from '../services/items';
+} from '#lib/database/queries/items';
+
+export const parseCategoryIdsBody = (body: unknown): string[] | undefined => {
+  if (typeof body !== 'object' || body === null) {
+    throw Object.assign(new Error('invalid request body'), { statusCode: 400 });
+  }
+
+  if (!('categoryIds' in body)) {
+    return undefined;
+  }
+
+  const categoryIds = (body as { categoryIds: unknown }).categoryIds;
+
+  if (!Array.isArray(categoryIds)) {
+    throw Object.assign(new Error('categoryIds must be an array'), { statusCode: 400 });
+  }
+
+  if (!categoryIds.every((id) => typeof id === 'string' && id.length > 0)) {
+    throw Object.assign(new Error('categoryIds must contain non-empty string IDs'), { statusCode: 400 });
+  }
+
+  return [...new Set(categoryIds)];
+};
+
+const canDeleteItem = async (userId: string, itemId: string) => {
+  const outfits = await listUserOutfitLayouts(userId);
+
+  return !outfits.some((outfit) =>
+    normalizeLayout(outfit.layout).some((row) => row.some((entry) => entry.itemId === itemId)),
+  );
+};
+
+const createItemFromUpload = async (userId: string, file: MultipartFile) => {
+  const buffer = await file.toBuffer();
+  const dimensions = sizeOf(buffer);
+  if (!dimensions.width || !dimensions.height) {
+    throw Object.assign(new Error('Failed to determine image dimensions'), { statusCode: 400 });
+  }
+
+  const uploadedPath = await uploadItemImage(file.filename, file.mimetype, buffer);
+
+  try {
+    const inserted = await createItemRecord({
+      userId,
+      imagePath: uploadedPath,
+      imageWidth: dimensions.width,
+      imageHeight: dimensions.height,
+    });
+
+    return inserted;
+  } catch (error) {
+    try {
+      await deleteItemImageByUrl(uploadedPath);
+    } catch {
+      // Best-effort cleanup to avoid orphaned objects when DB write fails.
+    }
+    throw error;
+  }
+};
+
+const deleteItem = async (userId: string, itemId: string, imagePath: string) => {
+  await deleteOwnedItem(userId, itemId);
+
+  try {
+    await deleteItemImageByUrl(imagePath);
+  } catch {
+    // The source of truth is the DB row removal; storage cleanup can be retried later.
+  }
+};
 
 const itemsRoutes: FastifyPluginAsync = async (fastify) => {
-  fastify.get('/', routeSchema({
-    querystring: categoryFilterQuerySchema,
-  }), async (request, reply) => {
-    const authUser = requireAuthUser(request);
-    const categoryIds = parseCategoryFilter((request.query as { categories?: string }).categories);
-
-    if (categoryIds.length === 0) {
-      const items = await listItems(authUser.userId);
-      return ok(reply, `Retrieved ${items.length} items`, items);
-    }
-
-    const filteredItems = await listItemsByCategories(authUser.userId, categoryIds);
-    return ok(reply, `Retrieved ${filteredItems.length} filtered items`, filteredItems);
-  });
-
-  fastify.get('/random', routeSchema({
-    querystring: categoryFilterQuerySchema,
-  }), async (request, reply) => {
-    const authUser = requireAuthUser(request);
-    const categoryIds = parseCategoryFilter((request.query as { categories?: string }).categories);
-
-    if (categoryIds.length === 0) {
-      const randomItem = await getRandomItem(authUser.userId);
-      return ok(reply, 'Retrieved random item', randomItem);
-    }
-
-    const randomFiltered = await getRandomItemByCategories(authUser.userId, categoryIds);
-    return ok(reply, 'Retrieved random filtered item', randomFiltered);
-  });
-
   fastify.post('/', async (request, reply) => {
     const authUser = requireAuthUser(request);
     const file = await request.file();
@@ -65,6 +99,32 @@ const itemsRoutes: FastifyPluginAsync = async (fastify) => {
 
     const createdItem = await createItemFromUpload(authUser.userId, file);
     return created(reply, 'Item created', createdItem);
+  });
+
+  fastify.patch('/:id', routeSchema({
+    params: idParamSchema,
+    body: updateItemBodySchema,
+  }), async (request, reply) => {
+    const authUser = requireAuthUser(request);
+    const { id: itemId } = request.params as { id: string };
+
+    const exists = await itemExists(authUser.userId, itemId);
+    if (!exists) {
+      throw notFound('Item not found');
+    }
+
+    const categoryIds = parseCategoryIdsBody(request.body);
+
+    if (categoryIds !== undefined) {
+      const validCategories = await allCategoriesBelongToUser(authUser.userId, categoryIds);
+      if (!validCategories) {
+        throw badRequest('One or more categories were not found for this user');
+      }
+
+      await replaceItemCategories(itemId, categoryIds);
+    }
+
+    return ok(reply, 'Item updated');
   });
 
   fastify.delete('/:id', routeSchema({
@@ -84,36 +144,6 @@ const itemsRoutes: FastifyPluginAsync = async (fastify) => {
 
     await deleteItem(authUser.userId, itemId, item.imagePath);
     return ok(reply, 'Item deleted');
-  });
-
-  fastify.get('/:id/categories', routeSchema({
-    params: idParamSchema,
-  }), async (request, reply) => {
-    const authUser = requireAuthUser(request);
-    const { id: itemId } = request.params as { id: string };
-    const categories = await listItemCategories(authUser.userId, itemId);
-    return ok(reply, `Retrieved ${categories.length} categories for item`, categories);
-  });
-
-  fastify.put('/:id/categories', routeSchema({
-    params: idParamSchema,
-    body: replaceItemCategoriesBodySchema,
-  }), async (request, reply) => {
-    const authUser = requireAuthUser(request);
-    const { id: itemId } = request.params as { id: string };
-    const categoryIds = parseCategoryIdsBody(request.body);
-    const exists = await itemExists(authUser.userId, itemId);
-    if (!exists) {
-      throw notFound('Item not found');
-    }
-
-    const validCategories = await allCategoriesBelongToUser(authUser.userId, categoryIds);
-    if (!validCategories) {
-      throw badRequest('One or more categories were not found for this user');
-    }
-
-    await replaceItemCategories(itemId, categoryIds);
-    return ok(reply, 'Item categories updated');
   });
 };
 

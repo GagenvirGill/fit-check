@@ -1,5 +1,5 @@
 import { createApp } from './app';
-import { envConfig } from './lib/env-config';
+import { envConfig } from '#lib/env-config';
 
 const start = async () => {
   const app = await createApp();

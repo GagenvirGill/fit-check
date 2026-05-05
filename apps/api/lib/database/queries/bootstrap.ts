@@ -1,6 +1,6 @@
 import { asc, eq } from 'drizzle-orm';
 import * as schema from '@fit-check/database/schema';
-import db from '../lib/database';
+import db from '../client';
 
 export const getBootstrapData = async (userId: string) => {
   const [userRecord, categories, items, outfits] = await Promise.all([

@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm';
 import * as schema from '@fit-check/database/schema';
-import db from '../lib/database';
+import db from '../client';
 
 export const upsertGoogleUser = async (providerId: string, email: string) => {
   const existing = await db
