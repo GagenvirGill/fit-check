@@ -1,6 +1,6 @@
 export const applyTestEnv = () => {
   Object.assign(process.env, {
-    DATABASE_URL: 'postgres://user:pass@localhost:5432/db',
+    DATABASE_URL: 'pgmem://fit-check-test-db',
     FRONTEND_URL: 'http://localhost:5173',
     BACKEND_URL: 'http://localhost:4000',
     JWT_SECRET: 'test-jwt-secret',

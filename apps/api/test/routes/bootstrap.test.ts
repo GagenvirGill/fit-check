@@ -1,0 +1,47 @@
+import { after, before, beforeEach, describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+import type { FastifyInstance } from 'fastify';
+import { createAuthCookie, createTestApp } from '../helpers/app.js';
+import { linkItemToCategory, resetDb, seedCategory, seedItem, seedOutfit, seedUser } from '../helpers/db.js';
+
+let app: FastifyInstance;
+
+describe('routes/bootstrap', () => {
+  before(async () => {
+    app = await createTestApp();
+  });
+
+  beforeEach(async () => {
+    await resetDb();
+  });
+
+  after(async () => {
+    await app.close();
+  });
+
+  it('requires authentication', async () => {
+    const response = await app.inject({ method: 'GET', url: '/bootstrap' });
+    assert.equal(response.statusCode, 401);
+  });
+
+  it('returns aggregated bootstrap data for the authenticated user', async () => {
+    const user = await seedUser();
+    const item = await seedItem(user.user_id);
+    const category = await seedCategory(user.user_id, { favoriteItem: item.item_id });
+    await linkItemToCategory(item.item_id, category.category_id);
+    await seedOutfit(user.user_id, {
+      layout: [[{ itemId: item.item_id, weight: 1 }]],
+      description: 'seed outfit',
+    });
+
+    const response = await app.inject({ method: 'GET', url: '/bootstrap', headers: { cookie: await createAuthCookie() } });
+    const payload = response.json();
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(payload.success, true);
+    assert.equal(payload.data.user.userId, user.user_id);
+    assert.equal(payload.data.categories.length, 1);
+    assert.equal(payload.data.items.length, 1);
+    assert.equal(payload.data.outfits.length, 1);
+  });
+});

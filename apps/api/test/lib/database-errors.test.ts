@@ -1,16 +1,8 @@
-import { before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { applyTestEnv } from './helpers/env.js';
+import { isDatabaseUniqueViolation } from '../../lib/database-errors.js';
 
-let isDatabaseUniqueViolation: (error: unknown) => boolean;
-
-describe('database error helpers', () => {
-  before(async () => {
-    applyTestEnv();
-    const mod = await import('../lib/database-errors.js');
-    isDatabaseUniqueViolation = mod.isDatabaseUniqueViolation;
-  });
-
+describe('lib/database-errors', () => {
   it('identifies postgres unique-violation errors', () => {
     assert.equal(isDatabaseUniqueViolation({ code: '23505' }), true);
   });

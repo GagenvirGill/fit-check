@@ -8,7 +8,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "lint": "eslint .",
-    "test": "node --import tsx --test test/**/*.test.ts"
+    "test": "node --import tsx --import ./test/helpers/register-pgmem.ts --test test/**/*.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.918.0",
@@ -32,6 +32,8 @@
     "@types/node": "^22.13.5",
     "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
+    "drizzle-pgmem": "^0.6.2",
+    "pg-mem": "^3.0.14",
     "tsx": "^4.19.3",
     "typescript": "^5.7.3"
   }

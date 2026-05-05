@@ -16,5 +16,8 @@
     "database:generate": "npm run generate -w @fit-check/database",
     "database:migrate": "npm run migrate -w @fit-check/database",
     "database:push": "npm run push -w @fit-check/database"
+  },
+  "devDependencies": {
+    "typescript-eslint": "^8.59.2"
   }
 }
