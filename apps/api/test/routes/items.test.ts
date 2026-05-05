@@ -1,7 +1,7 @@
 import { after, before, beforeEach, describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import type { FastifyInstance } from 'fastify';
-import { createAuthCookie, createTestApp, expectValidationError } from '../helpers/app.js';
+import { createAuthCookie, createTestApp, expectValidationError, multipartBody } from '../helpers/app.js';
 import { linkItemToCategory, resetDb, seedCategory, seedItem, seedOutfit, seedUser } from '../helpers/db.js';
 
 let app: FastifyInstance;
@@ -40,6 +40,21 @@ void describe('routes/items', () => {
 
     assert.equal(response.statusCode, 400);
     assert.deepEqual(response.json(), { message: 'Image file is required' });
+  });
+
+  void it('rejects item creation when uploaded content type is unsupported', async () => {
+    await seedUser();
+    const form = multipartBody('file', 'notes.txt', 'text/plain', 'hello');
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/items',
+      headers: { cookie: await createAuthCookie(), ...form.headers },
+      payload: form.payload,
+    });
+
+    assert.equal(response.statusCode, 400);
+    assert.deepEqual(response.json(), { message: 'Unsupported image content type' });
   });
 
   void it('replaces item categories through PATCH /items/:id', async () => {

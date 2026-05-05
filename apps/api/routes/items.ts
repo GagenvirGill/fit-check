@@ -8,6 +8,7 @@ import { itemIdParamSchema, updateItemBodySchema } from '@fit-check/shared/types
 import sizeOf from 'image-size';
 import { deleteItemImageByUrl, uploadItemImage } from '#lib/cloud-storage';
 import { getRequiredMultipartFile } from '#lib/multipart';
+import { validateImageUpload } from '#lib/image-validation';
 import {
   createItemRecord,
   deleteOwnedItem,
@@ -45,12 +46,17 @@ const itemsRoutes: FastifyPluginAsync = async (fastify) => {
 
     const file = fileResult.file;
     const buffer = await file.toBuffer();
+    const imageValidation = validateImageUpload(file.mimetype, buffer);
+    if (!imageValidation.ok) {
+      return reply.status(400).send({ message: imageValidation.message });
+    }
+
     const dimensions = sizeOf(buffer);
     if (!dimensions.width || !dimensions.height) {
       return reply.status(400).send({ message: 'Failed to determine image dimensions' });
     }
 
-    const uploadedPath = await uploadItemImage(file.filename, file.mimetype, buffer);
+    const uploadedPath = await uploadItemImage(file.filename, imageValidation.normalizedMimeType, buffer);
 
     try {
       const created = await createItemRecord({
