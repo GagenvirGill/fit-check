@@ -18,7 +18,7 @@
     "api:lint": "npm run lint -w @fit-check/api",
     "api:test": "npm run test -w @fit-check/api",
     "database:build": "npm run build -w @fit-check/database",
-    "database:generate": "npm run generate -w @fit-check/database",
+    "database:generate": "sh -c 'npm run generate -w @fit-check/database -- --name \"$1\"' --",
     "database:migrate": "npm run migrate -w @fit-check/database",
     "database:push": "npm run push -w @fit-check/database"
   },

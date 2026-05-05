@@ -29,6 +29,13 @@
       "when": 1777963100000,
       "tag": "0003_core_fk_and_item_dimensions_not_null",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1778021360069,
+      "tag": "0004_make-userid-not-null",
+      "breakpoints": true
     }
   ]
 }
