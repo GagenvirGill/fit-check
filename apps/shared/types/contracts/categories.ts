@@ -35,12 +35,17 @@ export const updateCategoryBodySchema = {
     favoriteItem: {
       anyOf: [{ type: 'string', minLength: 1 }, { type: 'null' }],
     },
+    itemIds: {
+      type: 'array',
+      items: { type: 'string', minLength: 1 },
+    },
   },
 } as const;
 
 export type UpdateCategoryRequest = {
   name?: string;
   favoriteItem?: string | null;
+  itemIds?: string[];
 };
 
 export type CategoryCreateResponse = Pick<Category, 'categoryId' | 'name' | 'favoriteItem'>;

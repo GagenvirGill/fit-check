@@ -4,7 +4,7 @@ import * as schema from '@fit-check/database/schema';
 import db from '../client';
 
 export const getBootstrapData = async (userId: string): Promise<BootstrapResponse> => {
-  const [userRecord, categories, items, outfits] = await Promise.all([
+  const [userRecord, categories, items, outfits, itemCategoryLinks] = await Promise.all([
     db
       .select({
         userId: schema.user.userId,
@@ -43,6 +43,14 @@ export const getBootstrapData = async (userId: string): Promise<BootstrapRespons
       .from(schema.outfit)
       .where(eq(schema.outfit.userId, userId))
       .orderBy(asc(schema.outfit.dateWorn)),
+    db
+      .select({
+        itemId: schema.itemToCategory.itemId,
+        categoryId: schema.itemToCategory.categoryId,
+      })
+      .from(schema.itemToCategory)
+      .innerJoin(schema.item, eq(schema.item.itemId, schema.itemToCategory.itemId))
+      .where(eq(schema.item.userId, userId)),
   ]);
 
   return {
@@ -50,5 +58,6 @@ export const getBootstrapData = async (userId: string): Promise<BootstrapRespons
     categories,
     items,
     outfits,
+    itemCategoryLinks,
   };
 };

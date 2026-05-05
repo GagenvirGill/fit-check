@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import type {
   CategoryCreateResponse,
   CategoryUpdateResponse,
@@ -28,6 +28,36 @@ const userOwnsItem = async (userId: string, itemId: string): Promise<boolean> =>
     .limit(1);
 
   return Boolean(candidate[0]);
+};
+
+const allItemsBelongToUser = async (userId: string, itemIds: string[]): Promise<boolean> => {
+  if (itemIds.length === 0) {
+    return true;
+  }
+
+  const foundItems = await db
+    .select({ itemId: schema.item.itemId })
+    .from(schema.item)
+    .where(and(eq(schema.item.userId, userId), inArray(schema.item.itemId, itemIds)));
+
+  return foundItems.length === itemIds.length;
+};
+
+const getOwnedCategory = async (
+  userId: string,
+  categoryId: string,
+): Promise<CategoryUpdateResponse | null> => {
+  const found = await db
+    .select({
+      categoryId: schema.category.categoryId,
+      name: schema.category.name,
+      favoriteItem: schema.category.favoriteItem,
+    })
+    .from(schema.category)
+    .where(and(eq(schema.category.categoryId, categoryId), eq(schema.category.userId, userId)))
+    .limit(1);
+
+  return found[0] ?? null;
 };
 
 export const createCategory = async (userId: string, rawName: string): Promise<CategoryCreateResponse> => {
@@ -65,7 +95,7 @@ export const createCategory = async (userId: string, rawName: string): Promise<C
 export const updateCategory = async (
   userId: string,
   categoryId: string,
-  updates: { name?: string; favoriteItem?: string | null },
+  updates: { name?: string; favoriteItem?: string | null; itemIds?: string[] },
 ): Promise<CategoryUpdateResponse> => {
   const nextUpdates: { name?: string; favoriteItem?: string | null } = {};
 
@@ -89,26 +119,61 @@ export const updateCategory = async (
     throw new DatabaseQueryError('favoriteItem must reference an item owned by the user', 400);
   }
 
-  if (Object.keys(nextUpdates).length === 0) {
+  let normalizedItemIds: string[] | undefined;
+  if (updates.itemIds !== undefined) {
+    normalizedItemIds = [...new Set(updates.itemIds)];
+    if (!(await allItemsBelongToUser(userId, normalizedItemIds))) {
+      throw new DatabaseQueryError('One or more itemIds were not found for this user', 400);
+    }
+  }
+
+  if (Object.keys(nextUpdates).length === 0 && normalizedItemIds === undefined) {
     throw new DatabaseQueryError('No valid category updates provided', 400);
   }
 
   try {
-    const updated = await db
-      .update(schema.category)
-      .set(nextUpdates)
-      .where(and(eq(schema.category.categoryId, categoryId), eq(schema.category.userId, userId)))
-      .returning({
-        categoryId: schema.category.categoryId,
-        name: schema.category.name,
-        favoriteItem: schema.category.favoriteItem,
-      });
-
-    if (!updated[0]) {
+    const ownedCategory = await getOwnedCategory(userId, categoryId);
+    if (!ownedCategory) {
       throw new DatabaseQueryError('Category not found', 404);
     }
 
-    return updated[0];
+    const response = await db.transaction(async (tx): Promise<CategoryUpdateResponse> => {
+      let updatedCategory = ownedCategory;
+
+      if (Object.keys(nextUpdates).length > 0) {
+        const updated = await tx
+          .update(schema.category)
+          .set(nextUpdates)
+          .where(and(eq(schema.category.categoryId, categoryId), eq(schema.category.userId, userId)))
+          .returning({
+            categoryId: schema.category.categoryId,
+            name: schema.category.name,
+            favoriteItem: schema.category.favoriteItem,
+          });
+
+        if (!updated[0]) {
+          throw new DatabaseQueryError('Category not found', 404);
+        }
+        updatedCategory = updated[0];
+      }
+
+      if (normalizedItemIds !== undefined) {
+        await tx.delete(schema.itemToCategory).where(eq(schema.itemToCategory.categoryId, categoryId));
+
+        if (normalizedItemIds.length > 0) {
+          await tx.insert(schema.itemToCategory).values(
+            normalizedItemIds.map((itemId) => ({
+              itemId,
+              categoryId,
+            })),
+          );
+        }
+      }
+
+      return updatedCategory;
+    });
+
+    return response;
   } catch (error) {
     if (error instanceof DatabaseQueryError) {
       throw error;
