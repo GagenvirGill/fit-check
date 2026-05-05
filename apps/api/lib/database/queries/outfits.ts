@@ -3,8 +3,9 @@ import type { CreateOutfitResponse } from '@fit-check/shared/types/contracts/out
 import type { OutfitLayout } from '@fit-check/shared/types/models';
 import * as schema from '@fit-check/database/schema';
 import db from '../client';
+import { DatabaseQueryError } from '../query-error';
 
-export const allItemsBelongToUser = async (userId: string, itemIds: string[]): Promise<boolean> => {
+const allItemsBelongToUser = async (userId: string, itemIds: string[]): Promise<boolean> => {
   if (itemIds.length === 0) {
     return true;
   }
@@ -25,29 +26,51 @@ export const createOutfit = async (
     layout: OutfitLayout;
   },
 ): Promise<CreateOutfitResponse> => {
-  const created = await db
-    .insert(schema.outfit)
-    .values({
-      userId,
-      dateWorn: payload.dateWorn,
-      description: payload.description ?? null,
-      layout: payload.layout,
-    })
-    .returning({
-      outfitId: schema.outfit.outfitId,
-      dateWorn: schema.outfit.dateWorn,
-      description: schema.outfit.description,
-      layout: schema.outfit.layout,
-    });
+  const allItemIds = [...new Set(payload.layout.flat().map((item) => item.itemId))];
+  const validItems = await allItemsBelongToUser(userId, allItemIds);
+  if (!validItems) {
+    throw new DatabaseQueryError('layout includes one or more items not owned by the user', 400);
+  }
 
-  return created[0];
+  try {
+    const created = await db
+      .insert(schema.outfit)
+      .values({
+        userId,
+        dateWorn: payload.dateWorn,
+        description: payload.description ?? null,
+        layout: payload.layout,
+      })
+      .returning({
+        outfitId: schema.outfit.outfitId,
+        dateWorn: schema.outfit.dateWorn,
+        description: schema.outfit.description,
+        layout: schema.outfit.layout,
+      });
+
+    return created[0];
+  } catch {
+    throw new DatabaseQueryError('Failed to create outfit', 400);
+  }
 };
 
 export const deleteOutfit = async (
   userId: string,
   outfitId: string,
-): Promise<Array<{ outfitId: string }>> =>
-  db
-    .delete(schema.outfit)
-    .where(and(eq(schema.outfit.outfitId, outfitId), eq(schema.outfit.userId, userId)))
-    .returning({ outfitId: schema.outfit.outfitId });
+): Promise<void> => {
+  try {
+    const deleted = await db
+      .delete(schema.outfit)
+      .where(and(eq(schema.outfit.outfitId, outfitId), eq(schema.outfit.userId, userId)))
+      .returning({ outfitId: schema.outfit.outfitId });
+
+    if (!deleted[0]) {
+      throw new DatabaseQueryError('Outfit not found', 404);
+    }
+  } catch (error) {
+    if (error instanceof DatabaseQueryError) {
+      throw error;
+    }
+    throw new DatabaseQueryError('Failed to delete outfit', 400);
+  }
+};
