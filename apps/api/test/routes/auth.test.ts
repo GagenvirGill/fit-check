@@ -41,8 +41,8 @@ void describe('routes/auth', () => {
       cookies: { fitcheck_oauth_state: 'state-123' },
     });
 
-    assert.equal(response.statusCode, 500);
-    assert.equal(response.json().success, false);
+    assert.equal(response.statusCode, 400);
+    assert.equal(response.json().message, 'OAuth state validation failed');
   });
 
   void it('creates a user session on valid callback', async () => {
@@ -86,18 +86,18 @@ void describe('routes/auth', () => {
     });
 
     assert.equal(response.statusCode, 200);
-    assert.equal(response.json().data.userId, '11111111-1111-1111-1111-111111111111');
-    assert.equal(response.json().data.email, 'user@example.com');
+    assert.equal(response.json().userId, '11111111-1111-1111-1111-111111111111');
+    assert.equal(response.json().email, 'user@example.com');
   });
 
   void it('rejects /auth/me without a session', async () => {
     const response = await app.inject({ method: 'GET', url: '/auth/me' });
-    assert.equal(response.statusCode, 500);
+    assert.equal(response.statusCode, 401);
   });
 
   void it('clears the session cookie on logout', async () => {
     const response = await app.inject({ method: 'POST', url: '/auth/logout' });
-    assert.equal(response.statusCode, 200);
+    assert.equal(response.statusCode, 204);
     const cookie = response.headers['set-cookie'];
     const normalized = Array.isArray(cookie) ? cookie.join(';') : (cookie ?? '');
     assert.match(normalized, /fitcheck_session=/);

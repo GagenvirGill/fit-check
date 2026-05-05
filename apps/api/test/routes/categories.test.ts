@@ -34,8 +34,8 @@ void describe('routes/categories', () => {
     });
 
     assert.equal(createResponse.statusCode, 201);
-    assert.equal(createResponse.json().data.name, 'Tops');
-    assert.equal(typeof createResponse.json().data.categoryId, 'string');
+    assert.equal(createResponse.json().name, 'Tops');
+    assert.equal(typeof createResponse.json().categoryId, 'string');
     assert.equal(user.user_id, '11111111-1111-1111-1111-111111111111');
   });
 
@@ -61,7 +61,7 @@ void describe('routes/categories', () => {
       payload: { name: 'Shoes' },
     });
 
-    assert.equal(response.statusCode, 500);
+    assert.equal(response.statusCode, 409);
     assert.equal(response.json().message, 'Category name already exists for this user');
   });
 
@@ -78,8 +78,8 @@ void describe('routes/categories', () => {
     });
 
     assert.equal(response.statusCode, 200);
-    assert.equal(response.json().data.name, 'Caps');
-    assert.equal(response.json().data.favoriteItem, item.item_id);
+    assert.equal(response.json().name, 'Caps');
+    assert.equal(response.json().favoriteItem, item.item_id);
   });
 
   void it('deletes categories and returns 404 for missing categories', async () => {
@@ -91,13 +91,13 @@ void describe('routes/categories', () => {
       url: `/categories/${category.category_id}`,
       headers: { cookie: await createAuthCookie() },
     });
-    assert.equal(deleted.statusCode, 200);
+    assert.equal(deleted.statusCode, 204);
 
     const missing = await app.inject({
       method: 'DELETE',
       url: `/categories/${category.category_id}`,
       headers: { cookie: await createAuthCookie() },
     });
-    assert.equal(missing.statusCode, 500);
+    assert.equal(missing.statusCode, 404);
   });
 });

@@ -1,5 +1,8 @@
 import type { FastifyPluginAsync } from 'fastify';
-import type { GoogleCallbackQuery } from '@fit-check/shared/types/contracts/auth';
+import type {
+  AuthMeResponse,
+  GoogleCallbackQuery,
+} from '@fit-check/shared/types/contracts/auth';
 import { googleCallbackQuerySchema } from '@fit-check/shared/types/contracts/auth';
 import { envConfig } from '#lib/env-config';
 import { getUserById, upsertGoogleUser } from '#lib/database/queries/users';
@@ -24,45 +27,43 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
     const { code, state: returnedState } = request.query as GoogleCallbackQuery;
     const expectedState = consumeOauthStateCookie(request, reply);
     if (!expectedState || expectedState !== returnedState) {
-      throw new Error('OAuth state validation failed');
+      return reply.status(400).send({ message: 'OAuth state validation failed' });
     }
 
-    const googleUser = await getGoogleUserFromCode(code);
-    const appUser = await upsertGoogleUser(googleUser.sub, googleUser.email);
+    try {
+      const googleUser = await getGoogleUserFromCode(code);
+      const appUser = await upsertGoogleUser(googleUser.sub, googleUser.email);
 
-    const sessionToken = createSessionJwt({
-      userId: appUser.userId,
-      email: appUser.email,
-    });
+      const sessionToken = createSessionJwt({
+        userId: appUser.userId,
+        email: appUser.email,
+      });
 
-    setSessionCookie(reply, sessionToken);
-    return reply.redirect(envConfig.frontendUrl);
+      setSessionCookie(reply, sessionToken);
+      return reply.redirect(envConfig.frontendUrl);
+    } catch {
+      return reply.status(502).send({ message: 'OAuth provider request failed' });
+    }
   });
 
   fastify.get('/me', async (request, reply) => {
     const session = readSession(request);
     if (!session) {
-      throw new Error('Unauthorized');
+      return reply.status(401).send({ message: 'Unauthorized' });
     }
 
     const user = await getUserById(session.userId);
     if (!user) {
-      throw new Error('Unauthorized');
+      return reply.status(401).send({ message: 'Unauthorized' });
     }
 
-    return reply.status(200).send({
-      success: true,
-      message: 'Authenticated user',
-      data: user,
-    });
+    const body: AuthMeResponse = user;
+    return reply.status(200).send(body);
   });
 
   fastify.post('/logout', async (_request, reply) => {
     clearSessionCookie(reply);
-    return reply.status(200).send({
-      success: true,
-      message: 'Logged out',
-    });
+    return reply.status(204).send();
   });
 };
 

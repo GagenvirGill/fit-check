@@ -47,7 +47,7 @@ export const createApp = async () => {
       message = error.message;
     }
 
-    reply.status(500).send({ success: false, message });
+    return reply.status(500).send({ message });
   });
 
   await app.register(healthRoutes, { prefix: '/health' });

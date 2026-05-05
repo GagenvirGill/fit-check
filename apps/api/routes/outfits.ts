@@ -1,7 +1,10 @@
 import type { FastifyPluginAsync } from 'fastify';
-import type { CreateOutfitRequest } from '@fit-check/shared/types/contracts/outfits';
+import type {
+  CreateOutfitRequest,
+  CreateOutfitResponse,
+  OutfitIdParam,
+} from '@fit-check/shared/types/contracts/outfits';
 import { createOutfitBodySchema, outfitIdParamSchema } from '@fit-check/shared/types/contracts/outfits';
-import { requireAuthUser } from '#lib/auth/middleware';
 import { getUniqueLayoutItemIds } from '#lib/outfit-layout';
 import {
   allItemsBelongToUser,
@@ -11,13 +14,19 @@ import {
 
 const outfitsRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post('/', { schema: { body: createOutfitBodySchema } }, async (request, reply) => {
-    const authUser = requireAuthUser(request);
+    const authUser = request.authUser;
+    if (!authUser) {
+      return reply.status(401).send({ message: 'Unauthorized' });
+    }
+
     const body = request.body as CreateOutfitRequest;
-    const { dateWorn, layout } = body;
+    const { layout } = body;
     const allItemIds = getUniqueLayoutItemIds(layout);
     const validItems = await allItemsBelongToUser(authUser.userId, allItemIds);
     if (!validItems) {
-      throw new Error('layout includes one or more items not owned by the user');
+      return reply.status(400).send({
+        message: 'layout includes one or more items not owned by the user',
+      });
     }
 
     const outfit = await createOutfit(authUser.userId, {
@@ -25,18 +34,24 @@ const outfitsRoutes: FastifyPluginAsync = async (fastify) => {
       description: body.description,
       layout: body.layout,
     });
-    return reply.status(201).send({ success: true, message: `Outfit created for ${dateWorn}`, data: outfit });
+
+    const response: CreateOutfitResponse = outfit;
+    return reply.status(201).send(response);
   });
 
   fastify.delete('/:id', { schema: { params: outfitIdParamSchema } }, async (request, reply) => {
-    const authUser = requireAuthUser(request);
-    const { id: outfitId } = request.params as { id: string };
-    const deleted = await deleteOutfit(authUser.userId, outfitId);
-    if (!deleted[0]) {
-      throw new Error('Outfit not found');
+    const authUser = request.authUser;
+    if (!authUser) {
+      return reply.status(401).send({ message: 'Unauthorized' });
     }
 
-    return reply.status(200).send({ success: true, message: 'Outfit deleted' });
+    const { id: outfitId } = request.params as OutfitIdParam;
+    const deleted = await deleteOutfit(authUser.userId, outfitId);
+    if (!deleted[0]) {
+      return reply.status(404).send({ message: 'Outfit not found' });
+    }
+
+    return reply.status(204).send();
   });
 };
 

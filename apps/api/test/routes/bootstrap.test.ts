@@ -38,10 +38,9 @@ void describe('routes/bootstrap', () => {
     const payload = response.json();
 
     assert.equal(response.statusCode, 200);
-    assert.equal(payload.success, true);
-    assert.equal(payload.data.user.userId, user.user_id);
-    assert.equal(payload.data.categories.length, 1);
-    assert.equal(payload.data.items.length, 1);
-    assert.equal(payload.data.outfits.length, 1);
+    assert.equal(payload.user.userId, user.user_id);
+    assert.equal(payload.categories.length, 1);
+    assert.equal(payload.items.length, 1);
+    assert.equal(payload.outfits.length, 1);
   });
 });

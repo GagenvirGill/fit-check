@@ -22,12 +22,12 @@ void describe('app', () => {
   void it('serves public health without authentication', async () => {
     const response = await app.inject({ method: 'GET', url: '/health' });
     assert.equal(response.statusCode, 200);
-    assert.equal(response.json().success, true);
+    assert.equal(typeof response.json().uptimeSeconds, 'number');
   });
 
   void it('blocks protected routes without a session cookie', async () => {
     const response = await app.inject({ method: 'GET', url: '/bootstrap' });
     assert.equal(response.statusCode, 401);
-    assert.deepEqual(response.json(), { success: false, message: 'Unauthorized' });
+    assert.deepEqual(response.json(), { message: 'Unauthorized' });
   });
 });

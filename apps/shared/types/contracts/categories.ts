@@ -1,3 +1,5 @@
+import type { Category } from '../models';
+
 export const createCategoryBodySchema = {
   type: 'object',
   required: ['name'],
@@ -40,3 +42,7 @@ export type UpdateCategoryRequest = {
   name?: string;
   favoriteItem?: string | null;
 };
+
+export type CategoryCreateResponse = Pick<Category, 'categoryId' | 'name' | 'favoriteItem'>;
+
+export type CategoryUpdateResponse = Pick<Category, 'categoryId' | 'name' | 'favoriteItem'>;

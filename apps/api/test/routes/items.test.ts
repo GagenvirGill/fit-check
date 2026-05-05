@@ -38,8 +38,8 @@ void describe('routes/items', () => {
       payload: '--empty--\r\n',
     });
 
-    assert.equal(response.statusCode, 500);
-    assert.deepEqual(response.json(), { success: false, message: 'Image file is required' });
+    assert.equal(response.statusCode, 400);
+    assert.deepEqual(response.json(), { message: 'Image file is required' });
   });
 
   void it('replaces item categories through PATCH /items/:id', async () => {
@@ -55,7 +55,7 @@ void describe('routes/items', () => {
       headers: { cookie: await createAuthCookie() },
       payload: { categoryIds: [c1.category_id, c2.category_id, c2.category_id] },
     });
-    assert.equal(updated.statusCode, 200);
+    assert.equal(updated.statusCode, 204);
 
     const clear = await app.inject({
       method: 'PATCH',
@@ -63,7 +63,7 @@ void describe('routes/items', () => {
       headers: { cookie: await createAuthCookie() },
       payload: { categoryIds: [] },
     });
-    assert.equal(clear.statusCode, 200);
+    assert.equal(clear.statusCode, 204);
   });
 
   void it('supports no-op PATCH when categoryIds is omitted', async () => {
@@ -77,8 +77,8 @@ void describe('routes/items', () => {
       payload: { note: 'noop' },
     });
 
-    assert.equal(response.statusCode, 200);
-    assert.equal(response.json().message, 'Item updated');
+    assert.equal(response.statusCode, 204);
+    assert.equal(response.body, '');
   });
 
   void it('rejects invalid PATCH payloads and unknown item/category ownership', async () => {
@@ -99,7 +99,7 @@ void describe('routes/items', () => {
       headers: { cookie: await createAuthCookie() },
       payload: { categoryIds: [] },
     });
-    assert.equal(missingItem.statusCode, 500);
+    assert.equal(missingItem.statusCode, 404);
 
     const otherUser = await seedUser({ userId: '22222222-2222-2222-2222-222222222222', email: 'other@example.com' });
     const foreignCategory = await seedCategory(otherUser.user_id);
@@ -109,7 +109,7 @@ void describe('routes/items', () => {
       headers: { cookie: await createAuthCookie() },
       payload: { categoryIds: [foreignCategory.category_id] },
     });
-    assert.equal(invalidCategory.statusCode, 500);
+    assert.equal(invalidCategory.statusCode, 400);
   });
 
   void it('prevents deleting items referenced by outfits and allows deletion when unreferenced', async () => {
@@ -122,7 +122,7 @@ void describe('routes/items', () => {
       url: `/items/${item.item_id}`,
       headers: { cookie: await createAuthCookie() },
     });
-    assert.equal(blocked.statusCode, 500);
+    assert.equal(blocked.statusCode, 409);
 
     await resetDb();
     await seedUser();
@@ -132,6 +132,6 @@ void describe('routes/items', () => {
       url: `/items/${deletable.item_id}`,
       headers: { cookie: await createAuthCookie() },
     });
-    assert.equal(deleted.statusCode, 200);
+    assert.equal(deleted.statusCode, 204);
   });
 });

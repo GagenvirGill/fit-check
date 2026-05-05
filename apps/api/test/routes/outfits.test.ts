@@ -40,7 +40,7 @@ void describe('routes/outfits', () => {
     });
 
     assert.equal(response.statusCode, 201);
-    assert.equal(response.json().data.description, 'fit of day');
+    assert.equal(response.json().description, 'fit of day');
   });
 
   void it('rejects invalid payloads and non-owned layout items', async () => {
@@ -63,7 +63,7 @@ void describe('routes/outfits', () => {
         layout: [[{ itemId: '00000000-0000-0000-0000-000000000001', weight: 1 }]],
       },
     });
-    assert.equal(notOwned.statusCode, 500);
+    assert.equal(notOwned.statusCode, 400);
     assert.equal(notOwned.json().message, 'layout includes one or more items not owned by the user');
   });
 
@@ -76,13 +76,13 @@ void describe('routes/outfits', () => {
       url: `/outfits/${outfit.outfit_id}`,
       headers: { cookie: await createAuthCookie() },
     });
-    assert.equal(deleted.statusCode, 200);
+    assert.equal(deleted.statusCode, 204);
 
     const missing = await app.inject({
       method: 'DELETE',
       url: `/outfits/${outfit.outfit_id}`,
       headers: { cookie: await createAuthCookie() },
     });
-    assert.equal(missing.statusCode, 500);
+    assert.equal(missing.statusCode, 404);
   });
 });

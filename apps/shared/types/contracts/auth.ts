@@ -1,3 +1,5 @@
+import type { User } from '../models';
+
 export const googleCallbackQuerySchema = {
   type: 'object',
   required: ['code', 'state'],
@@ -12,3 +14,5 @@ export type GoogleCallbackQuery = {
   code: string;
   state: string;
 };
+
+export type AuthMeResponse = Pick<User, 'userId' | 'email' | 'provider'>;

@@ -19,8 +19,6 @@ void describe('routes/health', () => {
     const payload = response.json();
 
     assert.equal(response.statusCode, 200);
-    assert.equal(payload.success, true);
-    assert.equal(payload.message, 'Server is healthy');
-    assert.equal(typeof payload.data.uptimeSeconds, 'number');
+    assert.equal(typeof payload.uptimeSeconds, 'number');
   });
 });

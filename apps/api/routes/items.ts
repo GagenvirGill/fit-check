@@ -1,9 +1,12 @@
 import type { FastifyPluginAsync } from 'fastify';
 import type { MultipartFile } from '@fastify/multipart';
-import type { UpdateItemRequest } from '@fit-check/shared/types/contracts/items';
+import type {
+  CreateItemResponse,
+  ItemIdParam,
+  UpdateItemRequest,
+} from '@fit-check/shared/types/contracts/items';
 import { itemIdParamSchema, updateItemBodySchema } from '@fit-check/shared/types/contracts/items';
 import sizeOf from 'image-size';
-import { requireAuthUser } from '#lib/auth/middleware';
 import { deleteItemImageByUrl, uploadItemImage } from '#lib/cloud-storage';
 import { normalizeLayout } from '#lib/outfit-layout';
 import {
@@ -24,11 +27,27 @@ const canDeleteItem = async (userId: string, itemId: string) => {
   );
 };
 
+const parseCategoryIds = (body: UpdateItemRequest): { categoryIds?: string[]; error?: string } => {
+  if (body.categoryIds === undefined) {
+    return { categoryIds: undefined };
+  }
+
+  if (!Array.isArray(body.categoryIds)) {
+    return { error: 'categoryIds must be an array' };
+  }
+
+  if (!body.categoryIds.every((id) => typeof id === 'string' && id.length > 0)) {
+    return { error: 'categoryIds must contain non-empty string IDs' };
+  }
+
+  return { categoryIds: [...new Set(body.categoryIds)] };
+};
+
 const createItemFromUpload = async (userId: string, file: MultipartFile) => {
   const buffer = await file.toBuffer();
   const dimensions = sizeOf(buffer);
   if (!dimensions.width || !dimensions.height) {
-    throw new Error('Failed to determine image dimensions');
+    return { error: 'Failed to determine image dimensions' };
   }
 
   const uploadedPath = await uploadItemImage(file.filename, file.mimetype, buffer);
@@ -41,14 +60,14 @@ const createItemFromUpload = async (userId: string, file: MultipartFile) => {
       imageHeight: dimensions.height,
     });
 
-    return inserted;
-  } catch (error) {
+    return { item: inserted };
+  } catch {
     try {
       await deleteItemImageByUrl(uploadedPath);
     } catch {
       // Best-effort cleanup to avoid orphaned objects when DB write fails.
     }
-    throw error;
+    return { error: 'Failed to create item' };
   }
 };
 
@@ -62,72 +81,78 @@ const deleteItem = async (userId: string, itemId: string, imagePath: string) => 
   }
 };
 
-const parseCategoryIds = (body: UpdateItemRequest): string[] | undefined => {
-  if (body.categoryIds === undefined) {
-    return undefined;
-  }
-
-  if (!Array.isArray(body.categoryIds)) {
-    throw new Error('categoryIds must be an array');
-  }
-
-  if (!body.categoryIds.every((id) => typeof id === 'string' && id.length > 0)) {
-    throw new Error('categoryIds must contain non-empty string IDs');
-  }
-
-  return [...new Set(body.categoryIds)];
-};
-
 const itemsRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post('/', async (request, reply) => {
-    const authUser = requireAuthUser(request);
-    const file = await request.file();
-    if (!file) {
-      throw new Error('Image file is required');
+    const authUser = request.authUser;
+    if (!authUser) {
+      return reply.status(401).send({ message: 'Unauthorized' });
     }
 
-    const createdItem = await createItemFromUpload(authUser.userId, file);
-    return reply.status(201).send({ success: true, message: 'Item created', data: createdItem });
+    const file = await request.file();
+    if (!file) {
+      return reply.status(400).send({ message: 'Image file is required' });
+    }
+
+    const created = await createItemFromUpload(authUser.userId, file);
+    if (created.error || !created.item) {
+      return reply.status(400).send({ message: created.error ?? 'Failed to create item' });
+    }
+
+    const response: CreateItemResponse = created.item;
+    return reply.status(201).send(response);
   });
 
   fastify.patch('/:id', { schema: { params: itemIdParamSchema, body: updateItemBodySchema } }, async (request, reply) => {
-    const authUser = requireAuthUser(request);
-    const { id: itemId } = request.params as { id: string };
+    const authUser = request.authUser;
+    if (!authUser) {
+      return reply.status(401).send({ message: 'Unauthorized' });
+    }
+
+    const { id: itemId } = request.params as ItemIdParam;
 
     const exists = await itemExists(authUser.userId, itemId);
     if (!exists) {
-      throw new Error('Item not found');
+      return reply.status(404).send({ message: 'Item not found' });
     }
 
-    const categoryIds = parseCategoryIds(request.body as UpdateItemRequest);
+    const parsed = parseCategoryIds(request.body as UpdateItemRequest);
+    if (parsed.error) {
+      return reply.status(400).send({ message: parsed.error });
+    }
 
-    if (categoryIds !== undefined) {
-      const validCategories = await allCategoriesBelongToUser(authUser.userId, categoryIds);
+    if (parsed.categoryIds !== undefined) {
+      const validCategories = await allCategoriesBelongToUser(authUser.userId, parsed.categoryIds);
       if (!validCategories) {
-        throw new Error('One or more categories were not found for this user');
+        return reply.status(400).send({ message: 'One or more categories were not found for this user' });
       }
 
-      await replaceItemCategories(itemId, categoryIds);
+      await replaceItemCategories(itemId, parsed.categoryIds);
     }
 
-    return reply.status(200).send({ success: true, message: 'Item updated' });
+    return reply.status(204).send();
   });
 
   fastify.delete('/:id', { schema: { params: itemIdParamSchema } }, async (request, reply) => {
-    const authUser = requireAuthUser(request);
-    const { id: itemId } = request.params as { id: string };
+    const authUser = request.authUser;
+    if (!authUser) {
+      return reply.status(401).send({ message: 'Unauthorized' });
+    }
+
+    const { id: itemId } = request.params as ItemIdParam;
     const item = await findOwnedItem(authUser.userId, itemId);
     if (!item) {
-      throw new Error('Item not found');
+      return reply.status(404).send({ message: 'Item not found' });
     }
 
     const canDelete = await canDeleteItem(authUser.userId, itemId);
     if (!canDelete) {
-      throw new Error('Cannot delete item while it is referenced by one or more outfits');
+      return reply.status(409).send({
+        message: 'Cannot delete item while it is referenced by one or more outfits',
+      });
     }
 
     await deleteItem(authUser.userId, itemId, item.imagePath);
-    return reply.status(200).send({ success: true, message: 'Item deleted' });
+    return reply.status(204).send();
   });
 };
 

@@ -1,8 +1,10 @@
 import { and, eq } from 'drizzle-orm';
+import type { AuthMeResponse } from '@fit-check/shared/types/contracts/auth';
+import type { User } from '@fit-check/shared/types/models';
 import * as schema from '@fit-check/database/schema';
 import db from '../client';
 
-export const upsertGoogleUser = async (providerId: string, email: string) => {
+export const upsertGoogleUser = async (providerId: string, email: string): Promise<User> => {
   const existing = await db
     .select()
     .from(schema.user)
@@ -32,7 +34,7 @@ export const upsertGoogleUser = async (providerId: string, email: string) => {
   return inserted[0];
 };
 
-export const getUserById = async (userId: string) => {
+export const getUserById = async (userId: string): Promise<AuthMeResponse | null> => {
   const user = await db
     .select({
       userId: schema.user.userId,

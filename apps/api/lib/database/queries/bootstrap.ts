@@ -1,8 +1,9 @@
 import { asc, eq } from 'drizzle-orm';
+import type { BootstrapResponse } from '@fit-check/shared/types/contracts/bootstrap';
 import * as schema from '@fit-check/database/schema';
 import db from '../client';
 
-export const getBootstrapData = async (userId: string) => {
+export const getBootstrapData = async (userId: string): Promise<BootstrapResponse> => {
   const [userRecord, categories, items, outfits] = await Promise.all([
     db
       .select({

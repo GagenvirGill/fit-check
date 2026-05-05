@@ -1,9 +1,10 @@
 import { and, eq, inArray } from 'drizzle-orm';
+import type { CreateOutfitResponse } from '@fit-check/shared/types/contracts/outfits';
 import type { OutfitLayout } from '@fit-check/shared/types/models';
 import * as schema from '@fit-check/database/schema';
 import db from '../client';
 
-export const allItemsBelongToUser = async (userId: string, itemIds: string[]) => {
+export const allItemsBelongToUser = async (userId: string, itemIds: string[]): Promise<boolean> => {
   if (itemIds.length === 0) {
     return true;
   }
@@ -23,7 +24,7 @@ export const createOutfit = async (
     description?: string | null;
     layout: OutfitLayout;
   },
-) => {
+): Promise<CreateOutfitResponse> => {
   const created = await db
     .insert(schema.outfit)
     .values({
@@ -42,7 +43,10 @@ export const createOutfit = async (
   return created[0];
 };
 
-export const deleteOutfit = async (userId: string, outfitId: string) =>
+export const deleteOutfit = async (
+  userId: string,
+  outfitId: string,
+): Promise<Array<{ outfitId: string }>> =>
   db
     .delete(schema.outfit)
     .where(and(eq(schema.outfit.outfitId, outfitId), eq(schema.outfit.userId, userId)))

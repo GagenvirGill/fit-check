@@ -7,7 +7,6 @@ type RequireAuth = (request: { cookies: Record<string, string>; authUser?: { use
 }) => Promise<unknown>;
 
 let requireAuth: RequireAuth;
-let requireAuthUser: (request: { authUser?: { userId: string; email: string } }) => { userId: string; email: string };
 let createSessionJwt: (payload: { userId: string; email: string }) => string;
 
 void describe('lib/auth/middleware', () => {
@@ -16,19 +15,7 @@ void describe('lib/auth/middleware', () => {
     const middleware = await import('../../../lib/auth/middleware.js');
     const session = await import('../../../lib/auth/session.js');
     requireAuth = middleware.requireAuth as RequireAuth;
-    requireAuthUser = middleware.requireAuthUser as typeof requireAuthUser;
     createSessionJwt = session.createSessionJwt;
-  });
-
-  void it('returns the auth user when present', () => {
-    assert.deepEqual(requireAuthUser({ authUser: { userId: 'user-1', email: 'user@example.com' } }), {
-      userId: 'user-1',
-      email: 'user@example.com',
-    });
-  });
-
-  void it('throws unauthorized when the auth user is missing', () => {
-    assert.throws(() => requireAuthUser({}), /Unauthorized/);
   });
 
   void it('responds 401 for missing or invalid session cookies', async () => {
@@ -47,7 +34,7 @@ void describe('lib/auth/middleware', () => {
 
     await requireAuth({ cookies: {} }, reply);
     assert.equal(captured.statusCode, 401);
-    assert.deepEqual(captured.payload, { success: false, message: 'Unauthorized' });
+    assert.deepEqual(captured.payload, { message: 'Unauthorized' });
   });
 
   void it('sets request.authUser for valid session cookies', async () => {

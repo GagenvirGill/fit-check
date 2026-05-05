@@ -1,3 +1,5 @@
+import type { Item } from '../models';
+
 export const updateItemBodySchema = {
   type: 'object',
   minProperties: 1,
@@ -26,3 +28,5 @@ export const itemIdParamSchema = {
 export type ItemIdParam = {
   id: string;
 };
+
+export type CreateItemResponse = Pick<Item, 'itemId' | 'imagePath' | 'imageWidth' | 'imageHeight'>;
