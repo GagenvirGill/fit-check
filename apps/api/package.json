@@ -7,7 +7,7 @@
     "dev": "tsx watch server.ts",
     "build": "npm run typecheck && tsup --config tsup.config.ts",
     "start": "node dist/api/server.js",
-    "lint": "eslint .",
+    "lint": "NODE_OPTIONS='--experimental-strip-types' eslint --flag unstable_native_nodejs_ts_config .",
     "test": "node --import tsx --import ./test/helpers/register-pgmem.ts --test test/**/*.test.ts",
     "typecheck": "tsc --noEmit"
   },

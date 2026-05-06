@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint ."
+    "lint": "NODE_OPTIONS='--experimental-strip-types' eslint --flag unstable_native_nodejs_ts_config ."
   },
   "dependencies": {
     "@fit-check/shared": "*",

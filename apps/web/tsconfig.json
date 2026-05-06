@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "allowJs": true,
+    "noImplicitAny": false,
     "noEmit": true,
     "paths": {
       "@/*": ["./*"],
@@ -12,14 +12,13 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "**/*.js",
-    "**/*.jsx",
     "vite.config.ts",
     "index.html",
     "../shared/**/*"
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "eslint.config.ts"
   ]
 }

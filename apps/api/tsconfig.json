@@ -34,11 +34,12 @@
     "app.ts",
     "lib/**/*.ts",
     "routes/**/*.ts",
-    "types/**/*.d.ts"
+    "types/**/*.d.ts",
+    "test/**/*.ts",
+    "tsup.config.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist",
-    "test"
+    "dist"
   ]
 }

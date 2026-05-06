@@ -1,6 +1,7 @@
 {
   "name": "fit-check-monorepo",
   "private": true,
+  "type": "module",
   "workspaces": [
     "apps/*"
   ],

@@ -6,5 +6,5 @@
     "noEmit": true
   },
   "include": ["**/*.ts"],
-  "exclude": ["node_modules", "dist", ".wrangler"]
+  "exclude": ["node_modules", "dist", ".wrangler", "eslint.config.ts"]
 }

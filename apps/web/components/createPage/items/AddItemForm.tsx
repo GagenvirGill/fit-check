@@ -1,0 +1,124 @@
+
+import { useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
+import { useSetAtom } from "jotai";
+import { addNotificationAtom } from "@/jotai/notifications-atom";
+import { createItemAtom } from "@/jotai/items-atom";
+import { removeBackground } from "@/lib/segmentation/background-removal";
+
+import styles from "./AddItemForm.module.css";
+import Button from "@/components/buttons/Button";
+
+const AddItemForm = () => {
+	const [images, setImages] = useState<File[]>([]);
+	const [loading, setLoading] = useState(false);
+	const addNotification = useSetAtom(addNotificationAtom);
+	const createItem = useSetAtom(createItemAtom);
+	const handleImage = (event: ChangeEvent<HTMLInputElement>) => {
+		const files = Array.from(event.target.files ?? []);
+		setImages(files);
+	};
+
+	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+
+		const imagesToCreate = images;
+
+		setImages([]);
+		setLoading(true);
+
+		let successCount = 0;
+		let failCount = 0;
+
+		for (const image of imagesToCreate) {
+			try {
+				const file = await removeBackground(image);
+				if (!file) {throw new Error("Error processing image");}
+
+				const formData = new FormData();
+				formData.append("image", file);
+
+				await createItem(formData);
+				successCount++;
+			} catch {
+				failCount++;
+			}
+		}
+
+		if (successCount > 0) {
+			addNotification(`${successCount} item(s) created successfully.`);
+		}
+
+		if (failCount > 0) {
+			addNotification(`${failCount} item(s) failed to create.`);
+		}
+
+		setLoading(false);
+	};
+
+	return (
+		<div className={styles.formContainer}>
+			<p className={styles.formTitle}>Create a new Closet Item</p>
+			<br />
+			<div className={styles.formText}>
+				Tip: For the best results:
+				<br />
+				Center the item and ensure the image is clear.
+				<br />
+				Ensure the background is a distinctly different from the colors
+				of your item(s).
+				<br />
+				Good Luck!
+				<br />
+				<br />
+			</div>
+				<form
+					onSubmit={(event) => {
+						void handleSubmit(event);
+					}}
+				>
+				<label htmlFor="image" className={styles.addFileLabel}>
+					<div className={styles.addFile}>Select Item Image(s)</div>
+					<input
+						type="file"
+						id="image"
+						accept="image/*"
+							onChange={(event) => {
+								void handleImage(event);
+							}}
+						multiple
+						required
+					/>
+				</label>
+				<br />
+				<br />
+				<Button type="submit" text={"Create"} />
+				<br />
+				<div className={styles.imagesDisplay}>
+					{images.map((image, index) => (
+						<img
+							key={index}
+							src={URL.createObjectURL(image)}
+							alt={`Preview ${index}`}
+							style={{ maxWidth: "100px" }}
+						/>
+					))}
+				</div>
+				<br />
+			</form>
+			{loading && (
+				<>
+					<div className={styles.formText}>
+						Processing your Item(s)...
+					</div>
+					<div className={styles.formText}>
+						(Note: if you uploaded multiple images it may take a
+						while, please be patient)
+					</div>
+				</>
+			)}
+		</div>
+	);
+};
+
+export default AddItemForm;
