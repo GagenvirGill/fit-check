@@ -1,0 +1,11 @@
+{
+  "name": "@fit-check/workers",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx wrangler dev --test-scheduled",
+    "deploy": "npx wrangler deploy",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  }
+}

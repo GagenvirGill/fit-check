@@ -22,6 +22,7 @@ node_modules
 node_modules/
 npm-debug.log*
 out/
+.wrangler/
 pnpm-debug.log*
 Thumbs.db
 uploads/# Logs
