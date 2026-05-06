@@ -14,8 +14,9 @@ import outfitsRoutes from '#routes/outfits';
 import { requireAuth } from '#lib/auth/middleware';
 
 export const createApp = async () => {
+  const isDev = !isProduction;
   const app = Fastify({
-    logger: false,
+    logger: isDev ? false : { level: 'info' },
     disableRequestLogging: true,
     ajv: {
       customOptions: {
@@ -43,6 +44,10 @@ export const createApp = async () => {
 
   app.addHook('onResponse', async (request, reply) => {
     const responseTimeMs = Number(reply.elapsedTime.toFixed(2));
+    if (!isDev) {
+      app.log.info({ method: request.method, route: request.url, statusCode: reply.statusCode, responseTimeMs }, 'request');
+      return;
+    }
     const timestamp = new Date().toLocaleString('en-CA', {
       year: 'numeric',
       month: '2-digit',
@@ -56,7 +61,11 @@ export const createApp = async () => {
   });
 
   app.setErrorHandler((error, _request, reply) => {
-    console.error(error);
+    if (isDev) {
+      console.error(error);
+    } else {
+      app.log.error(error);
+    }
 
     let statusCode = 500;
     const rawStatusCode = (error as { statusCode?: unknown })?.statusCode;

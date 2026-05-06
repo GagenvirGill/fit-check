@@ -20,6 +20,7 @@
   - audit related queries for race conditions and move critical integrity checks into DB-enforced constraints where possible
 10. Buy a domain?
 11. React based manual ssr?
+12. look into bundle size optimizations for the web
 
 # Feature Ideas
 
