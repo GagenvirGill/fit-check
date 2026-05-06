@@ -14,6 +14,7 @@
     "web:typecheck": "npm exec -w apps/web -- tsc -p tsconfig.json --noEmit",
     "api:dev": "npm run dev -w @fit-check/api",
     "api:build": "npm run build -w @fit-check/api",
+    "api:build:ci": "npm ci --include=dev && npm run api:build",
     "api:start": "npm run start -w @fit-check/api",
     "api:lint": "npm run lint -w @fit-check/api",
     "api:test": "npm run test -w @fit-check/api",
@@ -25,7 +26,6 @@
   },
   "devDependencies": {
     "typescript-eslint": "^8.59.2",
-    "typescript": "^6.0.2",
-    "@types/jsonwebtoken": "^9.0.10"
+    "typescript": "^6.0.2"
   }
 }
