@@ -35,7 +35,7 @@
     "drizzle-pgmem": "^0.6.2",
     "pg-mem": "^3.0.14",
     "tsx": "^4.19.3",
-    "typescript": "^5.7.3"
+    "typescript": "^6.0.2"
   },
   "imports": {
     "#lib/*": "./lib/*.js",

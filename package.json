@@ -24,6 +24,7 @@
     "database:start": "/opt/homebrew/opt/postgresql@16/bin/postgres -D /opt/homebrew/var/postgresql@16 -p 5432"
   },
   "devDependencies": {
-    "typescript-eslint": "^8.59.2"
+    "typescript-eslint": "^8.59.2",
+    "typescript": "^6.0.2"
   }
 }
