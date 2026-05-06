@@ -15,7 +15,8 @@ import { requireAuth } from '#lib/auth/middleware';
 
 export const createApp = async () => {
   const app = Fastify({
-    logger: true,
+    logger: false,
+    disableRequestLogging: true,
     ajv: {
       customOptions: {
         coerceTypes: false,
@@ -40,8 +41,22 @@ export const createApp = async () => {
     timeWindow: '1 minute',
   });
 
+  app.addHook('onResponse', async (request, reply) => {
+    const responseTimeMs = Number(reply.elapsedTime.toFixed(2));
+    const timestamp = new Date().toLocaleString('en-CA', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
+    console.log(`[${timestamp}] ${request.method} ${request.url} -> ${reply.statusCode} (${responseTimeMs}ms)\n`);
+  });
+
   app.setErrorHandler((error, _request, reply) => {
-    app.log.error(error);
+    console.error(error);
 
     let statusCode = 500;
     const rawStatusCode = (error as { statusCode?: unknown })?.statusCode;
