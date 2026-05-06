@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch server.ts",
-    "build": "tsc",
+    "build": "npm run typecheck && tsup --config tsup.config.ts",
     "start": "node dist/api/server.js",
     "lint": "eslint .",
-    "test": "node --import tsx --import ./test/helpers/register-pgmem.ts --test test/**/*.test.ts"
+    "test": "node --import tsx --import ./test/helpers/register-pgmem.ts --test test/**/*.test.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.918.0",
@@ -34,6 +35,7 @@
     "drizzle-kit": "^0.31.10",
     "drizzle-pgmem": "^0.6.2",
     "pg-mem": "^3.0.14",
+    "tsup": "^8.5.1",
     "tsx": "^4.19.3",
     "typescript": "^6.0.2"
   },
