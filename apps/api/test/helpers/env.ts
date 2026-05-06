@@ -2,7 +2,6 @@ export const applyTestEnv = () => {
   Object.assign(process.env, {
     DATABASE_URL: 'pgmem://fit-check-test-db',
     FRONTEND_URL: 'http://localhost:5173',
-    BACKEND_URL: 'http://localhost:4000',
     JWT_SECRET: 'test-jwt-secret',
     GOOGLE_CLIENT_ID: 'test-google-client-id',
     GOOGLE_CLIENT_SECRET: 'test-google-client-secret',
@@ -12,6 +11,6 @@ export const applyTestEnv = () => {
     R2_BUCKET_NAME: 'r2-bucket',
     R2_ACCOUNT_ID: 'r2-account',
     R2_REGION: 'auto',
-    R2_URL: 'https://cdn.example.com',
+    R2_PUBLIC_URL: 'https://cdn.example.com',
   });
 };

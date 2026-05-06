@@ -1,6 +1,12 @@
-import 'dotenv/config';
+import path from 'node:path';
+import { config } from 'dotenv';
+
 import type { AppRuntimeEnv } from '@fit-check/shared/lib/runtime-env';
 import { validateAppRuntimeEnv } from '@fit-check/shared/lib/runtime-env';
+
+config({
+  path: path.resolve(process.cwd(), '../../.env'),
+});
 
 const parseNumberStrict = (name: string, raw: string): number => {
   const parsed = Number(raw);
@@ -36,14 +42,15 @@ const get = {
   },
 };
 
-const parseRuntimeEnv = (): AppRuntimeEnv => validateAppRuntimeEnv(get.string('NODE_ENV', 'development'));
+const parseRuntimeEnv = (): AppRuntimeEnv => {
+  return validateAppRuntimeEnv(get.string('NODE_ENV', 'development'));
+};
 
 export const envConfig = {
   nodeEnv: parseRuntimeEnv(),
   port: get.number('SERVER_PORT', 4000),
   databaseUrl: get.string('DATABASE_URL'),
   frontendUrl: get.string('FRONTEND_URL'),
-  backendUrl: get.string('BACKEND_URL'),
   jwtSecret: get.string('JWT_SECRET'),
   googleClientId: get.string('GOOGLE_CLIENT_ID'),
   googleClientSecret: get.string('GOOGLE_CLIENT_SECRET'),
@@ -53,7 +60,7 @@ export const envConfig = {
   r2BucketName: get.string('R2_BUCKET_NAME'),
   r2AccountId: get.string('R2_ACCOUNT_ID'),
   r2Region: get.string('R2_REGION'),
-  r2Url: get.string('R2_URL'),
+  r2PublicUrl: get.string('R2_PUBLIC_URL'),
 };
 
 export const isProduction = envConfig.nodeEnv === 'production';

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/api/server.js",
     "lint": "eslint .",
     "test": "node --import tsx --import ./test/helpers/register-pgmem.ts --test test/**/*.test.ts"
   },

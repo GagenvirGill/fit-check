@@ -30,11 +30,11 @@ export const uploadItemImage = async (filename: string, mimeType: string, bytes:
     ContentType: mimeType,
   }));
 
-  return `${envConfig.r2Url}/${key}`;
+  return `${envConfig.r2PublicUrl}/${key}`;
 };
 
 export const deleteItemImageByUrl = async (imageUrl: string): Promise<void> => {
-  const normalizedBase = envConfig.r2Url.replace(/\/$/, '');
+  const normalizedBase = envConfig.r2PublicUrl.replace(/\/$/, '');
   const key = imageUrl.replace(`${normalizedBase}/`, '');
   if (!key || key === imageUrl) {
     return;
