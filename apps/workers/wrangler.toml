@@ -3,8 +3,5 @@ name = "fit-check-workers"
 main = "worker.ts"
 compatibility_date = "2026-05-05"
 
-[vars]
-API_HEALTH_URL = "http://127.0.0.1:3000/health"
-
 [triggers]
 crons = ["*/5 * * * *"]
