@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useAtomValue } from "jotai";
-import { outfitsSortedByDateWornAscAtom } from "@/jotai/outfits-atom";
+import { outfitsSortedByDateWornDescAtom } from "@/jotai/outfits-atom";
 import { itemsAtom } from "@/jotai/items-atom";
 import styles from "./CardDisplayStyles.module.css";
 
@@ -15,7 +15,7 @@ const calculateNumOutfitsPerRow = () => {
 };
 
 const OutfitCardDisplay = () => {
-	const outfits = useAtomValue(outfitsSortedByDateWornAscAtom);
+	const outfits = useAtomValue(outfitsSortedByDateWornDescAtom);
 	const items = useAtomValue(itemsAtom);
 	const itemById = new Map(items.map((item) => [item.itemId, item]));
 

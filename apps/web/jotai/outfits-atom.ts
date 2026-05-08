@@ -13,8 +13,8 @@ type DraftOutfitItem = {
 
 export const outfitsAtom = atom<OutfitContract[]>([]);
 
-const sortOutfitsByDateWornAsc = (outfits: OutfitContract[]): OutfitContract[] =>
-	[...outfits].sort((a, b) => a.dateWorn.localeCompare(b.dateWorn));
+const sortOutfitsByDateWornDesc = (outfits: OutfitContract[]): OutfitContract[] =>
+	[...outfits].sort((a, b) => b.dateWorn.localeCompare(a.dateWorn));
 
 const appendOutfit = (outfits: OutfitContract[], outfit: OutfitContract): OutfitContract[] => [...outfits, outfit];
 const removeOutfitById = (outfits: OutfitContract[], outfitId: string): OutfitContract[] =>
@@ -54,12 +54,12 @@ export const deleteOutfitAtom = atom(null, async (_get, set, outfitId: string): 
 	set(outfitsAtom, (prev) => removeOutfitById(prev, outfitId));
 });
 
-export const outfitsSortedByDateWornAscAtom = atom((get) =>
-	sortOutfitsByDateWornAsc(get(outfitsAtom))
+export const outfitsSortedByDateWornDescAtom = atom((get) =>
+	sortOutfitsByDateWornDesc(get(outfitsAtom))
 );
 
 export const filterOutfitsByItemIdsQueryAtom = atom((get) => {
-	const outfits = get(outfitsSortedByDateWornAscAtom);
+	const outfits = get(outfitsSortedByDateWornDescAtom);
 	return (itemIds: string[]): OutfitContract[] => {
 		const itemIdSet = new Set(itemIds);
 		return outfits.filter((outfit) =>
@@ -71,7 +71,7 @@ export const filterOutfitsByItemIdsQueryAtom = atom((get) => {
 });
 
 export const searchOutfitsByDescriptionQueryAtom = atom((get) => {
-	const outfits = get(outfitsSortedByDateWornAscAtom);
+	const outfits = get(outfitsSortedByDateWornDescAtom);
 
 	return (query: string): OutfitContract[] => {
 		const normalizedQuery = query.trim().toLowerCase();
