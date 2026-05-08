@@ -8,6 +8,7 @@ import type {
 	OutfitLayoutContract,
 	OutfitLayoutItemContract,
 } from "@fit-check/shared/types/contracts/outfits";
+import attentionIcon from "@/assets/icons/attention.svg";
 
 import Card from "./Card";
 
@@ -135,7 +136,7 @@ const OutfitCard = ({
 									return (
 										<img
 											key={`${outfitId}-${rowIdx}-${itemIdx}-${item.itemId}`}
-											src={itemMeta?.imagePath ?? "/default_icon.png"}
+											src={itemMeta?.imagePath ?? attentionIcon}
 											alt="item-img"
 											loading="lazy"
 											style={{

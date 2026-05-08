@@ -8,6 +8,11 @@ import styles from "./CardDisplayStyles.module.css";
 import OutfitCard from "../card/OutfitCard";
 import FilterOutfitsByItemForm from "../popupForms/outfitsPage/FilterOufitsByItemForm";
 import SearchOutfitsForm from "../popupForms/outfitsPage/SearchOutfitsForm";
+import leftArrowIcon from "@/assets/icons/left-arrow.svg";
+import filterIcon from "@/assets/icons/filter.svg";
+import resetIcon from "@/assets/icons/reset.svg";
+import searchIcon from "@/assets/icons/search.svg";
+import rightArrowIcon from "@/assets/icons/right-arrow.svg";
 
 const calculateNumOutfitsPerRow = () => {
 	if (typeof window === "undefined") {return 3;}
@@ -122,35 +127,35 @@ const OutfitCardDisplay = () => {
 						onClick={handleCarouselLeft}
 						title="Previous Page"
 					>
-						<img src="/left_arrow.png" />
+						<img src={leftArrowIcon} alt="Previous Page" />
 					</div>
 					<div
 						className={styles.carouselButton}
 						onClick={handleUpdateShowFilterForm}
 						title="Select Filters"
 					>
-						<img src="/filter_icon.png" />
+						<img src={filterIcon} alt="Select Filters" />
 					</div>
 					<div
 						className={styles.carouselButton}
 						onClick={handleReset}
 						title="Reset Filters"
 					>
-						<img src="/reset_icon.png" />
+						<img src={resetIcon} alt="Reset Filters" />
 					</div>
 					<div
 						className={styles.carouselButton}
 						onClick={handleUpdateShowSearchBar}
 						title="Search Key Words"
 					>
-						<img src="/search_icon.png" />
+						<img src={searchIcon} alt="Search Key Words" />
 					</div>
 					<div
 						className={styles.carouselArrowButton}
 						onClick={handleCarouselRight}
 						title="Next Page"
 					>
-						<img src="/right_arrow.png" />
+						<img src={rightArrowIcon} alt="Next Page" />
 					</div>
 				</div>
 				{showSearchBar && (
