@@ -28,6 +28,7 @@ export const uploadItemImage = async (filename: string, mimeType: string, bytes:
     Key: key,
     Body: bytes,
     ContentType: mimeType,
+    CacheControl: 'public, max-age=31536000, immutable',
   }));
 
   return `${envConfig.r2PublicUrl}/${key}`;
