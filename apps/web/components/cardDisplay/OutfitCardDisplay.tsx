@@ -122,35 +122,35 @@ const OutfitCardDisplay = () => {
 						onClick={handleCarouselLeft}
 						title="Previous Page"
 					>
-						<img src="left_arrow.png" />
+						<img src="/left_arrow.png" />
 					</div>
 					<div
 						className={styles.carouselButton}
 						onClick={handleUpdateShowFilterForm}
 						title="Select Filters"
 					>
-						<img src="filter_icon.png" />
+						<img src="/filter_icon.png" />
 					</div>
 					<div
 						className={styles.carouselButton}
 						onClick={handleReset}
 						title="Reset Filters"
 					>
-						<img src="reset_icon.png" />
+						<img src="/reset_icon.png" />
 					</div>
 					<div
 						className={styles.carouselButton}
 						onClick={handleUpdateShowSearchBar}
 						title="Search Key Words"
 					>
-						<img src="search_icon.png" />
+						<img src="/search_icon.png" />
 					</div>
 					<div
 						className={styles.carouselArrowButton}
 						onClick={handleCarouselRight}
 						title="Next Page"
 					>
-						<img src="right_arrow.png" />
+						<img src="/right_arrow.png" />
 					</div>
 				</div>
 				{showSearchBar && (
