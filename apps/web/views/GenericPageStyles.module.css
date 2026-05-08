@@ -1,33 +1,34 @@
 .pageContainer {
-	padding-top: 8vh;
+	padding-top: calc(var(--nav-height) + 0.75rem);
 	text-align: center;
 	justify-content: center;
-	overflow-y: scroll;
+	overflow-y: auto;
 	overflow-x: hidden;
-	width: 100vw;
+	width: 100%;
+	min-height: 100vh;
 }
 
 .pageTitle {
-	color: black;
-	font-family: Courier, "Courier New", monospace;
+	color: var(--color-text);
+	font-family: var(--font-family-base);
 	font-size: 1.2rem;
 	text-align: center;
 	font-weight: normal;
 }
 
 .pageText {
-	color: black;
-	font-family: Courier, "Courier New", monospace;
+	color: var(--color-text);
+	font-family: var(--font-family-base);
 	font-size: 1rem;
 	text-align: center;
 	font-weight: normal;
 	padding-top: 12px;
 	padding-bottom: 12px;
 	margin: 0 auto;
-	width: 80vw;
+	width: min(80vw, 750px);
 	max-width: 750px;
 }
 
 .spacer {
-	height: 10vh;
+	height: clamp(2rem, 6vh, 4rem);
 }

@@ -1,18 +1,17 @@
 .radioButton {
 	display: inline-block;
 	padding: 12px;
-	background-color: rgb(255, 255, 255);
+	background-color: var(--color-text-inverse);
 	width: 100%;
 
-	color: rgb(0, 0, 0);
-	font-family: Courier, "Courier New", monospace;
+	color: var(--color-text);
+	font-family: var(--font-family-base);
 	font-size: 0.9rem;
 	text-align: center;
 
 	cursor: pointer;
-	transition: all 0.2s ease;
+	transition: background-color var(--transition-fast);
 	user-select: none;
-	transition: 0.3s;
 }
 
 @media (max-width: 768px) {
@@ -23,12 +22,12 @@
 
 @media (max-width: 480px) {
 	.radioButton {
-		font-size: 0.7rem;
+		font-size: 0.8rem;
 	}
 }
 
 .radioButton:hover {
-	background-color: rgb(220, 220, 220);
+	background-color: var(--color-bg-selected);
 }
 
 .radioButton input {
@@ -36,5 +35,5 @@
 }
 
 .radioButton:has(input:checked) {
-	background-color: rgb(200, 200, 200);
+	background-color: var(--color-bg-strong);
 }

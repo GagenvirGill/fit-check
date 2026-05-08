@@ -16,6 +16,7 @@
 7. look into bundle size optimizations for the web
 8. Look into a vps for hosting maybe?
 9. Caching with react query or tan stack?
+10. Make it so you can't drag images around, make the image itself 'undraggable'
 
 # Feature Ideas
 

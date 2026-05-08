@@ -1,6 +1,84 @@
+:root {
+	--font-family-base: Courier, "Courier New", monospace;
+
+	--color-text: rgb(0, 0, 0);
+	--color-text-inverse: rgb(255, 255, 255);
+	--color-bg: rgb(255, 255, 255);
+	--color-bg-soft: rgb(250, 250, 250);
+	--color-bg-muted: rgb(245, 245, 245);
+	--color-bg-subtle: rgb(235, 235, 235);
+	--color-bg-hover: rgb(230, 230, 230);
+	--color-bg-active: rgb(225, 225, 225);
+	--color-bg-selected: rgb(220, 220, 220);
+	--color-bg-strong: rgb(200, 200, 200);
+
+	--color-border: rgb(200, 200, 200);
+	--color-border-strong: rgb(180, 180, 180);
+	--color-overlay: rgba(0, 0, 0, 0.2);
+	--color-focus: #007bff;
+
+	--radius-xs: 1px;
+	--radius-sm: 2px;
+	--radius-md: 3px;
+
+	--transition-fast: 0.2s;
+	--transition-base: 0.3s;
+
+	--z-navbar: 100;
+	--z-dropdown: 200;
+	--z-overlay: 300;
+	--z-modal: 400;
+	--z-toast: 500;
+
+	--nav-height: 64px;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+	width: 100%;
+	min-height: 100%;
+}
+
 html,
 body {
 	overflow-x: hidden;
 	margin: 0;
 	padding: 0;
+}
+
+body {
+	font-family: var(--font-family-base);
+	color: var(--color-text);
+	background-color: var(--color-bg);
+	line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+	:root {
+		--nav-height: 56px;
+	}
+}
+
+button,
+input,
+select,
+textarea {
+	font: inherit;
+}
+
+img {
+	max-width: 100%;
+	display: block;
+}
+
+:focus-visible {
+	outline: 2px solid var(--color-focus);
+	outline-offset: 2px;
 }

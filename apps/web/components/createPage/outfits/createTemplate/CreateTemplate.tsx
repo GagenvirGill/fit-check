@@ -14,6 +14,9 @@ import {
 import TemplateRow from "./TemplateRow";
 import ImgButton from "@/components/buttons/ImgButton";
 import CreateOutfitForm from "@/components/popupForms/templatePopups/CreateOutfitForm";
+import submitIcon from "@/assets/icons/submit.svg";
+import shuffleIcon from "@/assets/icons/shuffle.svg";
+import trashIcon from "@/assets/icons/trash.svg";
 
 const CreateTemplate = () => {
 	const outfits = useAtomValue(outfitsAtom);
@@ -125,17 +128,17 @@ const CreateTemplate = () => {
 				<div className={styles.inlineButtons}>
 					<ImgButton
 						buttonId="outfit-template-create-button"
-						imgFileName="/checkmark_icon.png"
+						imgFileName={submitIcon}
 						onClick={handleCreateOutfit}
 					/>
 					<ImgButton
 						buttonId="outfit-template-randomize-button"
-						imgFileName="/shuffle_icon.png"
+						imgFileName={shuffleIcon}
 						onClick={handleRandomizationAll}
 					/>
 					<ImgButton
 						buttonId="outfit-template-clear-button"
-						imgFileName="/trash_icon.png"
+						imgFileName={trashIcon}
 						onClick={handleClearTemplate}
 					/>
 				</div>

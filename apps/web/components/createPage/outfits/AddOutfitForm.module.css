@@ -4,8 +4,8 @@
 }
 
 .formTitle {
-	color: black;
-	font-family: Courier, "Courier New", monospace;
+	color: var(--color-text);
+	font-family: var(--font-family-base);
 	font-size: 1rem;
 }
 

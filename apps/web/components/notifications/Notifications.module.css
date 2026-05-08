@@ -1,35 +1,46 @@
 .notificationsContainer {
 	position: fixed;
-	top: 2rem;
-	right: 2rem;
+	top: calc(var(--nav-height) + 0.75rem);
+	right: 1rem;
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
-	z-index: 999999;
+	z-index: var(--z-toast);
 }
 
 .notificationPopup {
-	position: absolute;
-	background-color: rgb(245, 245, 245);
+	position: relative;
+	background-color: var(--color-bg-muted);
 	top: 6px;
-	right: 10px;
-	border: 1px, solid, rgb(180, 180, 180);
-	border-radius: 2px;
-	color: black;
-	font-family: Courier, "Courier New", monospace;
+	right: 0;
+	border: 1px solid var(--color-border-strong);
+	border-radius: var(--radius-sm);
+	color: var(--color-text);
+	font-family: var(--font-family-base);
 	font-size: 0.85rem;
 	text-align: center;
 	font-weight: normal;
-	z-index: 999999;
+	z-index: var(--z-toast);
 	padding: 1rem;
 	min-width: 150px;
-	width: 15vw;
+	width: min(340px, 85vw);
 	animation: slideIn 0.3s ease-out;
 	transition: opacity 0.3s ease;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	cursor: pointer;
+}
+
+@media (max-width: 600px) {
+	.notificationsContainer {
+		top: calc(var(--nav-height) + 0.5rem);
+		right: 0.5rem;
+	}
+
+	.notificationPopup {
+		font-size: 0.9rem;
+	}
 }
 
 @keyframes slideIn {

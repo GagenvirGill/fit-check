@@ -6,11 +6,11 @@
 	align-items: center;
 	padding: 10px;
 	pointer-events: fill;
-	border-radius: 2px;
+	border-radius: var(--radius-sm);
 }
 
 .categoryCard:hover {
-	background-color: rgb(230, 230, 230);
+	background-color: var(--color-bg-hover);
 }
 
 .categoryCard img {
@@ -36,11 +36,11 @@
 	top: -80px;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	color: rgb(0, 0, 0);
-	font-family: Courier, "Courier New", monospace;
+	color: var(--color-text);
+	font-family: var(--font-family-base);
 	font-size: 0.8rem;
 	text-align: center;
-	border-radius: 1px;
+	border-radius: var(--radius-xs);
 
 	background-color: rgba(255, 255, 255, 0.8);
 	padding: 5px;

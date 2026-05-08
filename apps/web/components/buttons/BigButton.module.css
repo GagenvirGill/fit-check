@@ -3,23 +3,23 @@
 	height: 40px;
 	width: 600px;
 	max-width: 80vw;
-	background-color: rgb(255, 255, 255);
+	background-color: var(--color-text-inverse);
 	margin: 0px;
 
-	color: rgb(0, 0, 0);
-	font-family: Courier, "Courier New", monospace;
+	color: var(--color-text);
+	font-family: var(--font-family-base);
 	font-size: 1rem;
 	text-align: center;
 
 	cursor: pointer;
 	user-select: none;
 	transition: 0.3s;
-	border: 1px, solid, rgb(0, 0, 0);
-	border-radius: 2px;
+	border: 1px solid var(--color-text);
+	border-radius: var(--radius-sm);
 }
 
 .customButton:hover {
-	background-color: rgb(0, 0, 0);
-	color: rgb(255, 255, 255);
+	background-color: var(--color-text);
+	color: var(--color-text-inverse);
 	transform: scale(1.05);
 }

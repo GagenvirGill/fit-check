@@ -5,6 +5,7 @@ import styles from "./ProfilePopup.module.css";
 
 import ImgButton from "@/components/buttons/ImgButton";
 import InlineContextMenuButton from "@/components/buttons/InlineContextMenuButton";
+import profileIcon from "@/assets/icons/profile.svg";
 
 const ProfilePopup = () => {
 	const [isPopupVisible, setPopupVisibility] = useState(false);
@@ -24,7 +25,7 @@ const ProfilePopup = () => {
 		<div className={styles.popupContainer}>
 			<ImgButton
 				buttonId="profile-popup-button"
-				imgFileName="/profile_icon.png"
+				imgFileName={profileIcon}
 				onChange={handleButtonChange}
 			/>
 

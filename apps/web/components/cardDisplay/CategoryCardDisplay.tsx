@@ -4,6 +4,7 @@ import { categoriesSortedByNameAscAtom } from "@/jotai/categories-atom";
 import { itemsAtom } from "@/jotai/items-atom";
 import styles from "./CardDisplayStyles.module.css";
 import { Link } from "react-router-dom";
+import attentionIcon from "@/assets/icons/attention.svg";
 
 import CategoryCard from "../card/CategoryCard";
 import BigButton from "../buttons/BigButton";
@@ -37,7 +38,7 @@ const CategoryCardDisplay = () => {
 							.toLowerCase()
 							.replace(/\s+/g, "")}`}
 						imagePath={
-							item ? `${item.imagePath}` : "/default_icon.png"
+							item ? `${item.imagePath}` : attentionIcon
 						}
 						{...(item && { favItemId: item.itemId })}
 					/>

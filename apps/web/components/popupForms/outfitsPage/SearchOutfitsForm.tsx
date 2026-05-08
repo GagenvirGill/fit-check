@@ -1,11 +1,11 @@
 
 import { useState } from "react";
 import { useAtomValue } from "jotai";
-import { outfitsSortedByDateWornAscAtom, searchOutfitsByDescriptionSelectorAtom } from "@/jotai/outfits-atom";
+import { outfitsSortedByDateWornDescAtom, searchOutfitsByDescriptionSelectorAtom } from "@/jotai/outfits-atom";
 import styles from "./SearchOutfitsForm.module.css";
 
 const SearchOutfitsForm = ({ setDisplayedOutfits }) => {
-	const outfits = useAtomValue(outfitsSortedByDateWornAscAtom);
+	const outfits = useAtomValue(outfitsSortedByDateWornDescAtom);
 	const searchOutfits = useAtomValue(searchOutfitsByDescriptionSelectorAtom);
 	const [query, setQuery] = useState("");
 

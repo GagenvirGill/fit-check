@@ -1,7 +1,7 @@
 .cardDisplay {
 	display: inline-block;
 	text-align: center;
-	width: 90vw;
+	width: min(90vw, 1200px);
 	overflow-y: auto;
 	overflow-x: hidden;
 }
@@ -18,7 +18,7 @@
 	cursor: pointer;
 	width: 40px;
 	height: 40px;
-	padding: 2vw 4vw;
+	padding: clamp(0.5rem, 1.5vw, 1rem) clamp(0.8rem, 3vw, 2rem);
 	transition: all 0.5s ease;
 	display: flex;
 	align-items: center;
@@ -29,7 +29,7 @@
 	cursor: pointer;
 	width: 40px;
 	height: 40px;
-	padding: 2vw 6vw;
+	padding: clamp(0.5rem, 1.5vw, 1rem) clamp(1rem, 4vw, 2.5rem);
 	transition: all 0.5s ease;
 	display: flex;
 	align-items: center;
@@ -50,7 +50,7 @@
 
 .carouselButton:hover,
 .carouselArrowButton:hover {
-	background-color: rgb(230, 230, 230);
+	background-color: var(--color-bg-hover);
 }
 
 .cornerText {
@@ -61,8 +61,8 @@
 }
 
 .text {
-	color: black;
-	font-family: Courier, "Courier New", monospace;
+	color: var(--color-text);
+	font-family: var(--font-family-base);
 	font-size: 1rem;
 	text-align: center;
 	font-weight: normal;
@@ -72,5 +72,5 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	height: 564px;
+	min-height: min(564px, 65vh);
 }
