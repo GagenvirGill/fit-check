@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
-import type { OutfitLayout } from '@fit-check/shared/types/models';
+import type { OutfitLayoutModel } from '@fit-check/shared/types/models';
 import { applyTestEnv } from './env.js';
 
 const getDb = async () => {
@@ -85,7 +85,7 @@ export const linkItemToCategory = async (itemId: string, categoryId: string) => 
 
 export const seedOutfit = async (
   userId: string,
-  overrides: { outfitId?: string; dateWorn?: string; description?: string | null; layout?: OutfitLayout } = {},
+  overrides: { outfitId?: string; dateWorn?: string; description?: string | null; layout?: OutfitLayoutModel } = {},
 ) => {
   const db = await getDb();
   const outfitId = overrides.outfitId ?? randomUUID();
@@ -99,5 +99,5 @@ export const seedOutfit = async (
     RETURNING outfit_id, date_worn, description, layout
   `);
 
-  return inserted.rows[0] as { outfit_id: string; date_worn: string; description: string | null; layout: OutfitLayout };
+  return inserted.rows[0] as { outfit_id: string; date_worn: string; description: string | null; layout: OutfitLayoutModel };
 };

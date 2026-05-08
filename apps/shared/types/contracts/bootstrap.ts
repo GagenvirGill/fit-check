@@ -1,9 +1,13 @@
-import type { Category, Item, ItemToCategory, Outfit, User } from '../models';
+import type { CategoryContract } from './categories';
+import type { UserContract } from './auth';
+import type { ItemContract } from './items';
+import type { ItemToCategoryContract } from './item-category-links';
+import type { OutfitContract } from './outfits';
 
 export type BootstrapResponse = {
-  user: Pick<User, 'userId' | 'email' | 'provider'> | null;
-  categories: Array<Pick<Category, 'categoryId' | 'name' | 'favoriteItem'>>;
-  items: Array<Pick<Item, 'itemId' | 'imagePath' | 'imageWidth' | 'imageHeight' | 'createdAt'>>;
-  outfits: Array<Pick<Outfit, 'outfitId' | 'dateWorn' | 'description' | 'layout'>>;
-  itemCategoryLinks: Array<Pick<ItemToCategory, 'itemId' | 'categoryId'>>;
+  user: UserContract | null;
+  categories: CategoryContract[];
+  items: ItemContract[];
+  outfits: OutfitContract[];
+  itemCategoryLinks: ItemToCategoryContract[];
 };

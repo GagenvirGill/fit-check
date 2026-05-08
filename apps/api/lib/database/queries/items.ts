@@ -1,6 +1,6 @@
 import { and, eq, inArray } from 'drizzle-orm';
 import type { CreateItemResponse } from '@fit-check/shared/types/contracts/items';
-import type { OutfitLayout } from '@fit-check/shared/types/models';
+import type { OutfitLayoutModel } from '@fit-check/shared/types/models';
 import * as schema from '@fit-check/database/schema';
 import db from '../client';
 import { DatabaseQueryError } from '../query-error';
@@ -47,7 +47,7 @@ const findOwnedItem = async (
 
 const listUserOutfitLayouts = async (
   userId: string,
-): Promise<Array<{ outfitId: string; layout: OutfitLayout }>> =>
+): Promise<Array<{ outfitId: string; layout: OutfitLayoutModel }>> =>
   db
     .select({
       outfitId: schema.outfit.outfitId,

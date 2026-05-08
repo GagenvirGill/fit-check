@@ -19,6 +19,7 @@
 11. React based manual ssr?
 12. look into bundle size optimizations for the web
 13. Look into a vps for hosting maybe?
+14. Caching with react query or tan stack?
 
 # Feature Ideas
 

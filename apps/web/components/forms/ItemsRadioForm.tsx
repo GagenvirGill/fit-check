@@ -3,7 +3,7 @@ import type { FormEvent } from "react";
 import { useAtomValue } from "jotai";
 import { itemsByCategoryIdsSelectorAtom, itemsSortedByCreatedAtAscAtom } from "@/jotai/items-atom";
 import styles from "./FormStyles.module.css";
-import type { Item } from "@/types/item";
+import type { ItemContract } from "@fit-check/shared/types/contracts/items";
 
 import ImgRadioButton from "../buttons/ImgRadioButton";
 import Button from "../buttons/Button";
@@ -25,7 +25,7 @@ const ItemsRadioForm = ({
 }: ItemsRadioFormProps) => {
 	const allItems = useAtomValue(itemsSortedByCreatedAtAscAtom);
 	const getItemsByCategoryIds = useAtomValue(itemsByCategoryIdsSelectorAtom);
-	const [displayItems, setDisplayItems] = useState<Item[]>([]);
+	const [displayItems, setDisplayItems] = useState<ItemContract[]>([]);
 
 	useEffect(() => {
 		if (filteringCategoryIds) {
@@ -40,7 +40,7 @@ const ItemsRadioForm = ({
 	const [selectedItemId, setSelectedItemId] = useState(preSelectedItemId);
 	const [selectedItemImagePath, setSelectedItemImagePath] = useState<string | null>(null);
 
-	const handleRadioChange = (item: Item) => {
+	const handleRadioChange = (item: ItemContract) => {
 		setSelectedItemId(item.itemId);
 		if (returnImagePath) {
 			setSelectedItemImagePath(item.imagePath);

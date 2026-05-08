@@ -1,4 +1,8 @@
-import type { Outfit, OutfitLayout } from '../models';
+import type { OutfitLayoutModel, OutfitModel, OutfitLayoutItemModel } from '../models';
+
+export type OutfitContract = Pick<OutfitModel, 'outfitId' | 'dateWorn' | 'description' | 'layout'>;
+export type OutfitLayoutContract = OutfitLayoutModel;
+export type OutfitLayoutItemContract = OutfitLayoutItemModel;
 
 export const outfitIdParamSchema = {
   type: 'object',
@@ -46,7 +50,7 @@ export const createOutfitBodySchema = {
 export type CreateOutfitRequest = {
   dateWorn: string;
   description?: string | null;
-  layout: OutfitLayout;
+  layout: OutfitLayoutModel;
 };
 
-export type CreateOutfitResponse = Pick<Outfit, 'outfitId' | 'dateWorn' | 'description' | 'layout'>;
+export type CreateOutfitResponse = OutfitContract;

@@ -1,10 +1,10 @@
 import { atom } from "jotai";
 import type {
+	CategoryContract,
 	CategoryCreateResponse,
 	CategoryUpdateResponse,
 	UpdateCategoryRequest,
 } from "@fit-check/shared/types/contracts/categories";
-import { adaptCategoryRecord } from "@/lib/adapters/bootstrap";
 import { apiFetchJson, apiFetchVoid } from "@/lib/api-fetch";
 import {
 	categoryIdsForItemQueryAtom,
@@ -12,18 +12,17 @@ import {
 	itemIdsForCategoryQueryAtom,
 	type ItemCategoryLink,
 } from "@/jotai/item-category-links-atom";
-import type { Category } from "@/types/category";
 
-export const categoriesAtom = atom<Category[]>([]);
+export const categoriesAtom = atom<CategoryContract[]>([]);
 
-const sortCategoriesByNameAsc = (categories: Category[]): Category[] =>
+const sortCategoriesByNameAsc = (categories: CategoryContract[]): CategoryContract[] =>
 	[...categories].sort((a, b) => a.name.localeCompare(b.name));
 
-const appendCategory = (categories: Category[], category: Category): Category[] => [
+const appendCategory = (categories: CategoryContract[], category: CategoryContract): CategoryContract[] => [
 	...categories,
 	category,
 ];
-const removeCategoryById = (categories: Category[], categoryId: string): Category[] =>
+const removeCategoryById = (categories: CategoryContract[], categoryId: string): CategoryContract[] =>
 	categories.filter((category) => category.categoryId !== categoryId);
 
 const replaceCategoryLinks = (
@@ -38,9 +37,9 @@ const replaceCategoryLinks = (
 };
 
 const mergeUpdatedCategory = (
-	categories: Category[],
+	categories: CategoryContract[],
 	updated: CategoryUpdateResponse
-): Category[] =>
+): CategoryContract[] =>
 	categories.map((category) =>
 		category.categoryId === updated.categoryId
 			? {
@@ -51,13 +50,13 @@ const mergeUpdatedCategory = (
 			: category
 	);
 
-export const createCategoryAtom = atom(null, async (_get, set, name: string): Promise<Category> => {
+export const createCategoryAtom = atom(null, async (_get, set, name: string): Promise<CategoryContract> => {
 	const created = await apiFetchJson<CategoryCreateResponse>("/categories", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ name }),
 	});
-	const nextCategory = adaptCategoryRecord(created);
+	const nextCategory: CategoryContract = created;
 	set(categoriesAtom, (prev) => appendCategory(prev, nextCategory));
 	return nextCategory;
 });
@@ -155,7 +154,7 @@ export const categoriesSortedByNameAscAtom = atom((get) =>
 export const categoriesForItemQueryAtom = atom((get) => {
 	const categories = get(categoriesSortedByNameAscAtom);
 	const getCategoryIdsForItem = get(categoryIdsForItemQueryAtom);
-	return (itemId: string): Category[] => {
+	return (itemId: string): CategoryContract[] => {
 		const categoryIds = new Set(getCategoryIdsForItem(itemId));
 		return categories.filter((category) => categoryIds.has(category.categoryId));
 	};

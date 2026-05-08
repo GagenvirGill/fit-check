@@ -1,4 +1,6 @@
-import type { Category } from '../models';
+import type { CategoryModel } from '../models';
+
+export type CategoryContract = Pick<CategoryModel, 'categoryId' | 'name' | 'favoriteItem'>;
 
 export const createCategoryBodySchema = {
   type: 'object',
@@ -48,6 +50,6 @@ export type UpdateCategoryRequest = {
   itemIds?: string[];
 };
 
-export type CategoryCreateResponse = Pick<Category, 'categoryId' | 'name' | 'favoriteItem'>;
+export type CategoryCreateResponse = CategoryContract;
 
-export type CategoryUpdateResponse = Pick<Category, 'categoryId' | 'name' | 'favoriteItem'>;
+export type CategoryUpdateResponse = CategoryContract;

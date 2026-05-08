@@ -1,4 +1,4 @@
-import type { Outfit } from "@/types/outfit";
+import type { OutfitContract } from "@fit-check/shared/types/contracts/outfits";
 import type { TemplateBox } from "@/jotai/outfit-template-atom";
 import type { ObservationMatrix } from "./types";
 import { solveGlobalWeights } from "./solver";
@@ -11,25 +11,25 @@ const MIN_ITEM_SCALE = 0.5;
 const MAX_ITEM_SCALE = 3;
 
 /** Builds a matrix of all pairwise item weight ratios from outfit history. */
-export const createAdjacencyMatrix = (outfits: Outfit[]): ObservationMatrix => {
+export const createAdjacencyMatrix = (outfits: OutfitContract[]): ObservationMatrix => {
 	const matrix: ObservationMatrix = {};
 
 	for (const outfit of outfits) {
 		const date = new Date(outfit.dateWorn);
 
-		for (const row of outfit.OutfitTemplate.TemplateRows) {
-			for (const currItemData of row.TemplateItems) {
-				const currId = currItemData.Item?.itemId;
-				const currWeight = currItemData.itemWeight;
+		for (const row of outfit.layout) {
+			for (const currItemData of row) {
+				const currId = currItemData.itemId;
+				const currWeight = currItemData.weight;
 
 				if (!currId || currWeight <= 0) {continue;}
 
 				if (!matrix[currId]) {matrix[currId] = {};}
 
-				for (const innerRow of outfit.OutfitTemplate.TemplateRows) {
-					for (const checkItemData of innerRow.TemplateItems) {
-						const checkId = checkItemData.Item?.itemId;
-						const checkWeight = checkItemData.itemWeight;
+				for (const innerRow of outfit.layout) {
+					for (const checkItemData of innerRow) {
+						const checkId = checkItemData.itemId;
+						const checkWeight = checkItemData.weight;
 
 						if (!checkId || checkWeight <= 0 || currId === checkId) {continue;}
 

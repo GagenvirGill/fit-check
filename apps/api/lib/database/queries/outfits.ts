@@ -1,6 +1,6 @@
 import { and, eq, inArray } from 'drizzle-orm';
 import type { CreateOutfitResponse } from '@fit-check/shared/types/contracts/outfits';
-import type { OutfitLayout } from '@fit-check/shared/types/models';
+import type { OutfitLayoutModel } from '@fit-check/shared/types/models';
 import * as schema from '@fit-check/database/schema';
 import db from '../client';
 import { DatabaseQueryError } from '../query-error';
@@ -23,7 +23,7 @@ export const createOutfit = async (
   payload: {
     dateWorn: string;
     description?: string | null;
-    layout: OutfitLayout;
+    layout: OutfitLayoutModel;
   },
 ): Promise<CreateOutfitResponse> => {
   const allItemIds = [...new Set(payload.layout.flat().map((item) => item.itemId))];

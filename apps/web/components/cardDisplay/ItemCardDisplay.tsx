@@ -20,9 +20,9 @@ const getLastWornMap = (outfits) => {
 
 	for (const outfit of outfits) {
 		const outfitDateWorn = new Date(outfit.dateWorn);
-		for (const row of outfit.OutfitTemplate.TemplateRows) {
-			for (const templateItem of row.TemplateItems) {
-				const itemId = templateItem.Item.itemId;
+		for (const row of outfit.layout) {
+			for (const layoutItem of row) {
+				const itemId = layoutItem.itemId;
 				const existing = dateWornMap.get(itemId);
 				if (!existing || existing < outfitDateWorn) {
 					dateWornMap.set(itemId, outfitDateWorn);
@@ -37,9 +37,9 @@ const getLastWornMap = (outfits) => {
 const getWearCountMap = (outfits) => {
 	const wearCountMap = new Map();
 	for (const outfit of outfits) {
-		for (const row of outfit.OutfitTemplate.TemplateRows) {
-			for (const templateItem of row.TemplateItems) {
-				const itemId = templateItem.Item.itemId;
+		for (const row of outfit.layout) {
+			for (const layoutItem of row) {
+				const itemId = layoutItem.itemId;
 				wearCountMap.set(itemId, (wearCountMap.get(itemId) || 0) + 1);
 			}
 		}

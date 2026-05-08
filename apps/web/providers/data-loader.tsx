@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import type { ReactNode } from "react";
 import { useSetAtom } from "jotai";
 import type { BootstrapResponse } from "@fit-check/shared/types/contracts/bootstrap";
-import { adaptBootstrapResponse } from "@/lib/adapters/bootstrap";
+import type { ItemContract } from "@fit-check/shared/types/contracts/items";
 import { apiFetchJson } from "@/lib/api-fetch";
 import { categoriesAtom } from "@/jotai/categories-atom";
 import { itemCategoryLinksAtom } from "@/jotai/item-category-links-atom";
@@ -13,6 +13,11 @@ import { useAuth } from "@/providers/auth/useAuth";
 interface DataLoaderProps {
 	children: ReactNode;
 }
+
+const normalizeItem = (item: ItemContract): ItemContract => ({
+	...item,
+	createdAt: new Date(item.createdAt),
+});
 
 export default function DataLoader({ children }: DataLoaderProps) {
 	const { isAuthenticated, loading: authLoading } = useAuth();
@@ -44,11 +49,10 @@ export default function DataLoader({ children }: DataLoaderProps) {
 					return;
 				}
 
-				const data = adaptBootstrapResponse(response);
-				setItems(data.items);
-				setCategories(data.categories);
-				setOutfits(data.outfits);
-				setItemCategoryLinks(data.itemCategoryLinks);
+				setItems(response.items.map(normalizeItem));
+				setCategories(response.categories);
+				setOutfits(response.outfits);
+				setItemCategoryLinks(response.itemCategoryLinks);
 			} catch {
 				if (cancelled) {
 					return;

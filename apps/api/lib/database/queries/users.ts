@@ -1,10 +1,10 @@
 import { and, eq } from 'drizzle-orm';
 import type { AuthMeResponse } from '@fit-check/shared/types/contracts/auth';
-import type { User } from '@fit-check/shared/types/models';
+import type { UserModel } from '@fit-check/shared/types/models';
 import * as schema from '@fit-check/database/schema';
 import db from '../client';
 
-export const upsertGoogleUser = async (providerId: string, email: string): Promise<User> => {
+export const upsertGoogleUser = async (providerId: string, email: string): Promise<UserModel> => {
   const existing = await db
     .select()
     .from(schema.user)

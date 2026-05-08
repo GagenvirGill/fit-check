@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useAtomValue } from "jotai";
 import { outfitsSortedByDateWornAscAtom } from "@/jotai/outfits-atom";
+import { itemsAtom } from "@/jotai/items-atom";
 import styles from "./CardDisplayStyles.module.css";
 
 import OutfitCard from "../card/OutfitCard";
@@ -15,6 +16,8 @@ const calculateNumOutfitsPerRow = () => {
 
 const OutfitCardDisplay = () => {
 	const outfits = useAtomValue(outfitsSortedByDateWornAscAtom);
+	const items = useAtomValue(itemsAtom);
+	const itemById = new Map(items.map((item) => [item.itemId, item]));
 
 	const [displayedOutfits, setDisplayedOutfits] = useState(outfits);
 	const [showFilterForm, setShowFilterForm] = useState(false);
@@ -107,10 +110,8 @@ const OutfitCardDisplay = () => {
 									outfitId={outfit.outfitId}
 									dateWorn={outfit.dateWorn}
 									desc={outfit.description}
-									items={outfit.OutfitTemplate.TemplateRows}
-									totalWeight={
-										outfit.OutfitTemplate.totalWeight
-									}
+									layout={outfit.layout}
+									itemById={itemById}
 								/>
 							);
 						})

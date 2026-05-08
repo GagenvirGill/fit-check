@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import type { FormEvent } from "react";
 import { useAtomValue } from "jotai";
 import { itemsByCategoryIdsSelectorAtom, itemsSortedByCreatedAtAscAtom } from "@/jotai/items-atom";
-import type { Item } from "@/types/item";
+import type { ItemContract } from "@fit-check/shared/types/contracts/items";
 
 import ImgCheckboxButton from "../buttons/ImgCheckboxButton";
 import Button from "../buttons/Button";
@@ -10,7 +10,7 @@ import styles from "./FormStyles.module.css";
 
 type ItemsCheckboxFormProps = {
 	handleSubmit: (selectedItemIds: string[]) => void | Promise<void>;
-	displayItems?: Item[];
+	displayItems?: ItemContract[];
 	filteringCategoryIds?: string[];
 };
 
@@ -22,7 +22,7 @@ const ItemsCheckboxForm = ({
 	const allItems = useAtomValue(itemsSortedByCreatedAtAscAtom);
 	const getItemsByCategoryIds = useAtomValue(itemsByCategoryIdsSelectorAtom);
 	const [selectedItems, setSelectedItems] = useState<string[]>([]);
-	const [display_items, setDisplayItems] = useState<Item[]>(displayItems || allItems);
+	const [display_items, setDisplayItems] = useState<ItemContract[]>(displayItems || allItems);
 
 	const handleCheckboxChange = (itemId: string, checked: boolean) => {
 		setSelectedItems((prevState) => {

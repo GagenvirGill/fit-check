@@ -1,9 +1,9 @@
 import { atom } from "jotai";
 import type {
 	CreateItemResponse,
+	ItemContract,
 	UpdateItemRequest,
 } from "@fit-check/shared/types/contracts/items";
-import { adaptItemRecord } from "@/lib/adapters/bootstrap";
 import { apiFetchJson, apiFetchVoid } from "@/lib/api-fetch";
 import {
 	categoryIdsForItemQueryAtom,
@@ -14,21 +14,19 @@ import {
 import {
 	clearFavoriteItemReferenceAtom,
 } from "@/jotai/categories-atom";
-import type { Item } from "@/types/item";
-
 type ItemCategoryLink = Array<{ itemId: string; categoryId: string }>;
 
-export const itemsAtom = atom<Item[]>([]);
+export const itemsAtom = atom<ItemContract[]>([]);
 
-const sortItemsByCreatedAtAsc = (items: Item[]): Item[] =>
+const sortItemsByCreatedAtAsc = (items: ItemContract[]): ItemContract[] =>
 	[...items].sort((a, b) => {
 		const aTime = new Date(a.createdAt).getTime();
 		const bTime = new Date(b.createdAt).getTime();
 		return aTime - bTime;
 	});
 
-const appendItem = (items: Item[], item: Item): Item[] => [...items, item];
-const removeItemById = (items: Item[], itemId: string): Item[] =>
+const appendItem = (items: ItemContract[], item: ItemContract): ItemContract[] => [...items, item];
+const removeItemById = (items: ItemContract[], itemId: string): ItemContract[] =>
 	items.filter((item) => item.itemId !== itemId);
 
 const replaceItemLinks = (
@@ -76,9 +74,9 @@ const requestItemVoid = async (
 
 export const createItemAtom = atom(
 	null,
-	async (_get, set, formData: FormData): Promise<Item> => {
+	async (_get, set, formData: FormData): Promise<ItemContract> => {
 		const created = await requestItemJson<CreateItemResponse>("POST", "/items", formData);
-		const nextItem = adaptItemRecord(created);
+		const nextItem: ItemContract = { ...created, createdAt: new Date(created.createdAt) };
 		set(itemsAtom, (prev) => appendItem(prev, nextItem));
 		return nextItem;
 	}
@@ -140,7 +138,7 @@ export const itemsForCategoryQueryAtom = atom((get) => {
 	const items = get(itemsSortedByCreatedAtAscAtom);
 	const getItemIdsForCategory = get(itemIdsForCategoryQueryAtom);
 
-	return (categoryId: string): Item[] => {
+	return (categoryId: string): ItemContract[] => {
 		const itemIds = new Set(getItemIdsForCategory(categoryId));
 		return items.filter((item) => itemIds.has(item.itemId));
 	};
@@ -150,7 +148,7 @@ export const itemsByCategoryIdsQueryAtom = atom((get) => {
 	const items = get(itemsSortedByCreatedAtAscAtom);
 	const getItemIdsByCategoryIds = get(itemIdsByCategoryIdsQueryAtom);
 
-	return (categoryIds: string[]): Item[] => {
+	return (categoryIds: string[]): ItemContract[] => {
 		if (categoryIds.length === 0) {
 			return items;
 		}
@@ -163,7 +161,7 @@ export const randomItemForCategoryIdsQueryAtom = atom((get) => {
 	const items = get(itemsSortedByCreatedAtAscAtom);
 	const getItemIdsByCategoryIds = get(itemIdsByCategoryIdsQueryAtom);
 
-	return (categoryIds: string[]): Item | null => {
+	return (categoryIds: string[]): ItemContract | null => {
 		const itemIds =
 			categoryIds.length > 0
 				? new Set(getItemIdsByCategoryIds(categoryIds))

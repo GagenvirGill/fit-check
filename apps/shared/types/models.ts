@@ -5,21 +5,21 @@
  */
 
 import type {
-  Category,
-  Item,
-  ItemToCategory,
-  Outfit,
-  OutfitLayout,
-  OutfitLayoutItem,
-  User,
+  Category as CategoryModel,
+  Item as ItemModel,
+  ItemToCategory as ItemToCategoryModel,
+  Outfit as OutfitModel,
+  OutfitLayout as OutfitLayoutModel,
+  OutfitLayoutItem as OutfitLayoutItemModel,
+  User as UserModel,
 } from "@fit-check/database/types";
 
 export type {
-  User,
-  Item,
-  Category,
-  Outfit,
-  ItemToCategory,
-  OutfitLayout,
-  OutfitLayoutItem,
+  UserModel,
+  ItemModel,
+  CategoryModel,
+  OutfitModel,
+  ItemToCategoryModel,
+  OutfitLayoutModel,
+  OutfitLayoutItemModel,
 };

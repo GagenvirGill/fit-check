@@ -1,4 +1,6 @@
-import type { Item } from '../models';
+import type { ItemModel } from '../models';
+
+export type ItemContract = Pick<ItemModel, 'itemId' | 'imagePath' | 'imageWidth' | 'imageHeight' | 'createdAt'>;
 
 export const updateItemBodySchema = {
   type: 'object',
@@ -29,4 +31,4 @@ export type ItemIdParam = {
   id: string;
 };
 
-export type CreateItemResponse = Pick<Item, 'itemId' | 'imagePath' | 'imageWidth' | 'imageHeight' | 'createdAt'>;
+export type CreateItemResponse = ItemContract;
