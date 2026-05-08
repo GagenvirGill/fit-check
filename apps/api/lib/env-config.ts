@@ -60,7 +60,6 @@ export const envConfig = {
   r2BucketName: get.string('R2_BUCKET_NAME'),
   r2AccountId: get.string('R2_ACCOUNT_ID'),
   r2Region: get.string('R2_REGION'),
-  r2PublicUrl: get.string('R2_PUBLIC_URL'),
 };
 
 export const isProduction = envConfig.nodeEnv === 'production';

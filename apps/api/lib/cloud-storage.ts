@@ -31,13 +31,17 @@ export const uploadItemImage = async (filename: string, mimeType: string, bytes:
     CacheControl: 'public, max-age=31536000, immutable',
   }));
 
-  return `${envConfig.r2PublicUrl}/${key}`;
+  return key;
 };
 
-export const deleteItemImageByUrl = async (imageUrl: string): Promise<void> => {
-  const normalizedBase = envConfig.r2PublicUrl.replace(/\/$/, '');
-  const key = imageUrl.replace(`${normalizedBase}/`, '');
-  if (!key || key === imageUrl) {
+export const deleteItemImageByKey = async (imagePath: string): Promise<void> => {
+  const trimmed = imagePath.trim();
+  if (!trimmed) {
+    return;
+  }
+
+  const key = trimmed.replace(/^\/+/, '');
+  if (!key) {
     return;
   }
 

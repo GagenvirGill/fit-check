@@ -14,6 +14,7 @@ import {
 import {
 	clearFavoriteItemReferenceAtom,
 } from "@/jotai/categories-atom";
+import { buildImageUrl } from "@/lib/image-url";
 type ItemCategoryLink = Array<{ itemId: string; categoryId: string }>;
 
 export const itemsAtom = atom<ItemContract[]>([]);
@@ -76,7 +77,11 @@ export const createItemAtom = atom(
 	null,
 	async (_get, set, formData: FormData): Promise<ItemContract> => {
 		const created = await requestItemJson<CreateItemResponse>("POST", "/items", formData);
-		const nextItem: ItemContract = { ...created, createdAt: new Date(created.createdAt) };
+		const nextItem: ItemContract = {
+			...created,
+			imagePath: buildImageUrl(created.imagePath),
+			createdAt: new Date(created.createdAt),
+		};
 		set(itemsAtom, (prev) => appendItem(prev, nextItem));
 		return nextItem;
 	}

@@ -6,7 +6,7 @@ import type {
 } from '@fit-check/shared/types/contracts/items';
 import { itemIdParamSchema, updateItemBodySchema } from '@fit-check/shared/types/contracts/items';
 import sizeOf from 'image-size';
-import { deleteItemImageByUrl, uploadItemImage } from '#lib/cloud-storage';
+import { deleteItemImageByKey, uploadItemImage } from '#lib/cloud-storage';
 import { getRequiredMultipartFile } from '#lib/multipart';
 import { validateImageUpload } from '#lib/image-validation';
 import {
@@ -56,12 +56,12 @@ const itemsRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.status(400).send({ message: 'Failed to determine image dimensions' });
     }
 
-    const uploadedPath = await uploadItemImage(file.filename, imageValidation.normalizedMimeType, buffer);
+    const uploadedImageKey = await uploadItemImage(file.filename, imageValidation.normalizedMimeType, buffer);
 
     try {
       const created = await createItemRecord({
         userId: authUser.userId,
-        imagePath: uploadedPath,
+        imagePath: uploadedImageKey,
         imageWidth: dimensions.width,
         imageHeight: dimensions.height,
       });
@@ -70,7 +70,7 @@ const itemsRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.status(201).send(response);
     } catch (error) {
       try {
-        await deleteItemImageByUrl(uploadedPath);
+        await deleteItemImageByKey(uploadedImageKey);
       } catch {
         // Best-effort cleanup to avoid orphaned objects when DB write fails.
       }
@@ -123,7 +123,7 @@ const itemsRoutes: FastifyPluginAsync = async (fastify) => {
     try {
       const { imagePath } = await deleteOwnedItem(authUser.userId, itemId);
       try {
-        await deleteItemImageByUrl(imagePath);
+        await deleteItemImageByKey(imagePath);
       } catch {
         // The source of truth is the DB row removal; storage cleanup can be retried later.
       }

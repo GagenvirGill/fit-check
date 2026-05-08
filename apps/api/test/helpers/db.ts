@@ -36,7 +36,7 @@ export const seedUser = async (overrides: { userId?: string; email?: string; pro
 export const seedItem = async (userId: string, overrides: { itemId?: string; imagePath?: string } = {}) => {
   const db = await getDb();
   const itemId = overrides.itemId ?? randomUUID();
-  const imagePath = overrides.imagePath ?? `https://cdn.example.com/items/${itemId}.png`;
+  const imagePath = overrides.imagePath ?? `items/${itemId}.png`;
 
   const inserted = await db.execute(sql`
     INSERT INTO items (item_id, user_id, image_path, image_width, image_height)

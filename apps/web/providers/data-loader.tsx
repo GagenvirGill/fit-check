@@ -4,6 +4,7 @@ import { useSetAtom } from "jotai";
 import type { BootstrapResponse } from "@fit-check/shared/types/contracts/bootstrap";
 import type { ItemContract } from "@fit-check/shared/types/contracts/items";
 import { apiFetchJson } from "@/lib/api-fetch";
+import { buildImageUrl } from "@/lib/image-url";
 import { categoriesAtom } from "@/jotai/categories-atom";
 import { itemCategoryLinksAtom } from "@/jotai/item-category-links-atom";
 import { itemsAtom } from "@/jotai/items-atom";
@@ -16,6 +17,7 @@ interface DataLoaderProps {
 
 const normalizeItem = (item: ItemContract): ItemContract => ({
 	...item,
+	imagePath: buildImageUrl(item.imagePath),
 	createdAt: new Date(item.createdAt),
 });
 
