@@ -1,7 +1,7 @@
 .outfitCard {
-	width: 300px;
+	width: min(300px, 92vw);
 	display: inline-block;
-	height: 560px;
+	min-height: 560px;
 	justify-content: center;
 	align-items: center;
 	pointer-events: fill;
@@ -10,7 +10,7 @@
 }
 
 .outfitContainer {
-	width: 290;
+	width: 290px;
 	padding: 5px;
 	height: 500px;
 	display: flex;
@@ -37,7 +37,7 @@
 }
 
 .outfitDate {
-	position: block;
+	display: block;
 	color: var(--color-text);
 	font-family: var(--font-family-base);
 	font-size: 0.8rem;
@@ -46,13 +46,24 @@
 }
 
 .outfitDesc {
-	position: block;
+	display: block;
 	color: var(--color-text);
 	font-family: var(--font-family-base);
 	text-align: center;
-	white-space: wrap;
-	font-size: 0.6rem;
+	white-space: normal;
+	font-size: 0.8rem;
 	padding-left: 15px;
 	padding-right: 15px;
 	padding-bottom: 5px;
+}
+
+@media (max-width: 600px) {
+	.outfitCard {
+		min-height: 520px;
+	}
+
+	.outfitContainer {
+		width: min(280px, 90vw);
+		height: 460px;
+	}
 }

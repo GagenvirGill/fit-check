@@ -1,14 +1,15 @@
 .popupForm {
 	position: fixed;
-	top: 8vh;
-	left: 10vw;
-	width: 80vw;
-	max-height: 80vh;
+	top: calc(var(--nav-height) + 0.75rem);
+	left: 50%;
+	transform: translateX(-50%);
+	width: min(80vw, 900px);
+	max-height: calc(100vh - var(--nav-height) - 2rem);
 	justify-content: center;
 	align-items: center;
 	text-align: center;
 	background-color: var(--color-text-inverse);
-	z-index: 10000;
+	z-index: var(--z-modal);
 	overflow-y: auto;
 }
 
@@ -25,17 +26,17 @@
 	width: 100vw;
 	height: 100vh;
 	background-color: var(--color-overlay);
-	z-index: 9998;
+	z-index: var(--z-overlay);
 }
 
 .title {
-	color: black;
+	color: var(--color-text);
 	font-family: var(--font-family-base);
 	font-size: 1.3rem;
 }
 
 .formTitle {
-	color: black;
+	color: var(--color-text);
 	font-family: var(--font-family-base);
 	font-size: 0.9rem;
 }
@@ -43,13 +44,13 @@
 .inputFieldText {
 	padding: 10px;
 	margin: 5px;
-	width: 30%;
+	width: min(320px, 80%);
 }
 
 .inputFieldDate {
 	padding: 10px;
 	margin: 5px;
-	width: 10%;
+	width: min(180px, 60%);
 }
 
 .selectedImgs {
@@ -61,4 +62,11 @@
 .selectedImgs img {
 	max-width: 50px;
 	max-height: 80px;
+}
+
+@media (max-width: 600px) {
+	.popupForm {
+		width: 94vw;
+		max-height: calc(100vh - var(--nav-height) - 1rem);
+	}
 }

@@ -1,26 +1,27 @@
 .navbar {
 	position: fixed;
-	top: 0px;
-	left: 0px;
-	width: 100vw;
-	height: 8vh;
+	top: 0;
+	left: 0;
+	right: 0;
+	width: 100%;
+	height: var(--nav-height);
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	z-index: 2000;
-	background-color: white;
+	z-index: var(--z-navbar);
+	background-color: var(--color-bg);
 }
 
 .navLogo {
-	max-width: 4vh;
-	max-height: 4vh;
-	width: 10vw;
-	height: 10vw;
+	max-width: 32px;
+	max-height: 32px;
+	width: clamp(24px, 6vw, 32px);
+	height: clamp(24px, 6vw, 32px);
 	padding: 5px;
 	border-radius: var(--radius-md);
 	object-fit: cover;
 	cursor: pointer;
-	transition: 0.3s;
+	transition: background-color var(--transition-base);
 	margin-inline: 25px;
 }
 

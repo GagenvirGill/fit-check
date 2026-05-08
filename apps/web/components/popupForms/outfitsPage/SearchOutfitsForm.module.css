@@ -8,9 +8,10 @@
 	font-size: 0.8rem;
 	font-family: var(--font-family-base);
 	outline: none;
-	transition: border-color 0.2s ease-in-out;
+	transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-.textInput:focus {
+.textInput:focus-visible {
 	border-color: var(--color-focus);
+	box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
 }

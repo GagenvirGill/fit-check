@@ -9,8 +9,8 @@
 	left: 50%;
 	transform: translateX(-50%);
 	background-color: var(--color-text-inverse);
-	z-index: 1002;
-	overflow: scroll;
+	z-index: var(--z-dropdown);
+	overflow: auto;
 	border: 1px solid var(--color-border-strong);
 	border-radius: var(--radius-md);
 }
@@ -24,9 +24,9 @@
 }
 
 .emailText {
-	color: black;
+	color: var(--color-text);
 	font-family: var(--font-family-base);
-	font-size: 0.7rem;
+	font-size: 0.8rem;
 	padding-left: 20px;
 	padding-right: 20px;
 	white-space: nowrap;

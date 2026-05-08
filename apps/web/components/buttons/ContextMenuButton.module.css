@@ -5,13 +5,13 @@
 
 	color: var(--color-text);
 	font-family: var(--font-family-base);
-	font-size: 0.7rem;
+	font-size: 0.8rem;
 	padding: 12px;
 	text-align: left;
 
 	cursor: pointer;
 	user-select: none;
-	transition: 0.3s;
+	transition: background-color var(--transition-base);
 	border-width: 0px;
 }
 

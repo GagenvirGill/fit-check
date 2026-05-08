@@ -1,7 +1,7 @@
 .imgCheckboxButton {
 	display: inline-block;
 	padding: 4px;
-	background-color: white;
+	background-color: var(--color-bg);
 	height: 100px;
 	width: 80px;
 

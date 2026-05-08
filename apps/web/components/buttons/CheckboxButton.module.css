@@ -1,19 +1,19 @@
 .checkboxButton {
 	display: inline-block;
 	padding: 6px 15px;
-	background-color: white;
+	background-color: var(--color-bg);
 	padding-left: 20px;
 	padding-right: 20px;
 	padding-top: 5px;
 	padding-bottom: 5px;
 
-	color: black;
+	color: var(--color-text);
 	font-family: var(--font-family-base);
 	font-size: 0.8rem;
 	text-align: center;
 
 	cursor: pointer;
-	transition: all 0.2s ease;
+	transition: background-color var(--transition-fast);
 	user-select: none;
 }
 

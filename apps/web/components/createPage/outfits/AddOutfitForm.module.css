@@ -4,7 +4,7 @@
 }
 
 .formTitle {
-	color: black;
+	color: var(--color-text);
 	font-family: var(--font-family-base);
 	font-size: 1rem;
 }

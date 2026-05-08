@@ -23,6 +23,14 @@
 
 	--transition-fast: 0.2s;
 	--transition-base: 0.3s;
+
+	--z-navbar: 100;
+	--z-dropdown: 200;
+	--z-overlay: 300;
+	--z-modal: 400;
+	--z-toast: 500;
+
+	--nav-height: 64px;
 }
 
 *,
@@ -52,6 +60,12 @@ body {
 	line-height: 1.4;
 }
 
+@media (max-width: 768px) {
+	:root {
+		--nav-height: 56px;
+	}
+}
+
 button,
 input,
 select,
@@ -62,4 +76,9 @@ textarea {
 img {
 	max-width: 100%;
 	display: block;
+}
+
+:focus-visible {
+	outline: 2px solid var(--color-focus);
+	outline-offset: 2px;
 }

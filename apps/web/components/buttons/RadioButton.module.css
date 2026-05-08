@@ -10,9 +10,8 @@
 	text-align: center;
 
 	cursor: pointer;
-	transition: all 0.2s ease;
+	transition: background-color var(--transition-fast);
 	user-select: none;
-	transition: 0.3s;
 }
 
 @media (max-width: 768px) {
@@ -23,7 +22,7 @@
 
 @media (max-width: 480px) {
 	.radioButton {
-		font-size: 0.7rem;
+		font-size: 0.8rem;
 	}
 }
 
