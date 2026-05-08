@@ -8,11 +8,11 @@
 	top: 100%;
 	left: 50%;
 	transform: translateX(-50%);
-	background-color: rgb(255, 255, 255);
+	background-color: var(--color-text-inverse);
 	z-index: 1002;
 	overflow: scroll;
-	border: 1px solid rgb(180, 180, 180);
-	border-radius: 3px;
+	border: 1px solid var(--color-border-strong);
+	border-radius: var(--radius-md);
 }
 
 @media (max-width: 480px) {
@@ -25,7 +25,7 @@
 
 .emailText {
 	color: black;
-	font-family: Courier, "Courier New", monospace;
+	font-family: var(--font-family-base);
 	font-size: 0.7rem;
 	padding-left: 20px;
 	padding-right: 20px;

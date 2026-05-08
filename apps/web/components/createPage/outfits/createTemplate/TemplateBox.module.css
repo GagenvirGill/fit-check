@@ -7,9 +7,9 @@
 }
 
 .templateBoxWithoutItem {
-	border: 1px solid rgb(200, 200, 200);
-	background-color: rgb(250, 250, 250);
-	border-radius: 2px;
+	border: 1px solid var(--color-border);
+	background-color: var(--color-bg-soft);
+	border-radius: var(--radius-sm);
 	margin: 5px;
 	display: flex;
 	justify-content: center;
@@ -37,8 +37,8 @@
 
 .contextMenu {
 	position: absolute;
-	background-color: rgb(255, 255, 255);
-	border: 1px solid rgb(200, 200, 200);
+	background-color: var(--color-text-inverse);
+	border: 1px solid var(--color-border);
 	z-index: 99999;
 	display: inline-block;
 	width: 60vw;

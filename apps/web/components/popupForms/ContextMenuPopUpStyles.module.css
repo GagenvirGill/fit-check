@@ -7,7 +7,7 @@
 	justify-content: center;
 	align-items: center;
 	text-align: center;
-	background-color: rgb(255, 255, 255);
+	background-color: var(--color-text-inverse);
 	z-index: 10000;
 	overflow-y: auto;
 }
@@ -24,19 +24,19 @@
 	left: 0;
 	width: 100vw;
 	height: 100vh;
-	background-color: rgba(0, 0, 0, 0.2);
+	background-color: var(--color-overlay);
 	z-index: 9998;
 }
 
 .title {
 	color: black;
-	font-family: Courier, "Courier New", monospace;
+	font-family: var(--font-family-base);
 	font-size: 1.3rem;
 }
 
 .formTitle {
 	color: black;
-	font-family: Courier, "Courier New", monospace;
+	font-family: var(--font-family-base);
 	font-size: 0.9rem;
 }
 

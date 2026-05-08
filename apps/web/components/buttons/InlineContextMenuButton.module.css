@@ -7,10 +7,10 @@
 
 .inlineButton {
 	width: 100%;
-	background-color: rgb(255, 255, 255);
+	background-color: var(--color-text-inverse);
 
-	color: rgb(0, 0, 0);
-	font-family: Courier, "Courier New", monospace;
+	color: var(--color-text);
+	font-family: var(--font-family-base);
 	font-size: 0.7rem;
 	padding-right: 5px;
 	padding-left: 5px;
@@ -25,5 +25,5 @@
 }
 
 .inlineButton:hover {
-	background-color: rgb(225, 225, 225);
+	background-color: var(--color-bg-active);
 }

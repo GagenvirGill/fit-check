@@ -4,7 +4,7 @@
 	max-height: 4vh;
 	width: 10vw;
 	height: 10vw;
-	border-radius: 3px;
+	border-radius: var(--radius-md);
 	overflow: hidden;
 	cursor: pointer;
 	transition: 0.3s;
@@ -20,7 +20,7 @@
 }
 
 .imgBtn:hover {
-	background-color: rgb(200, 200, 200);
+	background-color: var(--color-bg-strong);
 }
 
 .imgBtn input {

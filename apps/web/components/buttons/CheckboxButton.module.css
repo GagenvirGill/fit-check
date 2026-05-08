@@ -8,7 +8,7 @@
 	padding-bottom: 5px;
 
 	color: black;
-	font-family: Courier, "Courier New", monospace;
+	font-family: var(--font-family-base);
 	font-size: 0.8rem;
 	text-align: center;
 
@@ -18,7 +18,7 @@
 }
 
 .checkboxButton:hover {
-	background-color: rgb(235, 235, 235);
+	background-color: var(--color-bg-subtle);
 }
 
 .checkboxButton input {
@@ -26,5 +26,5 @@
 }
 
 .checkboxButton:has(input:checked) {
-	background-color: rgb(200, 200, 200);
+	background-color: var(--color-bg-strong);
 }

@@ -17,7 +17,7 @@
 	width: 10vw;
 	height: 10vw;
 	padding: 5px;
-	border-radius: 3px;
+	border-radius: var(--radius-md);
 	object-fit: cover;
 	cursor: pointer;
 	transition: 0.3s;
@@ -31,5 +31,5 @@
 }
 
 .navLogo:hover {
-	background-color: rgb(200, 200, 200);
+	background-color: var(--color-bg-strong);
 }

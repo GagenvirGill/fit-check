@@ -50,7 +50,7 @@
 
 .carouselButton:hover,
 .carouselArrowButton:hover {
-	background-color: rgb(230, 230, 230);
+	background-color: var(--color-bg-hover);
 }
 
 .cornerText {
@@ -62,7 +62,7 @@
 
 .text {
 	color: black;
-	font-family: Courier, "Courier New", monospace;
+	font-family: var(--font-family-base);
 	font-size: 1rem;
 	text-align: center;
 	font-weight: normal;

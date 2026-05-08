@@ -17,7 +17,7 @@
 }
 
 .imgRadioButton:hover {
-	background-color: rgb(235, 235, 235);
+	background-color: var(--color-bg-subtle);
 }
 
 .imgRadioButton input {
@@ -25,5 +25,5 @@
 }
 
 .imgRadioButton:has(input:checked) {
-	background-color: rgb(200, 200, 200);
+	background-color: var(--color-bg-strong);
 }
