@@ -1,32 +1,16 @@
 {
-  "name": "fit-check-monorepo",
+  "name": "fit-check",
   "private": true,
   "type": "module",
-  "workspaces": [
-    "apps/*"
-  ],
   "scripts": {
-    "dev": "npm run dev --workspaces --if-present",
-    "build": "npm run build --workspaces --if-present",
-    "web:dev": "npm run dev -w apps/web",
-    "web:build": "npm run build -w apps/web",
-    "web:preview": "npm run preview -w apps/web",
-    "web:lint": "npm run lint -w apps/web",
-    "web:typecheck": "npm exec -w apps/web -- tsc -p tsconfig.json --noEmit",
-    "api:dev": "npm run dev -w @fit-check/api",
-    "api:build": "npm run build -w @fit-check/api",
-    "api:build:ci": "npm ci --include=dev && npm run api:build",
-    "api:start": "npm run start -w @fit-check/api",
-    "api:lint": "npm run lint -w @fit-check/api",
-    "api:test": "npm run test -w @fit-check/api",
-    "database:build": "npm run build -w @fit-check/database",
-    "database:generate": "sh -c 'npm run generate -w @fit-check/database -- --name \"$1\"' --",
-    "database:migrate": "npm run migrate -w @fit-check/database",
-    "database:push": "npm run push -w @fit-check/database",
-    "database:start": "/opt/homebrew/opt/postgresql@16/bin/postgres -D /opt/homebrew/var/postgresql@16 -p 5432"
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "typescript-eslint": "^8.59.2",
-    "typescript": "^6.0.2"
+    "@eslint/js": "^9.17.0",
+    "eslint": "^9.17.0",
+    "jiti": "^2.7.0",
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.59.2"
   }
 }

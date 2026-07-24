@@ -11,6 +11,13 @@
     "isolatedModules": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "resolveJsonModule": true
-  }
+    "resolveJsonModule": true,
+    "noEmit": true
+  },
+  "include": ["eslint.config.ts", "packages/**/*.ts", "packages/**/*.tsx"],
+  "exclude": [
+    "apps", // TEMP - remove after entire app restructure
+    "dist",
+    "node_modules"
+  ]
 }
