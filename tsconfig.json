@@ -14,7 +14,7 @@
     "resolveJsonModule": true,
     "noEmit": true
   },
-  "include": ["eslint.config.ts", "packages/**/*.ts", "packages/**/*.tsx"],
+  "include": ["eslint.config.ts", "vitest.config.ts", "api/**/*.ts", "packages/**/*.ts", "packages/**/*.tsx"],
   "exclude": [
     "apps", // TEMP - remove after entire app restructure
     "dist",
