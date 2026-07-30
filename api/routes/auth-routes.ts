@@ -8,7 +8,8 @@ import type {
   GetCurrentUserResponse,
 } from "#packages/contracts/auth";
 import { env } from "../lib/get-env";
-import { getUserById, upsertOAuthUser } from "../lib/queries/auth-queries";
+import { upsertOAuthUser } from "../lib/queries/auth-queries";
+import { requireAuth, SESSION_COOKIE_NAME } from "../lib/session";
 
 type GoogleTokenResponse = {
   access_token: string;
@@ -24,7 +25,6 @@ type GoogleCallbackQuery = {
   state?: string;
 };
 
-const SESSION_COOKIE_NAME = "fit_check_session";
 const OAUTH_STATE_COOKIE_NAME = "fit_check_oauth_state";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 const OAUTH_STATE_TTL_SECONDS = 60 * 5;
@@ -81,28 +81,8 @@ authRoutes.get("/google/callback", async (request, response) => {
   response.redirect(env.frontendUrl);
 });
 
-authRoutes.get("/me", async (request, response) => {
-  const sessionCookie = request.cookies[SESSION_COOKIE_NAME];
-  if (typeof sessionCookie !== "string" || sessionCookie.length === 0) {
-    response.status(401).json({ message: "Unauthorized" });
-    return;
-  }
-
-  let decoded: { userId: string };
-  try {
-    decoded = jwt.verify(sessionCookie, env.jwtSecret) as { userId: string };
-  } catch {
-    response.status(401).json({ message: "Unauthorized" });
-    return;
-  }
-
-  const user = await getUserById(decoded.userId);
-  if (!user) {
-    response.status(401).json({ message: "Unauthorized" });
-    return;
-  }
-
-  const body: GetCurrentUserResponse = user;
+authRoutes.get("/me", requireAuth, (request, response) => {
+  const body: GetCurrentUserResponse = request.authUser;
   response.status(200).json(body);
 });
 

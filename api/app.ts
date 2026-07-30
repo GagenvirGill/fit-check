@@ -3,21 +3,12 @@ import cors from "cors";
 import express from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-import jwt from "jsonwebtoken";
-
-import type { AuthUser } from "#packages/contracts/auth";
 import { env } from "./lib/get-env";
-import { getUserById } from "./lib/queries/auth-queries";
+import { requireAuth } from "./lib/session";
 import { authRoutes } from "./routes/auth-routes";
 import { categoryRoutes } from "./routes/category-routes";
 import { itemRoutes } from "./routes/item-routes";
 import { outfitRoutes } from "./routes/outfit-routes";
-
-type SessionToken = {
-  userId: string;
-};
-
-const SESSION_COOKIE_NAME = "fit_check_session";
 
 export function createApp() {
   const app = express();
@@ -34,35 +25,6 @@ export function createApp() {
   );
   app.use(express.json());
   app.use(cookieParser());
-
-  const requireAuth = async (
-    request: express.Request,
-    response: express.Response,
-    next: express.NextFunction,
-  ) => {
-    const sessionCookie = request.cookies[SESSION_COOKIE_NAME];
-    if (typeof sessionCookie !== "string" || sessionCookie.length === 0) {
-      response.status(401).json({ message: "Unauthorized" });
-      return;
-    }
-
-    let decoded: SessionToken;
-    try {
-      decoded = jwt.verify(sessionCookie, env.jwtSecret) as SessionToken;
-    } catch {
-      response.status(401).json({ message: "Unauthorized" });
-      return;
-    }
-
-    const authUser = await getUserById(decoded.userId);
-    if (!authUser) {
-      response.status(401).json({ message: "Unauthorized" });
-      return;
-    }
-
-    request.authUser = authUser satisfies AuthUser;
-    next();
-  };
 
   app.use("/api/auth", authRoutes);
   app.use("/api/items", requireAuth, itemRoutes);
