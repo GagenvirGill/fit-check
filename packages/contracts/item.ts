@@ -6,8 +6,6 @@ export type ItemResponse = {
   createdAt: string;
 };
 
-export type CreateItemResponse = ItemResponse;
-
 export type UpdateItemRequest = {
   categoryIds?: string[];
 };

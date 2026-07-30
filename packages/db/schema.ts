@@ -1,6 +1,9 @@
 import { category, categoryRelations } from "./schema/tables/category";
 import { item, itemRelations } from "./schema/tables/item";
-import { itemToCategory, itemToCategoryRelations } from "./schema/tables/item-to-category";
+import {
+  itemToCategory,
+  itemToCategoryRelations,
+} from "./schema/tables/item-to-category";
 import { outfit, outfitRelations } from "./schema/tables/outfit";
 import { user, userRelations } from "./schema/tables/user";
 

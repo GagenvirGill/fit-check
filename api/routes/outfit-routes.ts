@@ -9,7 +9,11 @@ import type {
   UpdateOutfitRequest,
   UpdateOutfitResponse,
 } from "#packages/contracts/outfit";
-import { createOutfit, deleteOutfit, updateOutfit } from "../lib/queries/outfit-queries";
+import {
+  createOutfit,
+  deleteOutfit,
+  updateOutfit,
+} from "../lib/queries/outfit-queries";
 
 type OutfitRouteLocals = {
   authUser: AuthUser;
@@ -26,7 +30,9 @@ export function createOutfitRoutes() {
     const { authUser } = response.locals as OutfitRouteLocals;
     const body = request.body;
     if (!isObject(body)) {
-      response.status(400).json({ message: "Request body must be a JSON object" });
+      response
+        .status(400)
+        .json({ message: "Request body must be a JSON object" });
       return;
     }
 
@@ -53,12 +59,19 @@ export function createOutfitRoutes() {
     const params = request.params as OutfitParams;
     const body = request.body;
     if (!isObject(body)) {
-      response.status(400).json({ message: "Request body must be a JSON object" });
+      response
+        .status(400)
+        .json({ message: "Request body must be a JSON object" });
       return;
     }
-    if (!["dateWorn", "description", "layout"].some((key) => body[key] !== undefined)) {
+    if (
+      !["dateWorn", "description", "layout"].some(
+        (key) => body[key] !== undefined,
+      )
+    ) {
       response.status(400).json({
-        message: "Request body must include at least one of: dateWorn, description, layout",
+        message:
+          "Request body must include at least one of: dateWorn, description, layout",
       });
       return;
     }
@@ -109,7 +122,13 @@ function parseCreateOutfitRequest(
   }
 
   if (!isOutfitLayout(body.layout)) {
-    return { ok: false, message: body.layout === undefined ? "layout is required" : "layout must be an outfit layout" };
+    return {
+      ok: false,
+      message:
+        body.layout === undefined
+          ? "layout is required"
+          : "layout must be an outfit layout",
+    };
   }
 
   return {
@@ -124,7 +143,9 @@ function parseCreateOutfitRequest(
 
 function parseUpdateOutfitRequest(
   body: Record<string, unknown>,
-): { ok: true; value: Partial<UpdateOutfitRequest> } | { ok: false; message: string } {
+):
+  | { ok: true; value: Partial<UpdateOutfitRequest> }
+  | { ok: false; message: string } {
   const value: Partial<UpdateOutfitRequest> = {};
 
   if (body.dateWorn !== undefined) {
@@ -155,7 +176,9 @@ function parseUpdateOutfitRequest(
 function parseNullableString(
   value: unknown,
   key: string,
-): { ok: true; value: string | null | undefined } | { ok: false; message: string } {
+):
+  | { ok: true; value: string | null | undefined }
+  | { ok: false; message: string } {
   if (value === undefined) {
     return { ok: true, value: undefined };
   }
@@ -170,17 +193,20 @@ function parseNullableString(
 }
 
 function isOutfitLayout(value: unknown): value is OutfitLayout {
-  return Array.isArray(value) && value.every((row) => Array.isArray(row) && row.every(isOutfitLayoutItem));
+  return (
+    Array.isArray(value) &&
+    value.every((row) => Array.isArray(row) && row.every(isOutfitLayoutItem))
+  );
 }
 
 function isOutfitLayoutItem(value: unknown): value is OutfitLayoutItem {
   return (
-    typeof value === "object"
-    && value !== null
-    && !Array.isArray(value)
-    && typeof (value as OutfitLayoutItem).itemId === "string"
-    && (value as OutfitLayoutItem).itemId.length > 0
-    && typeof (value as OutfitLayoutItem).weight === "number"
-    && Number.isFinite((value as OutfitLayoutItem).weight)
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    typeof (value as OutfitLayoutItem).itemId === "string" &&
+    (value as OutfitLayoutItem).itemId.length > 0 &&
+    typeof (value as OutfitLayoutItem).weight === "number" &&
+    Number.isFinite((value as OutfitLayoutItem).weight)
   );
 }

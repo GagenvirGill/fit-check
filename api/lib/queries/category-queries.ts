@@ -4,7 +4,10 @@ import type { CategoryResponse } from "#packages/contracts/category";
 import { dbSchema } from "#packages/db/schema";
 import { dbClient } from "../db-client";
 
-export async function createCategory(input: { userId: string; name: string }): Promise<CategoryResponse> {
+export async function createCategory(input: {
+  userId: string;
+  name: string;
+}): Promise<CategoryResponse> {
   const [row] = await dbClient
     .insert(dbSchema.category)
     .values(input)
@@ -21,7 +24,9 @@ export async function updateCategory(input: {
   itemIds?: string[];
 }): Promise<CategoryResponse | null> {
   if (input.favoriteItem) {
-    const hasFavoriteItem = await hasUserItems(input.userId, [input.favoriteItem]);
+    const hasFavoriteItem = await hasUserItems(input.userId, [
+      input.favoriteItem,
+    ]);
     if (!hasFavoriteItem) {
       return null;
     }
@@ -35,7 +40,9 @@ export async function updateCategory(input: {
 
   await dbClient.transaction(async (tx) => {
     if (input.itemIds) {
-      await tx.delete(dbSchema.itemToCategory).where(eq(dbSchema.itemToCategory.categoryId, input.categoryId));
+      await tx
+        .delete(dbSchema.itemToCategory)
+        .where(eq(dbSchema.itemToCategory.categoryId, input.categoryId));
       if (input.itemIds.length > 0) {
         await tx.insert(dbSchema.itemToCategory).values(
           input.itemIds.map((itemId) => ({
@@ -54,19 +61,36 @@ export async function updateCategory(input: {
       favoriteItem: input.favoriteItem,
       updatedAt: new Date(),
     })
-    .where(and(eq(dbSchema.category.userId, input.userId), eq(dbSchema.category.categoryId, input.categoryId)))
+    .where(
+      and(
+        eq(dbSchema.category.userId, input.userId),
+        eq(dbSchema.category.categoryId, input.categoryId),
+      ),
+    )
     .returning();
 
   return row ? toCategoryResponse(row) : null;
 }
 
-export async function deleteCategory(input: { userId: string; categoryId: string }): Promise<void> {
+export async function deleteCategory(input: {
+  userId: string;
+  categoryId: string;
+}): Promise<void> {
   await dbClient
     .delete(dbSchema.category)
-    .where(and(eq(dbSchema.category.userId, input.userId), eq(dbSchema.category.categoryId, input.categoryId)));
+    .where(
+      and(
+        eq(dbSchema.category.userId, input.userId),
+        eq(dbSchema.category.categoryId, input.categoryId),
+      ),
+    );
 }
 
-function toCategoryResponse(row: { categoryId: string; name: string; favoriteItem: string | null }): CategoryResponse {
+function toCategoryResponse(row: {
+  categoryId: string;
+  name: string;
+  favoriteItem: string | null;
+}): CategoryResponse {
   return {
     categoryId: row.categoryId,
     name: row.name,
@@ -74,12 +98,20 @@ function toCategoryResponse(row: { categoryId: string; name: string; favoriteIte
   };
 }
 
-async function hasUserItems(userId: string, itemIds: string[]): Promise<boolean> {
+async function hasUserItems(
+  userId: string,
+  itemIds: string[],
+): Promise<boolean> {
   const uniqueItemIds = [...new Set(itemIds)];
   const rows = await dbClient
     .select({ itemId: dbSchema.item.itemId })
     .from(dbSchema.item)
-    .where(and(eq(dbSchema.item.userId, userId), inArray(dbSchema.item.itemId, uniqueItemIds)));
+    .where(
+      and(
+        eq(dbSchema.item.userId, userId),
+        inArray(dbSchema.item.itemId, uniqueItemIds),
+      ),
+    );
 
   return rows.length === uniqueItemIds.length;
 }

@@ -50,16 +50,29 @@ export async function updateOutfit(input: {
       layout: input.layout,
       updatedAt: new Date(),
     })
-    .where(and(eq(dbSchema.outfit.userId, input.userId), eq(dbSchema.outfit.outfitId, input.outfitId)))
+    .where(
+      and(
+        eq(dbSchema.outfit.userId, input.userId),
+        eq(dbSchema.outfit.outfitId, input.outfitId),
+      ),
+    )
     .returning();
 
   return row ? toOutfitResponse(row) : null;
 }
 
-export async function deleteOutfit(input: { userId: string; outfitId: string }): Promise<void> {
+export async function deleteOutfit(input: {
+  userId: string;
+  outfitId: string;
+}): Promise<void> {
   await dbClient
     .delete(dbSchema.outfit)
-    .where(and(eq(dbSchema.outfit.userId, input.userId), eq(dbSchema.outfit.outfitId, input.outfitId)));
+    .where(
+      and(
+        eq(dbSchema.outfit.userId, input.userId),
+        eq(dbSchema.outfit.outfitId, input.outfitId),
+      ),
+    );
 }
 
 function toOutfitResponse(row: {
@@ -76,7 +89,10 @@ function toOutfitResponse(row: {
   };
 }
 
-async function hasLayoutItems(userId: string, layout: OutfitLayout): Promise<boolean> {
+async function hasLayoutItems(
+  userId: string,
+  layout: OutfitLayout,
+): Promise<boolean> {
   const itemIds = layout.flat().map((item) => item.itemId);
   if (itemIds.length === 0) {
     return true;
@@ -86,7 +102,12 @@ async function hasLayoutItems(userId: string, layout: OutfitLayout): Promise<boo
   const rows = await dbClient
     .select({ itemId: dbSchema.item.itemId })
     .from(dbSchema.item)
-    .where(and(eq(dbSchema.item.userId, userId), inArray(dbSchema.item.itemId, uniqueItemIds)));
+    .where(
+      and(
+        eq(dbSchema.item.userId, userId),
+        inArray(dbSchema.item.itemId, uniqueItemIds),
+      ),
+    );
 
   return rows.length === uniqueItemIds.length;
 }

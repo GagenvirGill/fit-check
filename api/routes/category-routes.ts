@@ -1,15 +1,17 @@
 import { Router } from "express";
 
-import type {
-  AuthUser,
-} from "#packages/contracts/auth";
+import type { AuthUser } from "#packages/contracts/auth";
 import type {
   CreateCategoryRequest,
   CreateCategoryResponse,
   UpdateCategoryRequest,
   UpdateCategoryResponse,
 } from "#packages/contracts/category";
-import { createCategory, deleteCategory, updateCategory } from "../lib/queries/category-queries";
+import {
+  createCategory,
+  deleteCategory,
+  updateCategory,
+} from "../lib/queries/category-queries";
 
 type CategoryRouteLocals = {
   authUser: AuthUser;
@@ -26,7 +28,9 @@ export function createCategoryRoutes() {
     const { authUser } = response.locals as CategoryRouteLocals;
     const body = request.body;
     if (!isObject(body)) {
-      response.status(400).json({ message: "Request body must be a JSON object" });
+      response
+        .status(400)
+        .json({ message: "Request body must be a JSON object" });
       return;
     }
 
@@ -52,11 +56,22 @@ export function createCategoryRoutes() {
     const params = request.params as CategoryParams;
     const body = request.body;
     if (!isObject(body)) {
-      response.status(400).json({ message: "Request body must be a JSON object" });
+      response
+        .status(400)
+        .json({ message: "Request body must be a JSON object" });
       return;
     }
-    if (!["name", "favoriteItem", "itemIds"].some((key) => body[key] !== undefined)) {
-      response.status(400).json({ message: "Request body must include at least one of: name, favoriteItem, itemIds" });
+    if (
+      !["name", "favoriteItem", "itemIds"].some(
+        (key) => body[key] !== undefined,
+      )
+    ) {
+      response
+        .status(400)
+        .json({
+          message:
+            "Request body must include at least one of: name, favoriteItem, itemIds",
+        });
       return;
     }
 
@@ -81,7 +96,10 @@ export function createCategoryRoutes() {
   router.delete("/:categoryId", async (request, response) => {
     const { authUser } = response.locals as CategoryRouteLocals;
     const params = request.params as CategoryParams;
-    await deleteCategory({ userId: authUser.userId, categoryId: params.categoryId });
+    await deleteCategory({
+      userId: authUser.userId,
+      categoryId: params.categoryId,
+    });
     response.status(204).send();
   });
 
@@ -98,7 +116,9 @@ function parseRequiredString(value: unknown): string | null {
 
 function parseUpdateCategoryRequest(
   body: Record<string, unknown>,
-): { ok: true; value: Partial<UpdateCategoryRequest> } | { ok: false; message: string } {
+):
+  | { ok: true; value: Partial<UpdateCategoryRequest> }
+  | { ok: false; message: string } {
   const value: Partial<UpdateCategoryRequest> = {};
 
   if (body.name !== undefined) {
@@ -116,8 +136,14 @@ function parseUpdateCategoryRequest(
   }
 
   if (body.itemIds !== undefined) {
-    if (!Array.isArray(body.itemIds) || !body.itemIds.every((item) => typeof item === "string" && item.length > 0)) {
-      return { ok: false, message: "itemIds must be an array of non-empty strings" };
+    if (
+      !Array.isArray(body.itemIds) ||
+      !body.itemIds.every((item) => typeof item === "string" && item.length > 0)
+    ) {
+      return {
+        ok: false,
+        message: "itemIds must be an array of non-empty strings",
+      };
     }
     value.itemIds = [...new Set(body.itemIds)];
   }

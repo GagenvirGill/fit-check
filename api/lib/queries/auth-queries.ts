@@ -4,9 +4,11 @@ import type { AuthUser } from "#packages/contracts/auth";
 import { dbSchema } from "#packages/db/schema";
 import { dbClient } from "../db-client";
 
-export async function upsertOAuthUser(
-  input: { provider: string; providerId: string; email: string },
-): Promise<AuthUser> {
+export async function upsertOAuthUser(input: {
+  provider: string;
+  providerId: string;
+  email: string;
+}): Promise<AuthUser> {
   const [row] = await dbClient
     .insert(dbSchema.user)
     .values(input)
@@ -33,7 +35,11 @@ export async function getUserById(userId: string): Promise<AuthUser | null> {
   return row ? toAuthUser(row) : null;
 }
 
-function toAuthUser(row: { userId: string; email: string; provider: string }): AuthUser {
+function toAuthUser(row: {
+  userId: string;
+  email: string;
+  provider: string;
+}): AuthUser {
   return {
     userId: row.userId,
     email: row.email,
