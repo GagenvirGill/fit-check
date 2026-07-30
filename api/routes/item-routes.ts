@@ -27,92 +27,86 @@ type ItemParams = {
   itemId: string;
 };
 
-export function createItemRoutes() {
-  const router = Router();
+export const itemRoutes = Router();
 
-  router.post("/", upload.single("image"), async (request, response) => {
-    const { authUser } = response.locals as ItemRouteLocals;
-    if (!request.file) {
-      response.status(400).json({ message: "image file is required" });
-      return;
-    }
+itemRoutes.post("/", upload.single("image"), async (request, response) => {
+  const { authUser } = response.locals as ItemRouteLocals;
+  if (!request.file) {
+    response.status(400).json({ message: "image file is required" });
+    return;
+  }
 
-    const dimensions = imageSize(request.file.buffer);
-    if (!dimensions.width || !dimensions.height) {
-      response
-        .status(400)
-        .json({ message: "image must be a valid image file" });
-      return;
-    }
+  const dimensions = imageSize(request.file.buffer);
+  if (!dimensions.width || !dimensions.height) {
+    response.status(400).json({ message: "image must be a valid image file" });
+    return;
+  }
 
-    const imagePath = `users/${authUser.userId}/items/${randomUUID()}-${safeFileName(request.file.originalname)}`;
-    await uploadS3Object({
-      key: imagePath,
-      body: request.file.buffer,
-      contentType: request.file.mimetype,
-    });
-
-    const body: ItemResponse = await createItem({
-      userId: authUser.userId,
-      imagePath,
-      imageWidth: dimensions.width,
-      imageHeight: dimensions.height,
-    });
-
-    response.status(201).json(body);
+  const imagePath = `users/${authUser.userId}/items/${randomUUID()}-${safeFileName(request.file.originalname)}`;
+  await uploadS3Object({
+    key: imagePath,
+    body: request.file.buffer,
+    contentType: request.file.mimetype,
   });
 
-  router.patch("/:itemId", async (request, response) => {
-    const { authUser } = response.locals as ItemRouteLocals;
-    const params = request.params as ItemParams;
-    const body = request.body;
-    if (!isObject(body)) {
-      response
-        .status(400)
-        .json({ message: "Request body must be a JSON object" });
-      return;
-    }
-    if (body.categoryIds === undefined) {
-      response.status(400).json({
-        message: "Request body must include at least one of: categoryIds",
-      });
-      return;
-    }
-
-    const categoryIds = parseStringArray(body.categoryIds);
-    if (!categoryIds) {
-      response
-        .status(400)
-        .json({ message: "categoryIds must be an array of non-empty strings" });
-      return;
-    }
-
-    const payload: Partial<UpdateItemRequest> = omitUndefined({
-      categoryIds,
-    });
-
-    const updated = await updateItemCategories({
-      userId: authUser.userId,
-      itemId: params.itemId,
-      categoryIds: payload.categoryIds ?? [],
-    });
-    if (!updated) {
-      response.status(404).json({ message: "Not found" });
-      return;
-    }
-
-    response.status(204).send();
+  const body: ItemResponse = await createItem({
+    userId: authUser.userId,
+    imagePath,
+    imageWidth: dimensions.width,
+    imageHeight: dimensions.height,
   });
 
-  router.delete("/:itemId", async (request, response) => {
-    const { authUser } = response.locals as ItemRouteLocals;
-    const params = request.params as ItemParams;
-    await deleteItem({ userId: authUser.userId, itemId: params.itemId });
-    response.status(204).send();
+  response.status(201).json(body);
+});
+
+itemRoutes.patch("/:itemId", async (request, response) => {
+  const { authUser } = response.locals as ItemRouteLocals;
+  const params = request.params as ItemParams;
+  const body = request.body;
+  if (!isObject(body)) {
+    response
+      .status(400)
+      .json({ message: "Request body must be a JSON object" });
+    return;
+  }
+  if (body.categoryIds === undefined) {
+    response.status(400).json({
+      message: "Request body must include at least one of: categoryIds",
+    });
+    return;
+  }
+
+  const categoryIds = parseStringArray(body.categoryIds);
+  if (!categoryIds) {
+    response
+      .status(400)
+      .json({ message: "categoryIds must be an array of non-empty strings" });
+    return;
+  }
+
+  const payload: Partial<UpdateItemRequest> = omitUndefined({
+    categoryIds,
   });
 
-  return router;
-}
+  const updated = await updateItemCategories({
+    userId: authUser.userId,
+    itemId: params.itemId,
+    categoryIds: payload.categoryIds ?? [],
+  });
+  if (!updated) {
+    response.status(404).json({ message: "Not found" });
+    return;
+  }
+
+  response.status(204).send();
+});
+
+itemRoutes.delete("/:itemId", async (request, response) => {
+  const { authUser } = response.locals as ItemRouteLocals;
+  const params = request.params as ItemParams;
+  await deleteItem({ userId: authUser.userId, itemId: params.itemId });
+  response.status(204).send();
+});
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);

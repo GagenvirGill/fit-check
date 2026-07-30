@@ -23,87 +23,83 @@ type OutfitParams = {
   outfitId: string;
 };
 
-export function createOutfitRoutes() {
-  const router = Router();
+export const outfitRoutes = Router();
 
-  router.post("/", async (request, response) => {
-    const { authUser } = response.locals as OutfitRouteLocals;
-    const body = request.body;
-    if (!isObject(body)) {
-      response
-        .status(400)
-        .json({ message: "Request body must be a JSON object" });
-      return;
-    }
+outfitRoutes.post("/", async (request, response) => {
+  const { authUser } = response.locals as OutfitRouteLocals;
+  const body = request.body;
+  if (!isObject(body)) {
+    response
+      .status(400)
+      .json({ message: "Request body must be a JSON object" });
+    return;
+  }
 
-    const payload = parseCreateOutfitRequest(body);
-    if (!payload.ok) {
-      response.status(400).json({ message: payload.message });
-      return;
-    }
+  const payload = parseCreateOutfitRequest(body);
+  if (!payload.ok) {
+    response.status(400).json({ message: payload.message });
+    return;
+  }
 
-    const created: CreateOutfitResponse | null = await createOutfit({
-      userId: authUser.userId,
-      ...payload.value,
+  const created: CreateOutfitResponse | null = await createOutfit({
+    userId: authUser.userId,
+    ...payload.value,
+  });
+  if (!created) {
+    response.status(404).json({ message: "Not found" });
+    return;
+  }
+
+  response.status(201).json(created);
+});
+
+outfitRoutes.patch("/:outfitId", async (request, response) => {
+  const { authUser } = response.locals as OutfitRouteLocals;
+  const params = request.params as OutfitParams;
+  const body = request.body;
+  if (!isObject(body)) {
+    response
+      .status(400)
+      .json({ message: "Request body must be a JSON object" });
+    return;
+  }
+  if (
+    !["dateWorn", "description", "layout"].some(
+      (key) => body[key] !== undefined,
+    )
+  ) {
+    response.status(400).json({
+      message:
+        "Request body must include at least one of: dateWorn, description, layout",
     });
-    if (!created) {
-      response.status(404).json({ message: "Not found" });
-      return;
-    }
+    return;
+  }
 
-    response.status(201).json(created);
+  const payload = parseUpdateOutfitRequest(body);
+  if (!payload.ok) {
+    response.status(400).json({ message: payload.message });
+    return;
+  }
+
+  const updated: UpdateOutfitResponse | null = await updateOutfit({
+    userId: authUser.userId,
+    outfitId: params.outfitId,
+    ...payload.value,
   });
+  if (!updated) {
+    response.status(404).json({ message: "Not found" });
+    return;
+  }
 
-  router.patch("/:outfitId", async (request, response) => {
-    const { authUser } = response.locals as OutfitRouteLocals;
-    const params = request.params as OutfitParams;
-    const body = request.body;
-    if (!isObject(body)) {
-      response
-        .status(400)
-        .json({ message: "Request body must be a JSON object" });
-      return;
-    }
-    if (
-      !["dateWorn", "description", "layout"].some(
-        (key) => body[key] !== undefined,
-      )
-    ) {
-      response.status(400).json({
-        message:
-          "Request body must include at least one of: dateWorn, description, layout",
-      });
-      return;
-    }
+  response.status(200).json(updated);
+});
 
-    const payload = parseUpdateOutfitRequest(body);
-    if (!payload.ok) {
-      response.status(400).json({ message: payload.message });
-      return;
-    }
-
-    const updated: UpdateOutfitResponse | null = await updateOutfit({
-      userId: authUser.userId,
-      outfitId: params.outfitId,
-      ...payload.value,
-    });
-    if (!updated) {
-      response.status(404).json({ message: "Not found" });
-      return;
-    }
-
-    response.status(200).json(updated);
-  });
-
-  router.delete("/:outfitId", async (request, response) => {
-    const { authUser } = response.locals as OutfitRouteLocals;
-    const params = request.params as OutfitParams;
-    await deleteOutfit({ userId: authUser.userId, outfitId: params.outfitId });
-    response.status(204).send();
-  });
-
-  return router;
-}
+outfitRoutes.delete("/:outfitId", async (request, response) => {
+  const { authUser } = response.locals as OutfitRouteLocals;
+  const params = request.params as OutfitParams;
+  await deleteOutfit({ userId: authUser.userId, outfitId: params.outfitId });
+  response.status(204).send();
+});
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);

@@ -29,91 +29,87 @@ const OAUTH_STATE_COOKIE_NAME = "fit_check_oauth_state";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 const OAUTH_STATE_TTL_SECONDS = 60 * 5;
 
-export function createAuthRoutes() {
-  const router = Router();
+export const authRoutes = Router();
 
-  router.get("/google", (_request, response) => {
-    const state = randomBytes(32).toString("hex");
-    response.cookie(
-      OAUTH_STATE_COOKIE_NAME,
-      state,
-      cookieOptions(OAUTH_STATE_TTL_SECONDS),
-    );
-    response.redirect(
-      buildGoogleAuthUrl(env.googleClientId, googleRedirectUri(), state),
-    );
+authRoutes.get("/google", (_request, response) => {
+  const state = randomBytes(32).toString("hex");
+  response.cookie(
+    OAUTH_STATE_COOKIE_NAME,
+    state,
+    cookieOptions(OAUTH_STATE_TTL_SECONDS),
+  );
+  response.redirect(
+    buildGoogleAuthUrl(env.googleClientId, googleRedirectUri(), state),
+  );
+});
+
+authRoutes.get("/google/callback", async (request, response) => {
+  const query = request.query as GoogleCallbackQuery;
+  const expectedState = request.cookies[OAUTH_STATE_COOKIE_NAME];
+  response.clearCookie(OAUTH_STATE_COOKIE_NAME, cookieOptions());
+
+  if (
+    !query.code ||
+    !query.state ||
+    !expectedState ||
+    query.state !== expectedState
+  ) {
+    response.status(400).json({ message: "OAuth state validation failed" });
+    return;
+  }
+
+  const googleUser = await exchangeGoogleCode(query.code);
+  if (!googleUser) {
+    response.status(400).json({ message: "Google OAuth failed" });
+    return;
+  }
+
+  const user = await upsertOAuthUser({
+    provider: "google",
+    providerId: googleUser.sub,
+    email: googleUser.email,
   });
 
-  router.get("/google/callback", async (request, response) => {
-    const query = request.query as GoogleCallbackQuery;
-    const expectedState = request.cookies[OAUTH_STATE_COOKIE_NAME];
-    response.clearCookie(OAUTH_STATE_COOKIE_NAME, cookieOptions());
+  response.cookie(
+    SESSION_COOKIE_NAME,
+    signSession(env.jwtSecret, SESSION_TTL_SECONDS, user),
+    {
+      ...cookieOptions(SESSION_TTL_SECONDS),
+      maxAge: SESSION_TTL_SECONDS * 1000,
+    },
+  );
+  response.redirect(env.frontendUrl);
+});
 
-    if (
-      !query.code ||
-      !query.state ||
-      !expectedState ||
-      query.state !== expectedState
-    ) {
-      response.status(400).json({ message: "OAuth state validation failed" });
-      return;
-    }
+authRoutes.get("/me", async (request, response) => {
+  const sessionCookie = request.cookies[SESSION_COOKIE_NAME];
+  if (typeof sessionCookie !== "string" || sessionCookie.length === 0) {
+    response.status(401).json({ message: "Unauthorized" });
+    return;
+  }
 
-    const googleUser = await exchangeGoogleCode(query.code);
-    if (!googleUser) {
-      response.status(400).json({ message: "Google OAuth failed" });
-      return;
-    }
+  let decoded: { userId: string };
+  try {
+    decoded = jwt.verify(sessionCookie, env.jwtSecret) as { userId: string };
+  } catch {
+    response.status(401).json({ message: "Unauthorized" });
+    return;
+  }
 
-    const user = await upsertOAuthUser({
-      provider: "google",
-      providerId: googleUser.sub,
-      email: googleUser.email,
-    });
+  const user = await getUserById(decoded.userId);
+  if (!user) {
+    response.status(401).json({ message: "Unauthorized" });
+    return;
+  }
 
-    response.cookie(
-      SESSION_COOKIE_NAME,
-      signSession(env.jwtSecret, SESSION_TTL_SECONDS, user),
-      {
-        ...cookieOptions(SESSION_TTL_SECONDS),
-        maxAge: SESSION_TTL_SECONDS * 1000,
-      },
-    );
-    response.redirect(env.frontendUrl);
-  });
+  const body: GetCurrentUserResponse = user;
+  response.status(200).json(body);
+});
 
-  router.get("/me", async (request, response) => {
-    const sessionCookie = request.cookies[SESSION_COOKIE_NAME];
-    if (typeof sessionCookie !== "string" || sessionCookie.length === 0) {
-      response.status(401).json({ message: "Unauthorized" });
-      return;
-    }
-
-    let decoded: { userId: string };
-    try {
-      decoded = jwt.verify(sessionCookie, env.jwtSecret) as { userId: string };
-    } catch {
-      response.status(401).json({ message: "Unauthorized" });
-      return;
-    }
-
-    const user = await getUserById(decoded.userId);
-    if (!user) {
-      response.status(401).json({ message: "Unauthorized" });
-      return;
-    }
-
-    const body: GetCurrentUserResponse = user;
-    response.status(200).json(body);
-  });
-
-  router.post("/logout", (_request, response) => {
-    response.clearCookie(SESSION_COOKIE_NAME, cookieOptions());
-    response.status(204).send();
-  });
-
-  return router;
-}
+authRoutes.post("/logout", (_request, response) => {
+  response.clearCookie(SESSION_COOKIE_NAME, cookieOptions());
+  response.status(204).send();
+});
 
 function cookieOptions(maxAgeSeconds?: number): {
   httpOnly: true;

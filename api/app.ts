@@ -8,10 +8,10 @@ import jwt from "jsonwebtoken";
 import type { AuthUser } from "#packages/contracts/auth";
 import { env } from "./lib/get-env";
 import { getUserById } from "./lib/queries/auth-queries";
-import { createAuthRoutes } from "./routes/auth-routes";
-import { createCategoryRoutes } from "./routes/category-routes";
-import { createItemRoutes } from "./routes/item-routes";
-import { createOutfitRoutes } from "./routes/outfit-routes";
+import { authRoutes } from "./routes/auth-routes";
+import { categoryRoutes } from "./routes/category-routes";
+import { itemRoutes } from "./routes/item-routes";
+import { outfitRoutes } from "./routes/outfit-routes";
 
 type SessionToken = {
   userId: string;
@@ -64,10 +64,10 @@ export function createApp() {
     next();
   };
 
-  app.use("/api/auth", createAuthRoutes());
-  app.use("/api/items", requireAuth, createItemRoutes());
-  app.use("/api/categories", requireAuth, createCategoryRoutes());
-  app.use("/api/outfits", requireAuth, createOutfitRoutes());
+  app.use("/api/auth", authRoutes);
+  app.use("/api/items", requireAuth, itemRoutes);
+  app.use("/api/categories", requireAuth, categoryRoutes);
+  app.use("/api/outfits", requireAuth, outfitRoutes);
 
   app.use((_request, response) => {
     response.status(404).json({ message: "Not found" });

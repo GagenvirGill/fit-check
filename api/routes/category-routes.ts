@@ -21,90 +21,82 @@ type CategoryParams = {
   categoryId: string;
 };
 
-export function createCategoryRoutes() {
-  const router = Router();
+export const categoryRoutes = Router();
 
-  router.post("/", async (request, response) => {
-    const { authUser } = response.locals as CategoryRouteLocals;
-    const body = request.body;
-    if (!isObject(body)) {
-      response
-        .status(400)
-        .json({ message: "Request body must be a JSON object" });
-      return;
-    }
+categoryRoutes.post("/", async (request, response) => {
+  const { authUser } = response.locals as CategoryRouteLocals;
+  const body = request.body;
+  if (!isObject(body)) {
+    response
+      .status(400)
+      .json({ message: "Request body must be a JSON object" });
+    return;
+  }
 
-    const name = parseRequiredString(body.name);
-    if (name === null) {
-      response.status(400).json({ message: "name is required" });
-      return;
-    }
+  const name = parseRequiredString(body.name);
+  if (name === null) {
+    response.status(400).json({ message: "name is required" });
+    return;
+  }
 
-    const payload: CreateCategoryRequest = {
-      name,
-    };
-    const created: CreateCategoryResponse = await createCategory({
-      userId: authUser.userId,
-      name: payload.name,
-    });
-
-    response.status(201).json(created);
+  const payload: CreateCategoryRequest = {
+    name,
+  };
+  const created: CreateCategoryResponse = await createCategory({
+    userId: authUser.userId,
+    name: payload.name,
   });
 
-  router.patch("/:categoryId", async (request, response) => {
-    const { authUser } = response.locals as CategoryRouteLocals;
-    const params = request.params as CategoryParams;
-    const body = request.body;
-    if (!isObject(body)) {
-      response
-        .status(400)
-        .json({ message: "Request body must be a JSON object" });
-      return;
-    }
-    if (
-      !["name", "favoriteItem", "itemIds"].some(
-        (key) => body[key] !== undefined,
-      )
-    ) {
-      response
-        .status(400)
-        .json({
-          message:
-            "Request body must include at least one of: name, favoriteItem, itemIds",
-        });
-      return;
-    }
+  response.status(201).json(created);
+});
 
-    const payload = parseUpdateCategoryRequest(body);
-    if (!payload.ok) {
-      response.status(400).json({ message: payload.message });
-      return;
-    }
-    const updated: UpdateCategoryResponse | null = await updateCategory({
-      userId: authUser.userId,
-      categoryId: params.categoryId,
-      ...payload.value,
+categoryRoutes.patch("/:categoryId", async (request, response) => {
+  const { authUser } = response.locals as CategoryRouteLocals;
+  const params = request.params as CategoryParams;
+  const body = request.body;
+  if (!isObject(body)) {
+    response
+      .status(400)
+      .json({ message: "Request body must be a JSON object" });
+    return;
+  }
+  if (
+    !["name", "favoriteItem", "itemIds"].some((key) => body[key] !== undefined)
+  ) {
+    response.status(400).json({
+      message:
+        "Request body must include at least one of: name, favoriteItem, itemIds",
     });
-    if (!updated) {
-      response.status(404).json({ message: "Not found" });
-      return;
-    }
+    return;
+  }
 
-    response.status(200).json(updated);
+  const payload = parseUpdateCategoryRequest(body);
+  if (!payload.ok) {
+    response.status(400).json({ message: payload.message });
+    return;
+  }
+  const updated: UpdateCategoryResponse | null = await updateCategory({
+    userId: authUser.userId,
+    categoryId: params.categoryId,
+    ...payload.value,
   });
+  if (!updated) {
+    response.status(404).json({ message: "Not found" });
+    return;
+  }
 
-  router.delete("/:categoryId", async (request, response) => {
-    const { authUser } = response.locals as CategoryRouteLocals;
-    const params = request.params as CategoryParams;
-    await deleteCategory({
-      userId: authUser.userId,
-      categoryId: params.categoryId,
-    });
-    response.status(204).send();
+  response.status(200).json(updated);
+});
+
+categoryRoutes.delete("/:categoryId", async (request, response) => {
+  const { authUser } = response.locals as CategoryRouteLocals;
+  const params = request.params as CategoryParams;
+  await deleteCategory({
+    userId: authUser.userId,
+    categoryId: params.categoryId,
   });
-
-  return router;
-}
+  response.status(204).send();
+});
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
