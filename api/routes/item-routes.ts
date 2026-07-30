@@ -2,21 +2,14 @@ import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { Router } from "express";
 import { imageSize } from "image-size";
-import multer from "multer";
 import type { ItemResponse, UpdateItemRequest } from "#packages/contracts/item";
+import { upload } from "../lib/upload-middleware";
 import {
   createItem,
   deleteItem,
   updateItemCategories,
 } from "../lib/queries/item-queries";
 import { uploadS3Object } from "../lib/s3-client";
-
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 10 * 1024 * 1024,
-  },
-});
 
 type ItemParams = {
   itemId: string;
