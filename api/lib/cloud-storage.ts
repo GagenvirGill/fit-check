@@ -4,9 +4,8 @@ import path from "node:path";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { imageSize } from "image-size";
 
-import { getEnv } from "./get-env";
+import { env } from "./get-env";
 
-const env = getEnv();
 const s3 = new S3Client({
   region: env.s3Region,
 });

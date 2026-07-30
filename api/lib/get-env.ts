@@ -1,32 +1,70 @@
-export type Env = {
-  frontendUrl: string;
-  apiUrl: string;
-  databaseUrl: string;
-  jwtSecret: string;
-  googleClientId: string;
-  googleClientSecret: string;
-  s3Bucket: string;
-  s3Region: string;
-};
+type ApiEnvMode = "dev" | "prod";
 
-export function getEnv(): Env {
+export function getEnv(mode: ApiEnvMode = getApiEnvMode()) {
+  return mode === "prod" ? getProdEnv() : getDevEnv();
+}
+
+function getDevEnv() {
   return {
-    frontendUrl: process.env.FRONTEND_URL ?? "http://localhost:5173",
-    apiUrl: process.env.API_URL ?? "http://localhost:3000",
+    mode: "dev" as const,
+    port: requiredNumberEnv("SERVER_PORT"),
+    frontendUrl: requiredEnv("FRONTEND_URL"),
+    apiUrl: requiredEnv("VITE_BACKEND_URL"),
     databaseUrl: requiredEnv("DATABASE_URL"),
-    jwtSecret: process.env.JWT_SECRET ?? "development-jwt-secret",
-    googleClientId: process.env.GOOGLE_CLIENT_ID ?? "",
-    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
-    s3Bucket: requiredEnv("S3_BUCKET"),
-    s3Region: process.env.S3_REGION ?? "us-east-1",
+    jwtSecret: requiredEnv("JWT_SECRET"),
+    googleClientId: requiredEnv("GOOGLE_CLIENT_ID"),
+    googleClientSecret: requiredEnv("GOOGLE_CLIENT_SECRET"),
+    s3Bucket: requiredEnv("R2_BUCKET_NAME"),
+    s3Region: requiredEnv("R2_REGION"),
   };
 }
 
+function getProdEnv() {
+  return {
+    mode: "prod" as const,
+    port: requiredNumberEnv("PROD_SERVER_PORT"),
+    frontendUrl: requiredEnv("PROD_FRONTEND_URL"),
+    apiUrl: requiredEnv("PROD_VITE_BACKEND_URL"),
+    databaseUrl: requiredEnv("PROD_DATABASE_URL"),
+    jwtSecret: requiredEnv("PROD_JWT_SECRET"),
+    googleClientId: requiredEnv("PROD_GOOGLE_CLIENT_ID"),
+    googleClientSecret: requiredEnv("PROD_GOOGLE_CLIENT_SECRET"),
+    s3Bucket: requiredEnv("PROD_R2_BUCKET_NAME"),
+    s3Region: requiredEnv("PROD_R2_REGION"),
+  };
+}
+
+export type Env = ReturnType<typeof getEnv>;
+
+export const env = getEnv();
+
+function getApiEnvMode(): ApiEnvMode {
+  const value = process.env.API_ENV;
+  if (value === "dev") {
+    return "dev";
+  }
+  if (value === "prod") {
+    return "prod";
+  }
+
+  throw new Error('API_ENV must be "dev" or "prod"');
+}
+
 function requiredEnv(key: string): string {
-  const value = process.env[key];
+  const value = process.env[key]?.trim();
   if (!value) {
     throw new Error(`Missing required environment variable: ${key}`);
   }
 
   return value;
+}
+
+function requiredNumberEnv(key: string): number {
+  const value = requiredEnv(key);
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    throw new Error(`Environment variable ${key} must be a valid number`);
+  }
+
+  return parsed;
 }

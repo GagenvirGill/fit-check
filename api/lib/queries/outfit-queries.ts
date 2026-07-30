@@ -2,7 +2,7 @@ import { and, eq, inArray } from "drizzle-orm";
 
 import type { OutfitLayout, OutfitResponse } from "#packages/contracts/outfit";
 import { dbSchema } from "#packages/db/schema";
-import { db } from "../db";
+import { dbClient } from "../db-client";
 
 export async function createOutfit(input: {
   userId: string;
@@ -15,7 +15,7 @@ export async function createOutfit(input: {
     return null;
   }
 
-  const [row] = await db
+  const [row] = await dbClient
     .insert(dbSchema.outfit)
     .values({
       userId: input.userId,
@@ -42,7 +42,7 @@ export async function updateOutfit(input: {
     }
   }
 
-  const [row] = await db
+  const [row] = await dbClient
     .update(dbSchema.outfit)
     .set({
       dateWorn: input.dateWorn,
@@ -57,7 +57,7 @@ export async function updateOutfit(input: {
 }
 
 export async function deleteOutfit(input: { userId: string; outfitId: string }): Promise<void> {
-  await db
+  await dbClient
     .delete(dbSchema.outfit)
     .where(and(eq(dbSchema.outfit.userId, input.userId), eq(dbSchema.outfit.outfitId, input.outfitId)));
 }
@@ -83,7 +83,7 @@ async function hasLayoutItems(userId: string, layout: OutfitLayout): Promise<boo
   }
 
   const uniqueItemIds = [...new Set(itemIds)];
-  const rows = await db
+  const rows = await dbClient
     .select({ itemId: dbSchema.item.itemId })
     .from(dbSchema.item)
     .where(and(eq(dbSchema.item.userId, userId), inArray(dbSchema.item.itemId, uniqueItemIds)));

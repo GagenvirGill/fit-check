@@ -2,10 +2,10 @@ import { and, eq, inArray } from "drizzle-orm";
 
 import type { CategoryResponse } from "#packages/contracts/category";
 import { dbSchema } from "#packages/db/schema";
-import { db } from "../db";
+import { dbClient } from "../db-client";
 
 export async function createCategory(input: { userId: string; name: string }): Promise<CategoryResponse> {
-  const [row] = await db
+  const [row] = await dbClient
     .insert(dbSchema.category)
     .values(input)
     .returning();
@@ -33,7 +33,7 @@ export async function updateCategory(input: {
     }
   }
 
-  await db.transaction(async (tx) => {
+  await dbClient.transaction(async (tx) => {
     if (input.itemIds) {
       await tx.delete(dbSchema.itemToCategory).where(eq(dbSchema.itemToCategory.categoryId, input.categoryId));
       if (input.itemIds.length > 0) {
@@ -47,7 +47,7 @@ export async function updateCategory(input: {
     }
   });
 
-  const [row] = await db
+  const [row] = await dbClient
     .update(dbSchema.category)
     .set({
       name: input.name,
@@ -61,7 +61,7 @@ export async function updateCategory(input: {
 }
 
 export async function deleteCategory(input: { userId: string; categoryId: string }): Promise<void> {
-  await db
+  await dbClient
     .delete(dbSchema.category)
     .where(and(eq(dbSchema.category.userId, input.userId), eq(dbSchema.category.categoryId, input.categoryId)));
 }
@@ -76,7 +76,7 @@ function toCategoryResponse(row: { categoryId: string; name: string; favoriteIte
 
 async function hasUserItems(userId: string, itemIds: string[]): Promise<boolean> {
   const uniqueItemIds = [...new Set(itemIds)];
-  const rows = await db
+  const rows = await dbClient
     .select({ itemId: dbSchema.item.itemId })
     .from(dbSchema.item)
     .where(and(eq(dbSchema.item.userId, userId), inArray(dbSchema.item.itemId, uniqueItemIds)));

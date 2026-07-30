@@ -6,14 +6,12 @@ import helmet from "helmet";
 import jwt from "jsonwebtoken";
 
 import type { AuthUser } from "#packages/contracts/auth";
-import { getEnv } from "./lib/get-env";
+import { env } from "./lib/get-env";
 import { getUserById } from "./lib/queries/auth-queries";
 import { createAuthRoutes } from "./routes/auth-routes";
 import { createCategoryRoutes } from "./routes/category-routes";
 import { createItemRoutes } from "./routes/item-routes";
 import { createOutfitRoutes } from "./routes/outfit-routes";
-
-export type CreateAppOptions = Record<string, never>;
 
 type SessionToken = {
   userId: string;
@@ -21,18 +19,27 @@ type SessionToken = {
 
 const SESSION_COOKIE_NAME = "fit_check_session";
 
-export function createApp(options: CreateAppOptions = {}) {
-  void options;
-  const env = getEnv();
+export function createApp() {
   const app = express();
 
   app.use(helmet());
   app.use(cors({ origin: env.frontendUrl, credentials: true }));
-  app.use(rateLimit({ windowMs: 60_000, limit: 300, standardHeaders: true, legacyHeaders: false }));
+  app.use(
+    rateLimit({
+      windowMs: 60_000,
+      limit: 300,
+      standardHeaders: true,
+      legacyHeaders: false,
+    }),
+  );
   app.use(express.json());
   app.use(cookieParser());
 
-  const requireAuth = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+  const requireAuth = async (
+    request: express.Request,
+    response: express.Response,
+    next: express.NextFunction,
+  ) => {
     const sessionCookie = request.cookies[SESSION_COOKIE_NAME];
     if (typeof sessionCookie !== "string" || sessionCookie.length === 0) {
       response.status(401).json({ message: "Unauthorized" });
@@ -66,9 +73,16 @@ export function createApp(options: CreateAppOptions = {}) {
     response.status(404).json({ message: "Not found" });
   });
 
-  app.use((_error: unknown, _request: express.Request, response: express.Response, _next: express.NextFunction) => {
-    response.status(500).json({ message: "Internal server error" });
-  });
+  app.use(
+    (
+      _error: unknown,
+      _request: express.Request,
+      response: express.Response,
+      _next: express.NextFunction,
+    ) => {
+      response.status(500).json({ message: "Internal server error" });
+    },
+  );
 
   return app;
 }

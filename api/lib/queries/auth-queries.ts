@@ -2,12 +2,12 @@ import { eq } from "drizzle-orm";
 
 import type { AuthUser } from "#packages/contracts/auth";
 import { dbSchema } from "#packages/db/schema";
-import { db } from "../db";
+import { dbClient } from "../db-client";
 
 export async function upsertOAuthUser(
   input: { provider: string; providerId: string; email: string },
 ): Promise<AuthUser> {
-  const [row] = await db
+  const [row] = await dbClient
     .insert(dbSchema.user)
     .values(input)
     .onConflictDoUpdate({
@@ -24,7 +24,7 @@ export async function upsertOAuthUser(
 }
 
 export async function getUserById(userId: string): Promise<AuthUser | null> {
-  const [row] = await db
+  const [row] = await dbClient
     .select()
     .from(dbSchema.user)
     .where(eq(dbSchema.user.userId, userId))

@@ -3,8 +3,11 @@ import { randomBytes } from "node:crypto";
 import { Router } from "express";
 import jwt from "jsonwebtoken";
 
-import type { AuthUser, GetCurrentUserResponse } from "#packages/contracts/auth";
-import { getEnv, type Env } from "../lib/get-env";
+import type {
+  AuthUser,
+  GetCurrentUserResponse,
+} from "#packages/contracts/auth";
+import { env } from "../lib/get-env";
 import { getUserById, upsertOAuthUser } from "../lib/queries/auth-queries";
 
 type GoogleTokenResponse = {
@@ -30,24 +33,33 @@ export function createAuthRoutes() {
   const router = Router();
 
   router.get("/google", (_request, response) => {
-    const env = getEnv();
     const state = randomBytes(32).toString("hex");
-    response.cookie(OAUTH_STATE_COOKIE_NAME, state, cookieOptions(OAUTH_STATE_TTL_SECONDS));
-    response.redirect(buildGoogleAuthUrl(env.googleClientId, googleRedirectUri(env), state));
+    response.cookie(
+      OAUTH_STATE_COOKIE_NAME,
+      state,
+      cookieOptions(OAUTH_STATE_TTL_SECONDS),
+    );
+    response.redirect(
+      buildGoogleAuthUrl(env.googleClientId, googleRedirectUri(), state),
+    );
   });
 
   router.get("/google/callback", async (request, response) => {
-    const env = getEnv();
     const query = request.query as GoogleCallbackQuery;
     const expectedState = request.cookies[OAUTH_STATE_COOKIE_NAME];
     response.clearCookie(OAUTH_STATE_COOKIE_NAME, cookieOptions());
 
-    if (!query.code || !query.state || !expectedState || query.state !== expectedState) {
+    if (
+      !query.code ||
+      !query.state ||
+      !expectedState ||
+      query.state !== expectedState
+    ) {
       response.status(400).json({ message: "OAuth state validation failed" });
       return;
     }
 
-    const googleUser = await exchangeGoogleCode(env, query.code);
+    const googleUser = await exchangeGoogleCode(query.code);
     if (!googleUser) {
       response.status(400).json({ message: "Google OAuth failed" });
       return;
@@ -59,15 +71,18 @@ export function createAuthRoutes() {
       email: googleUser.email,
     });
 
-    response.cookie(SESSION_COOKIE_NAME, signSession(env.jwtSecret, SESSION_TTL_SECONDS, user), {
-      ...cookieOptions(SESSION_TTL_SECONDS),
-      maxAge: SESSION_TTL_SECONDS * 1000,
-    });
+    response.cookie(
+      SESSION_COOKIE_NAME,
+      signSession(env.jwtSecret, SESSION_TTL_SECONDS, user),
+      {
+        ...cookieOptions(SESSION_TTL_SECONDS),
+        maxAge: SESSION_TTL_SECONDS * 1000,
+      },
+    );
     response.redirect(env.frontendUrl);
   });
 
   router.get("/me", async (request, response) => {
-    const env = getEnv();
     const sessionCookie = request.cookies[SESSION_COOKIE_NAME];
     if (typeof sessionCookie !== "string" || sessionCookie.length === 0) {
       response.status(401).json({ message: "Unauthorized" });
@@ -116,7 +131,11 @@ function cookieOptions(maxAgeSeconds?: number): {
   };
 }
 
-function buildGoogleAuthUrl(clientId: string, redirectUri: string, state: string): string {
+function buildGoogleAuthUrl(
+  clientId: string,
+  redirectUri: string,
+  state: string,
+): string {
   const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   url.searchParams.set("client_id", clientId);
   url.searchParams.set("redirect_uri", redirectUri);
@@ -126,15 +145,23 @@ function buildGoogleAuthUrl(clientId: string, redirectUri: string, state: string
   return url.toString();
 }
 
-function googleRedirectUri(env: Env): string {
+function googleRedirectUri(): string {
   return `${env.apiUrl}/api/auth/google/callback`;
 }
 
-function signSession(jwtSecret: string, sessionTtlSeconds: number, user: AuthUser): string {
-  return jwt.sign({ userId: user.userId }, jwtSecret, { expiresIn: sessionTtlSeconds });
+function signSession(
+  jwtSecret: string,
+  sessionTtlSeconds: number,
+  user: AuthUser,
+): string {
+  return jwt.sign({ userId: user.userId }, jwtSecret, {
+    expiresIn: sessionTtlSeconds,
+  });
 }
 
-async function exchangeGoogleCode(env: Env, code: string): Promise<GoogleUserInfoResponse | null> {
+async function exchangeGoogleCode(
+  code: string,
+): Promise<GoogleUserInfoResponse | null> {
   const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
@@ -143,7 +170,7 @@ async function exchangeGoogleCode(env: Env, code: string): Promise<GoogleUserInf
       client_secret: env.googleClientSecret,
       code,
       grant_type: "authorization_code",
-      redirect_uri: googleRedirectUri(env),
+      redirect_uri: googleRedirectUri(),
     }),
   });
 
@@ -151,14 +178,17 @@ async function exchangeGoogleCode(env: Env, code: string): Promise<GoogleUserInf
     return null;
   }
 
-  const tokenJson = await tokenResponse.json() as GoogleTokenResponse;
-  const userInfoResponse = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-    headers: { authorization: `Bearer ${tokenJson.access_token}` },
-  });
+  const tokenJson = (await tokenResponse.json()) as GoogleTokenResponse;
+  const userInfoResponse = await fetch(
+    "https://www.googleapis.com/oauth2/v3/userinfo",
+    {
+      headers: { authorization: `Bearer ${tokenJson.access_token}` },
+    },
+  );
 
   if (!userInfoResponse.ok) {
     return null;
   }
 
-  return await userInfoResponse.json() as GoogleUserInfoResponse;
+  return (await userInfoResponse.json()) as GoogleUserInfoResponse;
 }
