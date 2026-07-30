@@ -60,7 +60,7 @@ export function createApp() {
       return;
     }
 
-    response.locals.authUser = authUser satisfies AuthUser;
+    request.authUser = authUser satisfies AuthUser;
     next();
   };
 

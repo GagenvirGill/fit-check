@@ -1,6 +1,5 @@
 import { Router } from "express";
 
-import type { AuthUser } from "#packages/contracts/auth";
 import type {
   CreateCategoryRequest,
   CreateCategoryResponse,
@@ -13,10 +12,6 @@ import {
   updateCategory,
 } from "../lib/queries/category-queries";
 
-type CategoryRouteLocals = {
-  authUser: AuthUser;
-};
-
 type CategoryParams = {
   categoryId: string;
 };
@@ -24,7 +19,7 @@ type CategoryParams = {
 export const categoryRoutes = Router();
 
 categoryRoutes.post("/", async (request, response) => {
-  const { authUser } = response.locals as CategoryRouteLocals;
+  const { authUser } = request;
   const body = request.body;
   if (!isObject(body)) {
     response
@@ -51,7 +46,7 @@ categoryRoutes.post("/", async (request, response) => {
 });
 
 categoryRoutes.patch("/:categoryId", async (request, response) => {
-  const { authUser } = response.locals as CategoryRouteLocals;
+  const { authUser } = request;
   const params = request.params as CategoryParams;
   const body = request.body;
   if (!isObject(body)) {
@@ -89,7 +84,7 @@ categoryRoutes.patch("/:categoryId", async (request, response) => {
 });
 
 categoryRoutes.delete("/:categoryId", async (request, response) => {
-  const { authUser } = response.locals as CategoryRouteLocals;
+  const { authUser } = request;
   const params = request.params as CategoryParams;
   await deleteCategory({
     userId: authUser.userId,

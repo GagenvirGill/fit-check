@@ -3,7 +3,6 @@ import path from "node:path";
 import { Router } from "express";
 import { imageSize } from "image-size";
 import multer from "multer";
-import type { AuthUser } from "#packages/contracts/auth";
 import type { ItemResponse, UpdateItemRequest } from "#packages/contracts/item";
 import {
   createItem,
@@ -19,10 +18,6 @@ const upload = multer({
   },
 });
 
-type ItemRouteLocals = {
-  authUser: AuthUser;
-};
-
 type ItemParams = {
   itemId: string;
 };
@@ -30,7 +25,7 @@ type ItemParams = {
 export const itemRoutes = Router();
 
 itemRoutes.post("/", upload.single("image"), async (request, response) => {
-  const { authUser } = response.locals as ItemRouteLocals;
+  const { authUser } = request;
   if (!request.file) {
     response.status(400).json({ message: "image file is required" });
     return;
@@ -60,7 +55,7 @@ itemRoutes.post("/", upload.single("image"), async (request, response) => {
 });
 
 itemRoutes.patch("/:itemId", async (request, response) => {
-  const { authUser } = response.locals as ItemRouteLocals;
+  const { authUser } = request;
   const params = request.params as ItemParams;
   const body = request.body;
   if (!isObject(body)) {
@@ -102,7 +97,7 @@ itemRoutes.patch("/:itemId", async (request, response) => {
 });
 
 itemRoutes.delete("/:itemId", async (request, response) => {
-  const { authUser } = response.locals as ItemRouteLocals;
+  const { authUser } = request;
   const params = request.params as ItemParams;
   await deleteItem({ userId: authUser.userId, itemId: params.itemId });
   response.status(204).send();

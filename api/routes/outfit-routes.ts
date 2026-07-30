@@ -1,6 +1,5 @@
 import { Router } from "express";
 
-import type { AuthUser } from "#packages/contracts/auth";
 import type {
   CreateOutfitRequest,
   CreateOutfitResponse,
@@ -15,10 +14,6 @@ import {
   updateOutfit,
 } from "../lib/queries/outfit-queries";
 
-type OutfitRouteLocals = {
-  authUser: AuthUser;
-};
-
 type OutfitParams = {
   outfitId: string;
 };
@@ -26,7 +21,7 @@ type OutfitParams = {
 export const outfitRoutes = Router();
 
 outfitRoutes.post("/", async (request, response) => {
-  const { authUser } = response.locals as OutfitRouteLocals;
+  const { authUser } = request;
   const body = request.body;
   if (!isObject(body)) {
     response
@@ -54,7 +49,7 @@ outfitRoutes.post("/", async (request, response) => {
 });
 
 outfitRoutes.patch("/:outfitId", async (request, response) => {
-  const { authUser } = response.locals as OutfitRouteLocals;
+  const { authUser } = request;
   const params = request.params as OutfitParams;
   const body = request.body;
   if (!isObject(body)) {
@@ -95,7 +90,7 @@ outfitRoutes.patch("/:outfitId", async (request, response) => {
 });
 
 outfitRoutes.delete("/:outfitId", async (request, response) => {
-  const { authUser } = response.locals as OutfitRouteLocals;
+  const { authUser } = request;
   const params = request.params as OutfitParams;
   await deleteOutfit({ userId: authUser.userId, outfitId: params.outfitId });
   response.status(204).send();
