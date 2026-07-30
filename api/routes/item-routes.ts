@@ -1,10 +1,14 @@
+import { randomUUID } from "node:crypto";
+import path from "node:path";
+
 import { Router } from "express";
+import { imageSize } from "image-size";
 import multer from "multer";
 
 import type { AuthUser } from "#packages/contracts/auth";
 import type { CreateItemResponse, UpdateItemRequest } from "#packages/contracts/item";
-import { uploadItemImage } from "../lib/cloud-storage";
 import { createItem, deleteItem, updateItemCategories } from "../lib/queries/item-queries";
+import { uploadS3Object } from "../lib/s3-client";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -31,21 +35,24 @@ export function createItemRoutes() {
       return;
     }
 
-    const stored = await uploadItemImage(authUser.userId, {
-      fileName: request.file.originalname,
-      mimeType: request.file.mimetype,
-      bytes: request.file.buffer,
-    });
-    if (!stored) {
+    const dimensions = imageSize(request.file.buffer);
+    if (!dimensions.width || !dimensions.height) {
       response.status(400).json({ message: "image must be a valid image file" });
       return;
     }
 
+    const imagePath = `users/${authUser.userId}/items/${randomUUID()}-${safeFileName(request.file.originalname)}`;
+    await uploadS3Object({
+      key: imagePath,
+      body: request.file.buffer,
+      contentType: request.file.mimetype,
+    });
+
     const body: CreateItemResponse = await createItem({
       userId: authUser.userId,
-      imagePath: stored.imagePath,
-      imageWidth: stored.imageWidth,
-      imageHeight: stored.imageHeight,
+      imagePath,
+      imageWidth: dimensions.width,
+      imageHeight: dimensions.height,
     });
 
     response.status(201).json(body);
@@ -113,4 +120,9 @@ function omitUndefined<T extends Record<string, unknown>>(payload: T): Partial<T
   return Object.fromEntries(
     Object.entries(payload).filter(([, value]) => value !== undefined),
   ) as Partial<T>;
+}
+
+function safeFileName(fileName: string): string {
+  const parsed = path.basename(fileName).replace(/[^a-zA-Z0-9._-]/g, "-");
+  return parsed.length > 0 ? parsed : "upload";
 }
