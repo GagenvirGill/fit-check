@@ -1,8 +1,11 @@
 import { randomUUID } from "node:crypto";
-import path from "node:path";
 import { Router } from "express";
 import { imageSize } from "image-size";
 import type { ItemResponse, UpdateItemRequest } from "#packages/contracts/item";
+import {
+  ALLOWED_IMAGE_MIME_TYPES,
+  IMAGE_MIME_TYPE_EXTENSIONS,
+} from "#packages/constants";
 import { upload } from "../lib/upload-middleware";
 import {
   createItem,
@@ -24,13 +27,22 @@ itemRoutes.post("/", upload.single("image"), async (request, response) => {
     return;
   }
 
+  if (!ALLOWED_IMAGE_MIME_TYPES.has(request.file.mimetype)) {
+    response.status(400).json({ message: "image must be JPEG, PNG, or WebP" });
+    return;
+  }
+
+  const fileExtension =
+    IMAGE_MIME_TYPE_EXTENSIONS[
+      request.file.mimetype as keyof typeof IMAGE_MIME_TYPE_EXTENSIONS
+    ];
   const dimensions = imageSize(request.file.buffer);
   if (!dimensions.width || !dimensions.height) {
     response.status(400).json({ message: "image must be a valid image file" });
     return;
   }
 
-  const imagePath = `users/${authUser.userId}/items/${randomUUID()}-${safeFileName(request.file.originalname)}`;
+  const imagePath = `items/${randomUUID()}${fileExtension}`;
   await uploadS3Object({
     key: imagePath,
     body: request.file.buffer,
@@ -117,9 +129,4 @@ function omitUndefined<T extends Record<string, unknown>>(
   return Object.fromEntries(
     Object.entries(payload).filter(([, value]) => value !== undefined),
   ) as Partial<T>;
-}
-
-function safeFileName(fileName: string): string {
-  const parsed = path.basename(fileName).replace(/[^a-zA-Z0-9._-]/g, "-");
-  return parsed.length > 0 ? parsed : "upload";
 }

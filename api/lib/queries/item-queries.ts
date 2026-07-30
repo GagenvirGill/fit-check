@@ -16,7 +16,6 @@ export async function createItem(input: {
     imagePath: row.imagePath,
     imageWidth: row.imageWidth,
     imageHeight: row.imageHeight,
-    createdAt: row.createdAt.toISOString(),
   };
 }
 

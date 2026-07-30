@@ -3,7 +3,6 @@ export type ItemResponse = {
   imagePath: string;
   imageWidth: number;
   imageHeight: number;
-  createdAt: string;
 };
 
 export type UpdateItemRequest = {
