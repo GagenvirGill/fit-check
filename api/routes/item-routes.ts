@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { Router } from "express";
 import { imageSize } from "image-size";
-import type { ItemResponse, UpdateItemRequest } from "#packages/contracts/item";
+import type { ItemResponse } from "#packages/contracts/item";
 import {
   ALLOWED_IMAGE_MIME_TYPES,
   IMAGE_MIME_TYPE_EXTENSIONS,
@@ -63,7 +63,7 @@ itemRoutes.patch("/:itemId", async (request, response) => {
   const { authUser } = request;
   const params = request.params as ItemParams;
   const body = request.body;
-  if (!isObject(body)) {
+  if (typeof body !== "object" || body === null || Array.isArray(body)) {
     response
       .status(400)
       .json({ message: "Request body must be a JSON object" });
@@ -76,22 +76,21 @@ itemRoutes.patch("/:itemId", async (request, response) => {
     return;
   }
 
-  const categoryIds = parseStringArray(body.categoryIds);
-  if (!categoryIds) {
+  const categoryIds = body.categoryIds as unknown[];
+  if (
+    !Array.isArray(categoryIds) ||
+    !categoryIds.every((item) => typeof item === "string" && item.length > 0)
+  ) {
     response
       .status(400)
       .json({ message: "categoryIds must be an array of non-empty strings" });
     return;
   }
 
-  const payload: Partial<UpdateItemRequest> = omitUndefined({
-    categoryIds,
-  });
-
   const updated = await updateItemCategories({
     userId: authUser.userId,
     itemId: params.itemId,
-    categoryIds: payload.categoryIds ?? [],
+    categoryIds: [...new Set(categoryIds as string[])],
   });
   if (!updated) {
     response.status(404).json({ message: "Not found" });
@@ -107,26 +106,3 @@ itemRoutes.delete("/:itemId", async (request, response) => {
   await deleteItem({ userId: authUser.userId, itemId: params.itemId });
   response.status(204).send();
 });
-
-function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function parseStringArray(value: unknown): string[] | null {
-  if (
-    !Array.isArray(value) ||
-    !value.every((item) => typeof item === "string" && item.length > 0)
-  ) {
-    return null;
-  }
-
-  return [...new Set(value)];
-}
-
-function omitUndefined<T extends Record<string, unknown>>(
-  payload: T,
-): Partial<T> {
-  return Object.fromEntries(
-    Object.entries(payload).filter(([, value]) => value !== undefined),
-  ) as Partial<T>;
-}

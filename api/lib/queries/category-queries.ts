@@ -23,6 +23,11 @@ export async function updateCategory(input: {
   favoriteItem?: string | null;
   itemIds?: string[];
 }): Promise<CategoryResponse | null> {
+  const hasCategory = await hasUserCategory(input.userId, input.categoryId);
+  if (!hasCategory) {
+    return null;
+  }
+
   if (input.favoriteItem) {
     const hasFavoriteItem = await hasUserItems(input.userId, [
       input.favoriteItem,
@@ -96,6 +101,24 @@ function toCategoryResponse(row: {
     name: row.name,
     favoriteItem: row.favoriteItem,
   };
+}
+
+async function hasUserCategory(
+  userId: string,
+  categoryId: string,
+): Promise<boolean> {
+  const rows = await dbClient
+    .select({ categoryId: dbSchema.category.categoryId })
+    .from(dbSchema.category)
+    .where(
+      and(
+        eq(dbSchema.category.userId, userId),
+        eq(dbSchema.category.categoryId, categoryId),
+      ),
+    )
+    .limit(1);
+
+  return rows.length === 1;
 }
 
 async function hasUserItems(
