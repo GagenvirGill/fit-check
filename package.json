@@ -2,6 +2,9 @@
   "name": "fit-check",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "format": "prettier --write \"{api,packages,docs}/**/*.{ts,tsx,js,jsx,json,md}\" \"*.{json,md,ts}\"",
     "lint": "eslint .",
@@ -43,7 +46,7 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.2.0",
-    "@types/node": "^22.13.5",
+    "@types/node": "^24.19.2",
     "@types/pg": "^8.20.0",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
