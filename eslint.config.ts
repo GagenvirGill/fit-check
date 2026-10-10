@@ -1,12 +1,14 @@
 import js from "@eslint/js";
+import reactPlugin from "eslint-plugin-react";
+import reactHooksPlugin from "eslint-plugin-react-hooks";
+import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default [
   {
     ignores: [
-      "apps/**", // TEMP - remove after entire app restructure
-      "dist/**",
-      "node_modules/**",
+      "**/dist/**",
+      "**/node_modules/**",
     ],
   },
   js.configs.recommended,
@@ -51,6 +53,22 @@ export default [
           caughtErrorsIgnorePattern: "^_",
         },
       ],
+    },
+  },
+  {
+    files: ["web/**/*.{ts,tsx,js,jsx}"],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+      },
+    },
+    plugins: {
+      "react-hooks": reactHooksPlugin,
+      react: reactPlugin,
+    },
+    rules: {
+      ...reactHooksPlugin.configs.recommended.rules,
+      "react/react-in-jsx-scope": "off",
     },
   },
 ];

@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import type { ReactNode } from "react";
 import { useSetAtom } from "jotai";
-import type { BootstrapResponse } from "@fit-check/shared/types/contracts/bootstrap";
-import type { ItemContract } from "@fit-check/shared/types/contracts/items";
+import type { ListCategoriesResponse } from "@packages/contracts/category";
+import type { ItemResponse, ListItemsResponse } from "@packages/contracts/item";
+import type { ListOutfitsResponse } from "@packages/contracts/outfit";
 import { apiFetchJson } from "@/lib/api-fetch";
 import { buildImageUrl } from "@/lib/image-url";
 import { categoriesAtom } from "@/jotai/categories-atom";
@@ -15,10 +16,9 @@ interface DataLoaderProps {
 	children: ReactNode;
 }
 
-const normalizeItem = (item: ItemContract): ItemContract => ({
+const normalizeItem = ({ categoryIds: _categoryIds, ...item }: ListItemsResponse[number]): ItemResponse => ({
 	...item,
 	imagePath: buildImageUrl(item.imagePath),
-	createdAt: new Date(item.createdAt),
 });
 
 export default function DataLoader({ children }: DataLoaderProps) {
@@ -44,17 +44,25 @@ export default function DataLoader({ children }: DataLoaderProps) {
 			return;
 		}
 
-		const loadBootstrapData = async () => {
+		const loadData = async () => {
 			try {
-				const response = await apiFetchJson<BootstrapResponse>("/bootstrap");
+				const [items, categories, outfits] = await Promise.all([
+					apiFetchJson<ListItemsResponse>("/items"),
+					apiFetchJson<ListCategoriesResponse>("/categories"),
+					apiFetchJson<ListOutfitsResponse>("/outfits"),
+				]);
 				if (cancelled) {
 					return;
 				}
 
-				setItems(response.items.map(normalizeItem));
-				setCategories(response.categories);
-				setOutfits(response.outfits);
-				setItemCategoryLinks(response.itemCategoryLinks);
+				setItems(items.map(normalizeItem));
+				setCategories(categories);
+				setOutfits(outfits);
+				setItemCategoryLinks(
+					items.flatMap((item) =>
+						item.categoryIds.map((categoryId) => ({ itemId: item.itemId, categoryId }))
+					)
+				);
 			} catch {
 				if (cancelled) {
 					return;
@@ -66,7 +74,7 @@ export default function DataLoader({ children }: DataLoaderProps) {
 			}
 		};
 
-		void loadBootstrapData();
+		void loadData();
 
 		return () => {
 			cancelled = true;

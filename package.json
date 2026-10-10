@@ -5,9 +5,12 @@
   "scripts": {
     "format": "prettier --write \"{api,packages,docs}/**/*.{ts,tsx,js,jsx,json,md}\" \"*.{json,md,ts}\"",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -p api && tsc -p web && tsc",
     "api:dev": "API_ENV=dev node --env-file=.env --import tsx api/server.ts",
     "api:prod": "API_ENV=prod node --env-file=.env --import tsx api/server.ts",
+    "web:dev": "vite web",
+    "web:build": "vite build web",
+    "web:preview": "vite preview web",
     "db:generate": "drizzle-kit generate --config packages/db/drizzle.config.ts",
     "db:migrate": "drizzle-kit migrate --config packages/db/drizzle.config.ts"
   },
@@ -23,9 +26,15 @@
     "express-rate-limit": "^8.6.1",
     "helmet": "^8.3.0",
     "image-size": "^2.0.2",
+    "jotai": "^2.19.1",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.2.0",
-    "pg": "^8.20.0"
+    "onnxruntime-web": "^1.21.0-dev.20250114-228dd16893",
+    "pg": "^8.20.0",
+    "queue": "^7.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.9.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
@@ -36,12 +45,19 @@
     "@types/multer": "^2.2.0",
     "@types/node": "^22.13.5",
     "@types/pg": "^8.20.0",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^5.1.0",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9.17.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^15.15.0",
     "jiti": "^2.7.0",
     "prettier": "^3.9.6",
     "tsx": "^4.23.1",
     "typescript": "^6.0.2",
-    "typescript-eslint": "^8.59.2"
+    "typescript-eslint": "^8.59.2",
+    "vite": "^7.1.9"
   }
 }

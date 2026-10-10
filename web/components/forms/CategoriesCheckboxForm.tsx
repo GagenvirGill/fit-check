@@ -2,14 +2,14 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useAtomValue } from "jotai";
 import { categoriesSortedByNameAscAtom } from "@/jotai/categories-atom";
-import type { CategoryContract } from "@fit-check/shared/types/contracts/categories";
+import type { CategoryResponse } from "@packages/contracts/category";
 import CheckboxButton from "../buttons/CheckboxButton";
 import Button from "../buttons/Button";
 import styles from "./FormStyles.module.css";
 
 type CategoriesCheckboxFormProps = {
 	handleSubmit: (selectedCategoryIds: string[]) => void | Promise<void>;
-	displayCategories?: CategoryContract[];
+	displayCategories?: CategoryResponse[];
 	preSelectedCategoryIds?: string[];
 	formId?: string;
 };

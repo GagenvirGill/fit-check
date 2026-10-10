@@ -1,7 +1,9 @@
 import { atom } from "jotai";
-import type { BootstrapResponse } from "@fit-check/shared/types/contracts/bootstrap";
 
-export type ItemCategoryLink = BootstrapResponse["itemCategoryLinks"][number];
+export type ItemCategoryLink = {
+	itemId: string;
+	categoryId: string;
+};
 
 export const itemCategoryLinksAtom = atom<ItemCategoryLink[]>([]);
 

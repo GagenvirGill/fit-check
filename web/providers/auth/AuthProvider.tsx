@@ -6,7 +6,7 @@ import {
 	useState,
 	type ReactNode,
 } from "react";
-import type { AuthMeResponse } from "@fit-check/shared/types/contracts/auth";
+import type { GetCurrentUserResponse } from "@packages/contracts/auth";
 import {
 	getCurrentUser,
 	getGoogleAuthUrl,
@@ -14,7 +14,7 @@ import {
 } from "@/providers/auth/auth-client";
 
 export type AuthContextValue = {
-	user: AuthMeResponse | null;
+	user: GetCurrentUserResponse | null;
 	isAuthenticated: boolean;
 	loading: boolean;
 	login: () => void;
@@ -29,7 +29,7 @@ type AuthProviderProps = {
 };
 
 export default function AuthProvider({ children }: AuthProviderProps) {
-	const [user, setUser] = useState<AuthMeResponse | null>(null);
+	const [user, setUser] = useState<GetCurrentUserResponse | null>(null);
 	const [loading, setLoading] = useState(true);
 
 	const refreshUser = useCallback(async () => {

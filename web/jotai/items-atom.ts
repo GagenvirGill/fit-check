@@ -1,9 +1,5 @@
 import { atom } from "jotai";
-import type {
-	CreateItemResponse,
-	ItemContract,
-	UpdateItemRequest,
-} from "@fit-check/shared/types/contracts/items";
+import type { ItemResponse, UpdateItemRequest } from "@packages/contracts/item";
 import { apiFetchJson, apiFetchVoid } from "@/lib/api-fetch";
 import {
 	categoryIdsForItemQueryAtom,
@@ -17,17 +13,17 @@ import {
 import { buildImageUrl } from "@/lib/image-url";
 type ItemCategoryLink = Array<{ itemId: string; categoryId: string }>;
 
-export const itemsAtom = atom<ItemContract[]>([]);
+export const itemsAtom = atom<ItemResponse[]>([]);
 
-const sortItemsByCreatedAtAsc = (items: ItemContract[]): ItemContract[] =>
+const sortItemsByCreatedAtAsc = (items: ItemResponse[]): ItemResponse[] =>
 	[...items].sort((a, b) => {
 		const aTime = new Date(a.createdAt).getTime();
 		const bTime = new Date(b.createdAt).getTime();
 		return aTime - bTime;
 	});
 
-const appendItem = (items: ItemContract[], item: ItemContract): ItemContract[] => [...items, item];
-const removeItemById = (items: ItemContract[], itemId: string): ItemContract[] =>
+const appendItem = (items: ItemResponse[], item: ItemResponse): ItemResponse[] => [...items, item];
+const removeItemById = (items: ItemResponse[], itemId: string): ItemResponse[] =>
 	items.filter((item) => item.itemId !== itemId);
 
 const replaceItemLinks = (
@@ -75,12 +71,11 @@ const requestItemVoid = async (
 
 export const createItemAtom = atom(
 	null,
-	async (_get, set, formData: FormData): Promise<ItemContract> => {
-		const created = await requestItemJson<CreateItemResponse>("POST", "/items", formData);
-		const nextItem: ItemContract = {
+	async (_get, set, formData: FormData): Promise<ItemResponse> => {
+		const created = await requestItemJson<ItemResponse>("POST", "/items", formData);
+		const nextItem: ItemResponse = {
 			...created,
 			imagePath: buildImageUrl(created.imagePath),
-			createdAt: new Date(created.createdAt),
 		};
 		set(itemsAtom, (prev) => appendItem(prev, nextItem));
 		return nextItem;
@@ -143,7 +138,7 @@ export const itemsForCategoryQueryAtom = atom((get) => {
 	const items = get(itemsSortedByCreatedAtAscAtom);
 	const getItemIdsForCategory = get(itemIdsForCategoryQueryAtom);
 
-	return (categoryId: string): ItemContract[] => {
+	return (categoryId: string): ItemResponse[] => {
 		const itemIds = new Set(getItemIdsForCategory(categoryId));
 		return items.filter((item) => itemIds.has(item.itemId));
 	};
@@ -153,7 +148,7 @@ export const itemsByCategoryIdsQueryAtom = atom((get) => {
 	const items = get(itemsSortedByCreatedAtAscAtom);
 	const getItemIdsByCategoryIds = get(itemIdsByCategoryIdsQueryAtom);
 
-	return (categoryIds: string[]): ItemContract[] => {
+	return (categoryIds: string[]): ItemResponse[] => {
 		if (categoryIds.length === 0) {
 			return items;
 		}
@@ -166,7 +161,7 @@ export const randomItemForCategoryIdsQueryAtom = atom((get) => {
 	const items = get(itemsSortedByCreatedAtAscAtom);
 	const getItemIdsByCategoryIds = get(itemIdsByCategoryIdsQueryAtom);
 
-	return (categoryIds: string[]): ItemContract | null => {
+	return (categoryIds: string[]): ItemResponse | null => {
 		const itemIds =
 			categoryIds.length > 0
 				? new Set(getItemIdsByCategoryIds(categoryIds))

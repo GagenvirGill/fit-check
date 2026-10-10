@@ -3,11 +3,8 @@ import { useSetAtom } from "jotai";
 import { addNotificationAtom } from "@/jotai/notifications-atom";
 import styles from "./OutfitCard.module.css";
 import { deleteOutfitAtom } from "@/jotai/outfits-atom";
-import type { ItemContract } from "@fit-check/shared/types/contracts/items";
-import type {
-	OutfitLayoutContract,
-	OutfitLayoutItemContract,
-} from "@fit-check/shared/types/contracts/outfits";
+import type { ItemResponse } from "@packages/contracts/item";
+import type { OutfitLayout, OutfitLayoutItem } from "@packages/contracts/outfit";
 import attentionIcon from "@/assets/icons/attention.svg";
 
 import Card from "./Card";
@@ -22,8 +19,8 @@ const OutfitCard = ({
 	outfitId: string;
 	dateWorn: string;
 	desc: string | null;
-	layout: OutfitLayoutContract;
-	itemById: Map<string, ItemContract>;
+	layout: OutfitLayout;
+	itemById: Map<string, ItemResponse>;
 }) => {
 	const MAX_CARD_WIDTH = 290;
 	const MAX_CARD_HEIGHT = 500;
@@ -125,13 +122,13 @@ const OutfitCard = ({
 				type={`'${dateWorn}' Outfit`}
 			>
 				<div className={styles.outfitContainer}>
-					{sortedRows.map((row: OutfitLayoutItemContract[], rowIdx: number) => {
+					{sortedRows.map((row: OutfitLayoutItem[], rowIdx: number) => {
 						return (
 							<div
 								key={`${outfitId}-${rowIdx}`}
 								className={styles.outfitRowContainer}
 							>
-								{row.map((item: OutfitLayoutItemContract, itemIdx: number) => {
+								{row.map((item: OutfitLayoutItem, itemIdx: number) => {
 									const itemMeta = itemById.get(item.itemId);
 									return (
 										<img

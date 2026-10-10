@@ -1,4 +1,4 @@
-import type { OutfitContract } from "@fit-check/shared/types/contracts/outfits";
+import type { OutfitResponse } from "@packages/contracts/outfit";
 import type { TemplateBox } from "@/jotai/outfit-template-atom";
 import type { ObservationMatrix } from "./types";
 import { solveGlobalWeights } from "./solver";
@@ -11,7 +11,7 @@ const MIN_ITEM_SCALE = 0.5;
 const MAX_ITEM_SCALE = 3;
 
 /** Builds a matrix of all pairwise item weight ratios from outfit history. */
-export const createAdjacencyMatrix = (outfits: OutfitContract[]): ObservationMatrix => {
+export const createAdjacencyMatrix = (outfits: OutfitResponse[]): ObservationMatrix => {
 	const matrix: ObservationMatrix = {};
 
 	for (const outfit of outfits) {

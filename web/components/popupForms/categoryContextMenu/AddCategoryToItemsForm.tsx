@@ -5,14 +5,14 @@ import { itemsSortedByCreatedAtAscAtom } from "@/jotai/items-atom";
 import { addNotificationAtom } from "@/jotai/notifications-atom";
 import styles from "../ContextMenuPopUpStyles.module.css";
 import { addCategoryToItemsAtom } from "@/jotai/categories-atom";
-import type { ItemContract } from "@fit-check/shared/types/contracts/items";
+import type { ItemResponse } from "@packages/contracts/item";
 
 import ItemsCheckboxForm from "@/components/forms/ItemsCheckboxForm";
 
 type AddCategoryToItemsFormProps = {
 	categoryId: string;
 	handleClose: () => void;
-	categoriesCurrItems: ItemContract[];
+	categoriesCurrItems: ItemResponse[];
 	categoryName: string;
 };
 
@@ -25,7 +25,7 @@ const AddCategoryToItemsForm = ({
 	const addNotification = useSetAtom(addNotificationAtom);
 	const addCategoryToItems = useSetAtom(addCategoryToItemsAtom);
 	const items = useAtomValue(itemsSortedByCreatedAtAscAtom);
-	const [filteredItems, setFilteredItems] = useState<ItemContract[]>([]);
+	const [filteredItems, setFilteredItems] = useState<ItemResponse[]>([]);
 
 	useEffect(() => {
 		const currItems = new Set<string>();

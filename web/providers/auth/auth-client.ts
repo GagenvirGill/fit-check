@@ -1,4 +1,4 @@
-import type { AuthMeResponse } from "@fit-check/shared/types/contracts/auth";
+import type { GetCurrentUserResponse } from "@packages/contracts/auth";
 import { buildBackendUrl } from "@/lib/backend-url";
 
 const parseErrorMessage = async (response: Response): Promise<string> => {
@@ -16,7 +16,7 @@ const parseErrorMessage = async (response: Response): Promise<string> => {
 
 export const getGoogleAuthUrl = () => buildBackendUrl("/auth/google");
 
-export async function getCurrentUser(): Promise<AuthMeResponse | null> {
+export async function getCurrentUser(): Promise<GetCurrentUserResponse | null> {
 	try {
 		const response = await fetch(buildBackendUrl("/auth/me"), {
 			credentials: "include",
@@ -26,7 +26,7 @@ export async function getCurrentUser(): Promise<AuthMeResponse | null> {
 			return null;
 		}
 
-		return response.json() as Promise<AuthMeResponse>;
+		return response.json() as Promise<GetCurrentUserResponse>;
 	} catch {
 		return null;
 	}

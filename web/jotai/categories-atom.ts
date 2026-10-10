@@ -1,10 +1,10 @@
 import { atom } from "jotai";
 import type {
-	CategoryContract,
-	CategoryCreateResponse,
-	CategoryUpdateResponse,
+	CategoryResponse,
+	CreateCategoryResponse,
 	UpdateCategoryRequest,
-} from "@fit-check/shared/types/contracts/categories";
+	UpdateCategoryResponse,
+} from "@packages/contracts/category";
 import { apiFetchJson, apiFetchVoid } from "@/lib/api-fetch";
 import {
 	categoryIdsForItemQueryAtom,
@@ -13,16 +13,16 @@ import {
 	type ItemCategoryLink,
 } from "@/jotai/item-category-links-atom";
 
-export const categoriesAtom = atom<CategoryContract[]>([]);
+export const categoriesAtom = atom<CategoryResponse[]>([]);
 
-const sortCategoriesByNameAsc = (categories: CategoryContract[]): CategoryContract[] =>
+const sortCategoriesByNameAsc = (categories: CategoryResponse[]): CategoryResponse[] =>
 	[...categories].sort((a, b) => a.name.localeCompare(b.name));
 
-const appendCategory = (categories: CategoryContract[], category: CategoryContract): CategoryContract[] => [
+const appendCategory = (categories: CategoryResponse[], category: CategoryResponse): CategoryResponse[] => [
 	...categories,
 	category,
 ];
-const removeCategoryById = (categories: CategoryContract[], categoryId: string): CategoryContract[] =>
+const removeCategoryById = (categories: CategoryResponse[], categoryId: string): CategoryResponse[] =>
 	categories.filter((category) => category.categoryId !== categoryId);
 
 const replaceCategoryLinks = (
@@ -37,9 +37,9 @@ const replaceCategoryLinks = (
 };
 
 const mergeUpdatedCategory = (
-	categories: CategoryContract[],
-	updated: CategoryUpdateResponse
-): CategoryContract[] =>
+	categories: CategoryResponse[],
+	updated: UpdateCategoryResponse
+): CategoryResponse[] =>
 	categories.map((category) =>
 		category.categoryId === updated.categoryId
 			? {
@@ -50,13 +50,13 @@ const mergeUpdatedCategory = (
 			: category
 	);
 
-export const createCategoryAtom = atom(null, async (_get, set, name: string): Promise<CategoryContract> => {
-	const created = await apiFetchJson<CategoryCreateResponse>("/categories", {
+export const createCategoryAtom = atom(null, async (_get, set, name: string): Promise<CategoryResponse> => {
+	const created = await apiFetchJson<CreateCategoryResponse>("/categories", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ name }),
 	});
-	const nextCategory: CategoryContract = created;
+	const nextCategory: CategoryResponse = created;
 	set(categoriesAtom, (prev) => appendCategory(prev, nextCategory));
 	return nextCategory;
 });
@@ -72,7 +72,7 @@ export const replaceCategoryItemsAtom = atom(
 	async (_get, set, payload: { categoryId: string; itemIds: string[] }): Promise<void> => {
 		const uniqueItemIds = [...new Set(payload.itemIds)];
 		const request: UpdateCategoryRequest = { itemIds: uniqueItemIds };
-		const updated = await apiFetchJson<CategoryUpdateResponse>(`/categories/${payload.categoryId}`, {
+		const updated = await apiFetchJson<UpdateCategoryResponse>(`/categories/${payload.categoryId}`, {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(request),
@@ -90,7 +90,7 @@ export const addCategoryToItemsAtom = atom(
 		const existingItemIds = get(itemIdsForCategoryQueryAtom)(payload.categoryId);
 		const nextItemIds = [...new Set([...existingItemIds, ...payload.itemIds])];
 		const request: UpdateCategoryRequest = { itemIds: nextItemIds };
-		const updated = await apiFetchJson<CategoryUpdateResponse>(`/categories/${payload.categoryId}`, {
+		const updated = await apiFetchJson<UpdateCategoryResponse>(`/categories/${payload.categoryId}`, {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(request),
@@ -109,7 +109,7 @@ export const removeCategoryFromItemsAtom = atom(
 		const existingItemIds = get(itemIdsForCategoryQueryAtom)(payload.categoryId);
 		const nextItemIds = existingItemIds.filter((itemId) => !itemIdsToRemove.has(itemId));
 		const request: UpdateCategoryRequest = { itemIds: nextItemIds };
-		const updated = await apiFetchJson<CategoryUpdateResponse>(`/categories/${payload.categoryId}`, {
+		const updated = await apiFetchJson<UpdateCategoryResponse>(`/categories/${payload.categoryId}`, {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(request),
@@ -125,7 +125,7 @@ export const setCategoryFavoriteItemAtom = atom(
 	null,
 	async (_get, set, payload: { categoryId: string; favoriteItem: string | null }): Promise<void> => {
 		const request: UpdateCategoryRequest = { favoriteItem: payload.favoriteItem };
-		const updated = await apiFetchJson<CategoryUpdateResponse>(`/categories/${payload.categoryId}`, {
+		const updated = await apiFetchJson<UpdateCategoryResponse>(`/categories/${payload.categoryId}`, {
 			method: "PATCH",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(request),
@@ -154,7 +154,7 @@ export const categoriesSortedByNameAscAtom = atom((get) =>
 export const categoriesForItemQueryAtom = atom((get) => {
 	const categories = get(categoriesSortedByNameAscAtom);
 	const getCategoryIdsForItem = get(categoryIdsForItemQueryAtom);
-	return (itemId: string): CategoryContract[] => {
+	return (itemId: string): CategoryResponse[] => {
 		const categoryIds = new Set(getCategoryIdsForItem(itemId));
 		return categories.filter((category) => categoryIds.has(category.categoryId));
 	};

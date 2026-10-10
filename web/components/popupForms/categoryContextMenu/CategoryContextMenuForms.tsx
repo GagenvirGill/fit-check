@@ -4,7 +4,7 @@ import { useAtomValue } from "jotai";
 import styles from "../ContextMenuPopUpStyles.module.css";
 
 import { itemsByCategoryIdsSelectorAtom } from "@/jotai/items-atom";
-import type { ItemContract } from "@fit-check/shared/types/contracts/items";
+import type { ItemResponse } from "@packages/contracts/item";
 
 import Button from "@/components/buttons/Button";
 import AddCategoryToItemsForm from "./AddCategoryToItemsForm";
@@ -22,7 +22,7 @@ const CategoryContextMenuForms = ({
 	handleClose,
 }: CategoryContextMenuFormsProps) => {
 	const getItemsByCategoryIds = useAtomValue(itemsByCategoryIdsSelectorAtom);
-	const [categoriesCurrItems, setCategoriesCurrItems] = useState<ItemContract[]>([]);
+	const [categoriesCurrItems, setCategoriesCurrItems] = useState<ItemResponse[]>([]);
 
 	useEffect(() => {
 		setCategoriesCurrItems(getItemsByCategoryIds([categoryId]));

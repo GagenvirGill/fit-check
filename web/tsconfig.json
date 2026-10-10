@@ -1,24 +1,19 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../tsconfig.json",
   "compilerOptions": {
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    // node is only needed for vite.config.ts.
+    "types": ["node", "vite/client"],
     "jsx": "react-jsx",
-    "noImplicitAny": false,
-    "noEmit": true,
+    "noImplicitAny": false, // TEMP - remove once the web components are typed
     "paths": {
       "@/*": ["./*"],
-      "@fit-check/shared/*": ["../shared/*"]
+      "@packages/*": ["../packages/*"]
     }
   },
   "include": [
     "**/*.ts",
-    "**/*.tsx",
-    "vite.config.ts",
-    "index.html",
-    "../shared/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "eslint.config.ts"
+    "**/*.tsx"
   ]
 }

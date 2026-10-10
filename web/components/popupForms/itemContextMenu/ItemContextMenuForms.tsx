@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useAtomValue } from "jotai";
 import styles from "../ContextMenuPopUpStyles.module.css";
 import { categoriesForItemSelectorAtom } from "@/jotai/categories-atom";
-import type { CategoryContract } from "@fit-check/shared/types/contracts/categories";
+import type { CategoryResponse } from "@packages/contracts/category";
 
 import Button from "@/components/buttons/Button";
 import AddItemToCategoriesForm from "./AddItemToCategoriesForm";
@@ -17,7 +17,7 @@ type ItemContextMenuFormsProps = {
 
 const ItemContextMenuForms = ({ itemId, imagePath, handleClose }: ItemContextMenuFormsProps) => {
 	const getCategoriesForItem = useAtomValue(categoriesForItemSelectorAtom);
-	const [itemsCurrCategories, setItemsCurrCategories] = useState<CategoryContract[]>([]);
+	const [itemsCurrCategories, setItemsCurrCategories] = useState<CategoryResponse[]>([]);
 
 	useEffect(() => {
 		setItemsCurrCategories(getCategoriesForItem(itemId));

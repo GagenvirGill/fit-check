@@ -1,9 +1,9 @@
 import { atom } from "jotai";
 import type {
 	CreateOutfitRequest,
-	OutfitContract,
 	CreateOutfitResponse,
-} from "@fit-check/shared/types/contracts/outfits";
+	OutfitResponse,
+} from "@packages/contracts/outfit";
 import { apiFetchJson, apiFetchVoid } from "@/lib/api-fetch";
 
 type DraftOutfitItem = {
@@ -11,13 +11,13 @@ type DraftOutfitItem = {
 	itemWeight: number;
 };
 
-export const outfitsAtom = atom<OutfitContract[]>([]);
+export const outfitsAtom = atom<OutfitResponse[]>([]);
 
-const sortOutfitsByDateWornDesc = (outfits: OutfitContract[]): OutfitContract[] =>
+const sortOutfitsByDateWornDesc = (outfits: OutfitResponse[]): OutfitResponse[] =>
 	[...outfits].sort((a, b) => b.dateWorn.localeCompare(a.dateWorn));
 
-const appendOutfit = (outfits: OutfitContract[], outfit: OutfitContract): OutfitContract[] => [...outfits, outfit];
-const removeOutfitById = (outfits: OutfitContract[], outfitId: string): OutfitContract[] =>
+const appendOutfit = (outfits: OutfitResponse[], outfit: OutfitResponse): OutfitResponse[] => [...outfits, outfit];
+const removeOutfitById = (outfits: OutfitResponse[], outfitId: string): OutfitResponse[] =>
 	outfits.filter((outfit) => outfit.outfitId !== outfitId);
 
 export const createOutfitAtom = atom(
@@ -26,7 +26,7 @@ export const createOutfitAtom = atom(
 		_get,
 		set,
 		payload: { dateWorn: string; description: string; items: DraftOutfitItem[][] }
-	): Promise<OutfitContract> => {
+	): Promise<OutfitResponse> => {
 		const request: CreateOutfitRequest = {
 			dateWorn: payload.dateWorn,
 			description: payload.description.trim() ? payload.description : null,
@@ -43,7 +43,7 @@ export const createOutfitAtom = atom(
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(request),
 		});
-		const nextOutfit: OutfitContract = created;
+		const nextOutfit: OutfitResponse = created;
 		set(outfitsAtom, (prev) => appendOutfit(prev, nextOutfit));
 		return nextOutfit;
 	}
@@ -60,7 +60,7 @@ export const outfitsSortedByDateWornDescAtom = atom((get) =>
 
 export const filterOutfitsByItemIdsQueryAtom = atom((get) => {
 	const outfits = get(outfitsSortedByDateWornDescAtom);
-	return (itemIds: string[]): OutfitContract[] => {
+	return (itemIds: string[]): OutfitResponse[] => {
 		const itemIdSet = new Set(itemIds);
 		return outfits.filter((outfit) =>
 			outfit.layout.some((row) =>
@@ -73,7 +73,7 @@ export const filterOutfitsByItemIdsQueryAtom = atom((get) => {
 export const searchOutfitsByDescriptionQueryAtom = atom((get) => {
 	const outfits = get(outfitsSortedByDateWornDescAtom);
 
-	return (query: string): OutfitContract[] => {
+	return (query: string): OutfitResponse[] => {
 		const normalizedQuery = query.trim().toLowerCase();
 		if (!normalizedQuery) {
 			return outfits;
