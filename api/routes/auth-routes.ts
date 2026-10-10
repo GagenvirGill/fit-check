@@ -39,7 +39,7 @@ authRoutes.get("/google", (_request, response) => {
     cookieOptions(OAUTH_STATE_TTL_SECONDS),
   );
   response.redirect(
-    buildGoogleAuthUrl(env.googleClientId, googleRedirectUri(), state),
+    buildGoogleAuthUrl(env.googleClientId, env.googleCallbackUrl, state),
   );
 });
 
@@ -124,10 +124,6 @@ function buildGoogleAuthUrl(
   return url.toString();
 }
 
-function googleRedirectUri(): string {
-  return `${env.apiUrl}/api/auth/google/callback`;
-}
-
 function signSession(
   jwtSecret: string,
   sessionTtlSeconds: number,
@@ -149,7 +145,7 @@ async function exchangeGoogleCode(
       client_secret: env.googleClientSecret,
       code,
       grant_type: "authorization_code",
-      redirect_uri: googleRedirectUri(),
+      redirect_uri: env.googleCallbackUrl,
     }),
   });
 
