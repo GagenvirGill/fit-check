@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "typecheck": "tsc -p api && tsc -p web && tsc",
     "api:dev": "API_ENV=dev node --env-file=.env --import tsx api/server.ts",
-    "api:prod": "API_ENV=prod node --env-file=.env --import tsx api/server.ts",
+    "api:build": "esbuild api/server.ts --bundle --platform=node --target=node24 --format=cjs --external:pg-native --minify-whitespace --minify-syntax --outfile=dist/server.cjs",
+    "api:prod": "npm run api:build && API_ENV=prod node --env-file=.env dist/server.cjs",
     "web:dev": "vite web",
     "web:build": "vite build web",
     "web:preview": "vite preview web",
@@ -52,6 +53,7 @@
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^5.1.0",
     "drizzle-kit": "^0.31.10",
+    "esbuild": "^0.28.2",
     "eslint": "^9.17.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
@@ -62,5 +64,11 @@
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.59.2",
     "vite": "^7.1.9"
+  },
+  "allowScripts": {
+    "esbuild@0.18.20": true,
+    "esbuild@0.25.12": true,
+    "esbuild@0.28.1": true,
+    "esbuild@0.28.2": true
   }
 }
