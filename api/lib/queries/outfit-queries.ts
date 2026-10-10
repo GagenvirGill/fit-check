@@ -4,6 +4,15 @@ import type { OutfitLayout, OutfitResponse } from "#packages/contracts/outfit";
 import { dbSchema } from "#packages/db/schema";
 import { dbClient } from "../db-client";
 
+export async function listOutfits(userId: string): Promise<OutfitResponse[]> {
+  const rows = await dbClient
+    .select()
+    .from(dbSchema.outfit)
+    .where(eq(dbSchema.outfit.userId, userId));
+
+  return rows.map(toOutfitResponse);
+}
+
 export async function createOutfit(input: {
   userId: string;
   dateWorn: string;

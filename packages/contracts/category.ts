@@ -4,6 +4,8 @@ export type CategoryResponse = {
   favoriteItem: string | null;
 };
 
+export type ListCategoriesResponse = CategoryResponse[];
+
 export type CreateCategoryRequest = {
   name: string;
 };

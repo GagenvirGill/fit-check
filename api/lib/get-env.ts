@@ -16,6 +16,9 @@ function getDevEnv() {
     googleClientSecret: requiredEnv("GOOGLE_CLIENT_SECRET"),
     s3Bucket: requiredEnv("R2_BUCKET_NAME"),
     s3Region: requiredEnv("R2_REGION"),
+    s3AccountId: requiredEnv("R2_ACCOUNT_ID"),
+    s3AccessKeyId: requiredEnv("R2_ACCESS_KEY_ID"),
+    s3SecretAccessKey: requiredEnv("R2_SECRET_ACCESS_KEY"),
   };
 }
 
@@ -31,6 +34,9 @@ function getProdEnv() {
     googleClientSecret: requiredEnv("PROD_GOOGLE_CLIENT_SECRET"),
     s3Bucket: requiredEnv("PROD_R2_BUCKET_NAME"),
     s3Region: requiredEnv("PROD_R2_REGION"),
+    s3AccountId: requiredEnv("PROD_R2_ACCOUNT_ID"),
+    s3AccessKeyId: requiredEnv("PROD_R2_ACCESS_KEY_ID"),
+    s3SecretAccessKey: requiredEnv("PROD_R2_SECRET_ACCESS_KEY"),
   };
 }
 

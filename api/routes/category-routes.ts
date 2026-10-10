@@ -3,12 +3,14 @@ import { Router } from "express";
 import type {
   CreateCategoryRequest,
   CreateCategoryResponse,
+  ListCategoriesResponse,
   UpdateCategoryRequest,
   UpdateCategoryResponse,
 } from "#packages/contracts/category";
 import {
   createCategory,
   deleteCategory,
+  listCategories,
   updateCategory,
 } from "../lib/queries/category-queries";
 
@@ -17,6 +19,13 @@ type CategoryParams = {
 };
 
 export const categoryRoutes = Router();
+
+categoryRoutes.get("/", async (request, response) => {
+  const body: ListCategoriesResponse = await listCategories(
+    request.authUser.userId,
+  );
+  response.status(200).json(body);
+});
 
 categoryRoutes.post("/", async (request, response) => {
   const { authUser } = request;

@@ -1,7 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { Router } from "express";
 import { imageSize } from "image-size";
-import type { ItemResponse } from "#packages/contracts/item";
+import type {
+  ItemResponse,
+  ListItemsResponse,
+} from "#packages/contracts/item";
 import {
   ALLOWED_IMAGE_MIME_TYPES,
   IMAGE_MIME_TYPE_EXTENSIONS,
@@ -10,6 +13,7 @@ import { upload } from "../lib/upload-middleware";
 import {
   createItem,
   deleteItem,
+  listItems,
   updateItemCategories,
 } from "../lib/queries/item-queries";
 import { uploadS3Object } from "../lib/s3-client";
@@ -19,6 +23,11 @@ type ItemParams = {
 };
 
 export const itemRoutes = Router();
+
+itemRoutes.get("/", async (request, response) => {
+  const body: ListItemsResponse = await listItems(request.authUser.userId);
+  response.status(200).json(body);
+});
 
 itemRoutes.post("/", upload.single("image"), async (request, response) => {
   const { authUser } = request;

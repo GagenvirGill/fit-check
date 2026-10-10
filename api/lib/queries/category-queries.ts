@@ -4,6 +4,17 @@ import type { CategoryResponse } from "#packages/contracts/category";
 import { dbSchema } from "#packages/db/schema";
 import { dbClient } from "../db-client";
 
+export async function listCategories(
+  userId: string,
+): Promise<CategoryResponse[]> {
+  const rows = await dbClient
+    .select()
+    .from(dbSchema.category)
+    .where(eq(dbSchema.category.userId, userId));
+
+  return rows.map(toCategoryResponse);
+}
+
 export async function createCategory(input: {
   userId: string;
   name: string;

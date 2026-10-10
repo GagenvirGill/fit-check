@@ -3,6 +3,7 @@ import { Router } from "express";
 import type {
   CreateOutfitRequest,
   CreateOutfitResponse,
+  ListOutfitsResponse,
   OutfitLayout,
   OutfitLayoutItem,
   UpdateOutfitRequest,
@@ -11,6 +12,7 @@ import type {
 import {
   createOutfit,
   deleteOutfit,
+  listOutfits,
   updateOutfit,
 } from "../lib/queries/outfit-queries";
 
@@ -19,6 +21,11 @@ type OutfitParams = {
 };
 
 export const outfitRoutes = Router();
+
+outfitRoutes.get("/", async (request, response) => {
+  const body: ListOutfitsResponse = await listOutfits(request.authUser.userId);
+  response.status(200).json(body);
+});
 
 outfitRoutes.post("/", async (request, response) => {
   const { authUser } = request;

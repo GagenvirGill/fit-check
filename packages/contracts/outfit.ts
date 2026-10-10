@@ -12,6 +12,8 @@ export type OutfitResponse = {
   layout: OutfitLayout;
 };
 
+export type ListOutfitsResponse = OutfitResponse[];
+
 export type CreateOutfitRequest = {
   dateWorn: string;
   description?: string | null;

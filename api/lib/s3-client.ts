@@ -9,6 +9,11 @@ const S3_OBJECT_CACHE_CONTROL = "public, max-age=31536000, immutable";
 
 const s3Client = new S3Client({
   region: env.s3Region,
+  endpoint: `https://${env.s3AccountId}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: env.s3AccessKeyId,
+    secretAccessKey: env.s3SecretAccessKey,
+  },
 });
 
 export type S3ObjectInput = {
