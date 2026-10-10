@@ -26,10 +26,10 @@ export function createApp() {
   app.use(express.json({ limit: "1mb" }));
   app.use(cookieParser());
 
-  app.use("/api/auth", authRoutes);
-  app.use("/api/items", requireAuth, itemRoutes);
-  app.use("/api/categories", requireAuth, categoryRoutes);
-  app.use("/api/outfits", requireAuth, outfitRoutes);
+  app.use("/auth", authRoutes);
+  app.use("/items", requireAuth, itemRoutes);
+  app.use("/categories", requireAuth, categoryRoutes);
+  app.use("/outfits", requireAuth, outfitRoutes);
 
   app.use((_request, response) => {
     response.status(404).json({ message: "Not found" });
