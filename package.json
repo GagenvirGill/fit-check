@@ -9,14 +9,15 @@
     "format": "prettier --write \"{api,packages,docs}/**/*.{ts,tsx,js,jsx,json,md}\" \"*.{json,md,ts}\"",
     "lint": "eslint .",
     "typecheck": "tsc -p api && tsc -p web && tsc",
-    "api:dev": "API_ENV=dev node --env-file=.env --import tsx api/server.ts",
+    "api:dev": "node --env-file=.env.dev --import tsx api/server.ts",
     "api:build": "esbuild api/server.ts --bundle --platform=node --target=node24 --format=cjs --external:pg-native --minify-whitespace --minify-syntax --outfile=dist/server.cjs",
-    "api:prod": "npm run api:build && API_ENV=prod node --env-file=.env dist/server.cjs",
-    "web:dev": "vite web",
-    "web:build": "vite build web",
+    "api:prod": "npm run api:build && node --env-file=.env.prod dist/server.cjs",
+    "web:dev": "vite web --mode dev",
+    "web:build": "vite build web --mode prod",
     "web:preview": "vite preview web",
-    "db:generate": "drizzle-kit generate --config packages/db/drizzle.config.ts",
-    "db:migrate": "drizzle-kit migrate --config packages/db/drizzle.config.ts"
+    "db:generate": "node --env-file=.env.dev node_modules/.bin/drizzle-kit generate --config packages/db/drizzle.config.ts",
+    "db:migrate": "node --env-file=.env.dev node_modules/.bin/drizzle-kit migrate --config packages/db/drizzle.config.ts",
+    "db:migrate:prod": "node --env-file=.env.prod node_modules/.bin/drizzle-kit migrate --config packages/db/drizzle.config.ts"
   },
   "imports": {
     "#packages/*": "./packages/*.ts"

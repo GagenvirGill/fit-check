@@ -1,12 +1,11 @@
 type ApiEnvMode = "dev" | "prod";
 
-export function getEnv(mode: ApiEnvMode = getApiEnvMode()) {
-  return mode === "prod" ? getProdEnv() : getDevEnv();
-}
-
-function getDevEnv() {
+// .env.dev and .env.prod use the same plain names. API_ENV only switches
+// prod behaviour (such as secure cookies), not which variables are read.
+export function getEnv() {
   return {
-    mode: "dev" as const,
+    mode: getApiEnvMode(),
+    host: requiredEnv("SERVER_HOST"),
     port: requiredNumberEnv("SERVER_PORT"),
     frontendUrl: requiredEnv("FRONTEND_URL"),
     databaseUrl: requiredEnv("DATABASE_URL"),
@@ -19,24 +18,6 @@ function getDevEnv() {
     s3AccountId: requiredEnv("R2_ACCOUNT_ID"),
     s3AccessKeyId: requiredEnv("R2_ACCESS_KEY_ID"),
     s3SecretAccessKey: requiredEnv("R2_SECRET_ACCESS_KEY"),
-  };
-}
-
-function getProdEnv() {
-  return {
-    mode: "prod" as const,
-    port: requiredNumberEnv("PROD_SERVER_PORT"),
-    frontendUrl: requiredEnv("PROD_FRONTEND_URL"),
-    databaseUrl: requiredEnv("PROD_DATABASE_URL"),
-    jwtSecret: requiredEnv("PROD_JWT_SECRET"),
-    googleClientId: requiredEnv("PROD_GOOGLE_CLIENT_ID"),
-    googleClientSecret: requiredEnv("PROD_GOOGLE_CLIENT_SECRET"),
-    googleCallbackUrl: requiredEnv("PROD_GOOGLE_CALLBACK_URL"),
-    s3Bucket: requiredEnv("PROD_R2_BUCKET_NAME"),
-    s3Region: requiredEnv("PROD_R2_REGION"),
-    s3AccountId: requiredEnv("PROD_R2_ACCOUNT_ID"),
-    s3AccessKeyId: requiredEnv("PROD_R2_ACCESS_KEY_ID"),
-    s3SecretAccessKey: requiredEnv("PROD_R2_SECRET_ACCESS_KEY"),
   };
 }
 

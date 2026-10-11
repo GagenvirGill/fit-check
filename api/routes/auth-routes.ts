@@ -94,17 +94,16 @@ authRoutes.post("/logout", (_request, response) => {
 function cookieOptions(maxAgeSeconds?: number): {
   httpOnly: true;
   secure: boolean;
-  sameSite: "lax" | "none";
+  sameSite: "lax";
   path: string;
   maxAge: number | undefined;
 } {
-  // The prod web app is served from a different site than the API, so the
-  // session cookie must be sent on cross-site requests.
-  const isProd = env.mode === "prod";
+  // The web app and API share one site (app.<domain> and api.<domain>), so
+  // "lax" still sends the cookie on the web app's requests to the API.
   return {
     httpOnly: true,
-    secure: isProd,
-    sameSite: isProd ? "none" : "lax",
+    secure: env.mode === "prod",
+    sameSite: "lax",
     path: "/",
     maxAge: maxAgeSeconds ? maxAgeSeconds * 1000 : undefined,
   };
