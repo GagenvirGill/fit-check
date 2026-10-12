@@ -47,7 +47,9 @@ ssh "$HOST" "test -d ${INCOMING} && test -w ${INCOMING}" ||
 rsync -az --delete dist/ "${HOST}:${INCOMING}/api/"
 rsync -az --delete web/dist/ "${HOST}:${INCOMING}/web/"
 rsync -az --delete infra/ "${HOST}:${INCOMING}/infra/"
-rsync -az --chmod=F600 .env.prod "${HOST}:${INCOMING}/env"
+# umask 077 makes the copy readable only by its owner, whatever the local
+# file's permissions are.
+ssh "$HOST" "umask 077 && cat > ${INCOMING}/env" <.env.prod
 
 step "Applying on the server (asks for your server password)"
 ssh -t "$HOST" "sudo bash ${INCOMING}/infra/apply.sh"
