@@ -3,8 +3,10 @@ Description=fit-check database migrations
 After=postgresql.service
 
 [Service]
+# Runs the incoming release, so a failed migration stops the deploy before
+# the live API in /srv/fit-check/api is replaced.
 Type=oneshot
 User=fitcheck
-WorkingDirectory=/srv/fit-check/api
+WorkingDirectory=/srv/fit-check/incoming/api
 EnvironmentFile=/srv/fit-check/.env
 ExecStart=/usr/bin/node migrate.cjs

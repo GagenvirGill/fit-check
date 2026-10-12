@@ -7,6 +7,7 @@
   },
   "scripts": {
     "format": "prettier --write \"{api,packages,docs,scripts}/**/*.{ts,tsx,js,jsx,json,md}\" \"*.{json,md,ts}\"",
+    "format:check": "prettier --check \"{api,packages,scripts}/**/*.{ts,tsx,js,jsx,json,md}\" \"*.{json,md,ts}\"",
     "lint": "eslint .",
     "typecheck": "tsc -p api && tsc -p web && tsc",
     "api:dev": "node --env-file=.env.dev --import tsx api/server.ts",
@@ -16,7 +17,8 @@
     "web:build": "vite build web --mode prod && node scripts/web-precompress.ts web/dist",
     "web:preview": "vite preview web",
     "db:generate": "node --env-file=.env.dev node_modules/.bin/drizzle-kit generate --config packages/db/drizzle.config.ts",
-    "db:migrate": "node --env-file=.env.dev node_modules/.bin/drizzle-kit migrate --config packages/db/drizzle.config.ts"
+    "db:migrate": "node --env-file=.env.dev node_modules/.bin/drizzle-kit migrate --config packages/db/drizzle.config.ts",
+    "deploy": "bash scripts/deploy.sh"
   },
   "imports": {
     "#packages/*": "./packages/*.ts"
