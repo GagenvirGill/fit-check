@@ -42,8 +42,10 @@ server {
 
     root /srv/fit-check/web;
 
-    gzip on;
-    gzip_types text/css application/javascript application/json image/svg+xml application/wasm;
+    # Serve the .br/.gz files made by npm run web:build.
+    brotli_static on;
+    gzip_static on;
+    gzip_vary on;
 
     location /assets/ {
         add_header Cache-Control "public, max-age=31536000, immutable";
