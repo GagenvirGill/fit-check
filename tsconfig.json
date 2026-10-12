@@ -18,13 +18,6 @@
   },
   // Shared settings for api/ and web/, which extend this file. On its own it
   // checks the root config files, packages/ and scripts/.
-  "include": [
-    "*.ts",
-    "packages/**/*.ts",
-    "scripts/**/*.ts"
-  ],
-  "exclude": [
-    "**/dist",
-    "**/node_modules"
-  ]
+  "include": ["*.ts", "packages/**/*.ts", "scripts/**/*.ts"],
+  "exclude": ["**/dist", "**/node_modules"]
 }

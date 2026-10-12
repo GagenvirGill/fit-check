@@ -1,8 +1,5 @@
 import { and, eq, inArray } from "drizzle-orm";
-import type {
-  ItemResponse,
-  ListItemsResponse,
-} from "#packages/contracts/item";
+import type { ItemResponse, ListItemsResponse } from "#packages/contracts/item";
 import { dbSchema } from "#packages/db/schema";
 import { dbClient } from "../db-client";
 

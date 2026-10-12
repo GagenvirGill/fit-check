@@ -1,10 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { Router } from "express";
 import { imageSize } from "image-size";
-import type {
-  ItemResponse,
-  ListItemsResponse,
-} from "#packages/contracts/item";
+import type { ItemResponse, ListItemsResponse } from "#packages/contracts/item";
 import {
   ALLOWED_IMAGE_MIME_TYPES,
   IMAGE_MIME_TYPE_EXTENSIONS,
