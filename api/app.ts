@@ -13,8 +13,8 @@ import { outfitRoutes } from "./routes/outfit-routes";
 export function createApp() {
   const app = express();
 
-  // In prod, Caddy sits in front of the API. Trust its X-Forwarded-For so the
-  // rate limiter sees each client's IP rather than Caddy's.
+  // In prod, a reverse proxy sits in front of the API. Trust its X-Forwarded-For
+  // so the rate limiter sees each client's IP rather than the proxy's.
   app.set("trust proxy", 1);
 
   app.use(helmet());
