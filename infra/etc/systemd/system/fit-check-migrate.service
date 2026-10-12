@@ -1,0 +1,10 @@
+[Unit]
+Description=fit-check database migrations
+After=postgresql.service
+
+[Service]
+Type=oneshot
+User=fitcheck
+WorkingDirectory=/srv/fit-check/api
+EnvironmentFile=/srv/fit-check/.env
+ExecStart=/usr/bin/node migrate.cjs

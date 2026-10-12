@@ -1,0 +1,57 @@
+# HTTP: send everything to HTTPS
+server {
+    listen 80;
+    listen [::]:80;
+    server_name fitcheck.gagen.co api.fitcheck.gagen.co;
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# API over HTTPS, forwarded to Node
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;
+    server_name api.fitcheck.gagen.co;
+
+    ssl_certificate     /etc/letsencrypt/live/fit-check/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/fit-check/privkey.pem;
+
+    client_max_body_size 11m;
+
+    location / {
+        # Must match SERVER_PORT in /srv/fit-check/.env
+        proxy_pass http://127.0.0.1:4000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+# Web app over HTTPS: static files from web/dist
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;
+    server_name fitcheck.gagen.co;
+
+    ssl_certificate     /etc/letsencrypt/live/fit-check/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/fit-check/privkey.pem;
+
+    root /srv/fit-check/web;
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml application/wasm;
+
+    location /assets/ {
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+
+    location / {
+        add_header Cache-Control "no-cache";
+        try_files $uri $uri/ /index.html;
+    }
+}
